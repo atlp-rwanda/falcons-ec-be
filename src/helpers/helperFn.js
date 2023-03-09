@@ -1,3 +1,3 @@
-/** eg:HELPER FUNCTION 1 
+/** eg:HELPER FUNCTION 1
  * not a real file
 */

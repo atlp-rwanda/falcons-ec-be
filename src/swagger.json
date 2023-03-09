@@ -1,0 +1,62 @@
+
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "E-commerce application",
+    "description": "E-commerce API documentation"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "paths": {
+    "/welcome": {
+      "get": {
+        "summary": "Welcome message",
+        "description": "This is an api that returns a welcome message",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "definitions":{
+              "message":{
+                "type":"object",
+                "properties":{
+                  "message":{
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default":"Test controller OK!"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "google_Oauth2": {
+      "authorizationUrl": "http://localhost:5000/api/v1/users/auth/google/redirect",
+      "tokenUrl": [],
+      "description": "Google authorization",
+      "flow": "accessCode",
+      "type": "oauth2",
+      "appName":"E-commerce app"
+    }
+    },
+    "security":[{
+      "google_auth":[]
+    }]
+  }
