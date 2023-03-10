@@ -1,8 +1,8 @@
 import express from 'express';
-import { createNewUser, getAllUsers } from '../controllers/dummyController';
+import { getAllUsers } from '../controllers/dummyController';
 
 const dummyRoutes = express.Router();
 
-dummyRoutes.route('/').get(getAllUsers).post(createNewUser);
+dummyRoutes.route('/').get(getAllUsers);
 
 export default dummyRoutes;
