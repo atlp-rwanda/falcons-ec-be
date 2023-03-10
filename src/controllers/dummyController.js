@@ -1,4 +1,5 @@
-import db from "../models/index";
+import bcrypt from "bcrypt";
+import db from "../database/models/index";
 
 const User = db["User"];
 
@@ -12,9 +13,12 @@ export const getAllUsers = async (req, res) => {
 
 export const createNewUser = async (req, res) => {
   try {
+    const salt = await bcrypt.genSalt(10);
+    const pwd = await bcrypt.hash(req.body.password, salt);
+
     const instance = await User.create({
-      name: req.body.name,
       email: req.body.email,
+      password: pwd,
     });
 
     res.json({ message: "User created" });
