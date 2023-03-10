@@ -1,12 +1,12 @@
-import bcrypt from "bcrypt";
-import db from "../database/models/index";
+import bcrypt from 'bcrypt';
+import db from '../database/models/index';
 
-const User = db["User"];
+const { User } = db;
 
 export const getAllUsers = async (req, res) => {
-  let allUsers = await User.findAll();
+  const allUsers = await User.findAll();
 
-  if (!allUsers) res.status(400).json({ message: "No users found" });
+  if (!allUsers) res.status(400).json({ message: 'No users found' });
 
   res.json(allUsers);
 };
@@ -21,7 +21,7 @@ export const createNewUser = async (req, res) => {
       password: pwd,
     });
 
-    res.json({ message: "User created" });
+    res.json({ message: 'User created' });
   } catch (err) {
     res.status(400).json(err);
   }
