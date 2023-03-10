@@ -2,7 +2,6 @@ const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 
 const { Model } = require('sequelize');
-
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
