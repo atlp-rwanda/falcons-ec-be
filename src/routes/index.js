@@ -1,10 +1,10 @@
-import { Router } from "express";
-import dummyRoutes from "./dummyRoutes";
-import welcomeRoutes from "./welcomeRoute";
+import { Router } from 'express';
+import dummyRoutes from './dummyRoutes';
+import welcomeRoutes from './welcomeRoute';
 
-let router = Router();
+const router = Router();
 
-router.use("/welcome", welcomeRoutes);
-router.use("/users", dummyRoutes);
+router.use('/welcome', welcomeRoutes);
+router.use('/users', dummyRoutes);
 
 export default router;
