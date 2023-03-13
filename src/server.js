@@ -3,7 +3,7 @@ import express from 'express';
 import swaggerUI from 'swagger-ui-express';
 import allRoutes from './routes/index';
 import welcomeRoute from './routes/welcomeRoute';
-import swagger from './swagger.json';
+import swagger from '../src/swagger.json';
 
 dotenv.config();
 

@@ -4,9 +4,12 @@
   "description": "Falcons e-commerce team project",
   "main": "index.js",
   "scripts": {
-    "start": "node ./src/index",
+    "start": "npm run build && node ./build/index.js",
     "dev": "nodemon --exec babel-node ./src/index",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-babel": "babel -d ./build src/ -s",
+    "clean": "rimraf build && mkdir build",
+    "build": "npm run clean && npm run build-babel",
+    "test": "nyc --reporter=lcov --reporter=html --reporter=text mocha --require @babel/register src/tests/index.js  --timeout 60000 --exit",
     "lint": "eslint ./",
     "lint:fix": "eslint ./ --fix",
     "migrate": "sequelize-cli db:migrate",
@@ -40,6 +43,7 @@
     "pg": "^8.10.0",
     "pg-hstore": "^2.3.4",
     "regenerator-runtime": "^0.13.11",
+    "rimraf": "^4.4.0",
     "sequelize": "^6.29.1",
     "sequelize-cli": "^6.6.0",
     "swagger-jsdoc": "^6.2.8",
@@ -47,8 +51,15 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "c8": "^7.13.0",
+    "chai": "^4.3.7",
+    "chai-http": "^4.3.0",
+    "coveralls": "^3.1.1",
     "eslint": "^8.1.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.27.5"
+    "eslint-plugin-import": "^2.27.5",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "supertest": "^6.3.3"
   }
 }
