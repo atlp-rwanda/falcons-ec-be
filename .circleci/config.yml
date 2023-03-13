@@ -1,0 +1,20 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: node:19.6.0
+    environment:
+      COVERALLS_REPO_TOKEN: Jg348LDPbbJGES8bw7MNX33RFgOd88v2o
+
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: npm install
+      - run:
+          name: Run tests
+          command: npm test --coverage -- --verbose
+      - run:
+          name: Upload coverage to Coverall
+          command: npx coveralls < coverage/lcov.info
