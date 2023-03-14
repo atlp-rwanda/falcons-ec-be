@@ -1,38 +1,27 @@
-'use strict';
+const { Model } = require('sequelize');
+const { Sequelize } = require('.');
 
-const bcrypt = require('bcrypt');
-const { v4: uuidv4 } = require('uuid');
-
-const {
-  Model
-} = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
-    }
+    static associate(models) {}
   }
-  User.init({
-    email: DataTypes.STRING,
-    password: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'User',
-  });
-
-  User.beforeCreate((user) => {
-    user.id = uuidv4();
-  });
-
-  User.prototype.checkPassword = async function (password) {
-    const match = await bcrypt.compare(password, this.password);
-    return match;
-  };
-
+  User.init(
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        allowNull: false,
+        primaryKey: true,
+      },
+      firstname: DataTypes.STRING,
+      lastname: DataTypes.STRING,
+      email: DataTypes.STRING,
+      password: DataTypes.STRING,
+    },
+    {
+      sequelize,
+      modelName: 'User',
+    }
+  );
   return User;
 };
