@@ -6,6 +6,7 @@ import passport from 'passport';
 import app from '../server.js';
 import db from '../database/models/index';
 import generateToken from '../helpers/token_generator.js';
+import fs from 'fs';
 
 const { expect } = chai;
 
@@ -150,6 +151,38 @@ describe('login', () => {
         .get('/api/v1/users')
         .set('Authorization', `Bearer ${token}`);
       expect(response.body).to.be.an('array');
+    });
+  });
+});
+
+describe('PRODUCT', async () => {
+  const realUser = {
+    email: 'boris@gmail.com',
+    password: '1234',
+  };
+  const response = await chai
+    .request(app)
+    .post('/api/v1/users/signin')
+    .send(realUser);
+  const { token } = response.body;
+  const product = {
+    productName: 'test',
+    description: 'test',
+    price: 100,
+    quantity: 10,
+    expiryDate: '12/12/12',
+  };
+  expect(response.status).to.equal(200);
+  describe('POST /api/v1/products', () => {
+    it('should create a Product', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .set('Authorization',  `Bearer ${token}`)
+        .send(product);
+      console.log(response.body);
+      expect(response.status).to.equal(201);
+      // expect(response.body).to.be.an('array');
     });
   });
 });

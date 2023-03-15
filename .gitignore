@@ -109,3 +109,5 @@ dist
 build/
 # coverage files
 coverage/
+# uploads folder
+uploads/

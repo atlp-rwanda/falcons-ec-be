@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class User extends Model {
+  class Category extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -12,29 +12,22 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      User.hasMany(models.Product, { foreignKey: 'seller_id' });
+      Category.hasMany(models.Product, { foreignKey: 'category_id' });
     }
   }
-  User.init(
-    {
-      email: DataTypes.STRING,
-      password: DataTypes.STRING,
-      role: DataTypes.STRING,
+  Category.init(
+    {   
+      category_name: DataTypes.STRING,
     },
     {
       sequelize,
-      modelName: 'User',
+      modelName: 'Category',
     },
   );
 
-  User.beforeCreate((user) => {
-    user.id = uuidv4();
+  Category.beforeCreate((category) => {
+    category.id = uuidv4();
   });
 
-  User.prototype.checkPassword = async function (password) {
-    const match = await bcrypt.compare(password, this.password);
-    return match;
-  };
-
-  return User;
+  return Category;
 };

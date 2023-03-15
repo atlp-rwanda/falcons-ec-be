@@ -5,10 +5,12 @@ import passport from 'passport';
 import swaggerUI from 'swagger-ui-express';
 import allRoutes from './routes/index';
 import welcomeRoute from './routes/welcomeRoute';
-import swagger from '../src/swagger.json';
+import swagger from './swagger.json';
 import './config/passport';
 import passportRouter from './routes/passport';
 import userRoutes from './routes/userRoutes';
+// import dummyRoutes from './routes/dummyRoutes';
+import productRoute from './routes/product';
 
 export const app = express();
 
@@ -17,6 +19,10 @@ dotenv.config();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use('/api/v1', allRoutes);
+app.use('/api/v1', productRoute);
+app.use('/welcome', welcomeRoute);
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swagger));
 app.use(
   session({
     secret: process.env.EXPRESS_SESSION,

@@ -1,5 +1,4 @@
 import * as dotenv from 'dotenv';
-
 import app from './server';
 import db from './database/models/index';
 
