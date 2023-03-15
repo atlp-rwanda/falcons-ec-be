@@ -1,18 +1,17 @@
-import * as dotenv from "dotenv";
+import * as dotenv from 'dotenv';
+
+import app from './server';
+import db from './database/models/index';
+
 dotenv.config();
-import app from "./server";
-import db from "./database/models/index";
 
 app.listen(process.env.PORT, () => {
   console.log(`-->Port ${process.env.PORT}: the server is up and running!`);
 });
-
 (async () => {
   try {
-    await db.sequelize
-      .sync()
-      .then(() => console.log("-->connected to the db"));
+    await db.sequelize.sync().then(() => console.log('-->connected to the db'));
   } catch (error) {
-    console.log("Error connecting to the db:", error.message);
+    console.log('Error connecting to the db:', error.message);
   }
 })();
