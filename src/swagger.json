@@ -1,4 +1,3 @@
-
 {
   "swagger": "2.0",
   "info": {
@@ -6,26 +5,21 @@
     "title": "E-commerce application",
     "description": "E-commerce API documentation"
   },
-  "schemes": [
-    "http",
-    "https"
-  ],
+  "schemes": ["http", "https"],
   "paths": {
     "/welcome": {
       "get": {
         "summary": "Welcome message",
         "description": "This is an api that returns a welcome message",
-        "produces": [
-          "application/json"
-        ],
+        "produces": ["application/json"],
         "responses": {
           "200": {
             "description": "OK",
-            "definitions":{
-              "message":{
-                "type":"object",
-                "properties":{
-                  "message":{
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
                     "type": "string"
                   }
                 }
@@ -36,7 +30,97 @@
                 "type": "object",
                 "properties": {
                   "message": {
-                    "default":"Test controller OK!"
+                    "default": "Test controller OK!"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/signin": {
+      "post": {
+        "summary": "Login a user",
+        "description": "This is an api that logs in a user with email and password",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "default": "email"
+                },
+                "password": {
+                  "type": "string",
+                  "default": "password"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "Login Successful"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users": {
+      "get": {
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get all users",
+        "description": "This is an api that gets all users",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "OK"
                   }
                 }
               }
@@ -48,15 +132,19 @@
   },
   "securityDefinitions": {
     "google_Oauth2": {
-      "authorizationUrl": "http://localhost:5000/api/v1/users/auth/google/redirect",
+      "authorizationUrl": "https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A5000%2Fgoogle%2Fcallback&scope=email%20profile&client_id=111607106086-6e882nl4dni651j6hspjrqg3dsscfdrs.apps.googleusercontent.com",
       "tokenUrl": [],
       "description": "Google authorization",
       "flow": "accessCode",
       "type": "oauth2",
-      "appName":"E-commerce app"
-    }
+      "appName": "E-commerce app"
     },
-    "security":[{
-      "google_auth":[]
-    }]
+    "bearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "bearerFormat": "JWT",
+      "scheme": "bearer"
+    }
   }
+}
