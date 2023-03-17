@@ -16,7 +16,7 @@ chai.use(chaiHttp);
 describe('Welcome Controller', () => {
   before(async () => {
     // run migrations and seeders to prepare the database
-    await db.sequelize.sync({ force: true });
+    await db.sequelize.sync({ force: false });
   });
 
   describe('GET /welcome', () => {
@@ -24,20 +24,6 @@ describe('Welcome Controller', () => {
       const res = await chai.request(app).get('/welcome');
       expect(res).to.have.status(200);
       expect(res.body.message).to.equal('Test controller OK');
-    });
-  });
-});
-
-describe('Routes', () => {
-  describe('GET /users', () => {
-    it('should respond with status code 200', async () => {
-      const response = await request(app).get('/users');
-      expect(response.status).to.equal(200);
-    });
-
-    it('should respond with an array of users', async () => {
-      const response = await request(app).get('/users');
-      expect(response.body).to.be.an('array');
     });
   });
 });
@@ -119,5 +105,51 @@ describe('generateToken', () => {
     } catch (err) {
       expect(err).to.be.an('error');
     }
+  });
+});
+describe('login', () => {
+  const user = {
+    email: 'johndoe@gmail.com',
+    password: '12345678',
+  };
+  const realUser = {
+    email: 'boris@gmail.com',
+    password: '1234',
+  };
+
+  describe('POST /api/v1/users/signin', () => {
+    it('should respond with status code 200', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/users/signin')
+        .send(realUser);
+      expect(response.status).to.equal(200);
+    });
+    it('should throw an error if invalid credentials', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/users/signin')
+        .send({ email: 'boris250@gmail.com', password: '123' });
+      expect(response.status).to.equal(400);
+    });
+    it('should throw error if user does not exist ', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/users/signin')
+        .send(user);
+      expect(response.status).to.equal(400);
+    });
+    it('should respond with an array of users', async () => {
+      const loginResponse = await chai
+        .request(app)
+        .post('/api/v1/users/signin')
+        .send(realUser);
+      const { token } = loginResponse.body;
+      const response = await chai
+        .request(app)
+        .get('/api/v1/users')
+        .set('Authorization', `Bearer ${token}`);
+      expect(response.body).to.be.an('array');
+    });
   });
 });

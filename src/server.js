@@ -5,10 +5,10 @@ import passport from 'passport';
 import swaggerUI from 'swagger-ui-express';
 import allRoutes from './routes/index';
 import welcomeRoute from './routes/welcomeRoute';
-import swagger from '../src/swagger.json'
+import swagger from '../src/swagger.json';
 import './config/passport';
 import passportRouter from './routes/passport';
-import dummyRoutes from './routes/dummyRoutes';
+import userRoutes from './routes/userRoutes';
 
 export const app = express();
 
@@ -23,7 +23,7 @@ app.use(
     saveUninitialized: false,
   }),
 );
-app.unsubscribe('/users', dummyRoutes);
+app.use('/api/v1', userRoutes);
 app.use('/', passportRouter);
 app.use('/', allRoutes);
 app.use('/welcome', welcomeRoute);
