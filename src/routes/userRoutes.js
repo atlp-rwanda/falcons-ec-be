@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import express from "express";
 import {
   getAllUsers,
@@ -21,5 +22,24 @@ userRoutes.post('/api/v1/users/signup', validator(userSchema), createNewUser);
 userRoutes.put('/api/v1/users/:id/roles', verifyRole('admin'), setRoles);
 userRoutes.patch('/api/v1/users/:id/status', verifyRole('admin'), disableAccount);
 userRoutes.patch('/api/v1/users/:userId/password', isLoggedIn, validator(Password), updatePassword);
+=======
+import express from 'express';
+import { getAllUsers, loginUser, registerUser } from '../controllers/userController';
+import isLoggedIn, { checkUserExists } from '../middleware/authMiddleware';
+import userSchema from '../middleware/validation/validation';
+import validate from '../middleware/validation/validationMiddleware';
+import validateRegister from '../validations/register.validation';
+
+const userRoutes = express.Router();
+
+userRoutes.get('/users', isLoggedIn, getAllUsers);
+userRoutes.post('/users/signin', validate(userSchema), loginUser);
+userRoutes.post(
+  '/users/register',
+  validateRegister,
+  checkUserExists,
+  registerUser
+);
+>>>>>>> f9caf98 (make it better)
 
 export default userRoutes;

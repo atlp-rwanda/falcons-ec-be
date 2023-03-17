@@ -33,5 +33,4 @@ app.use('/', passportRouter);
 app.use('/', allRoutes);
 app.use('/welcome', welcomeRoute);
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swagger));
-
 export default app;

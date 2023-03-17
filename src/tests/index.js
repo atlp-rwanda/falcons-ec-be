@@ -132,16 +132,22 @@ describe("login", () => {
     it("should throw an error if invalid credentials", async () => {
       const response = await chai
         .request(app)
+<<<<<<< HEAD
         .post("/api/v1/users/signin")
         .send({ email: "boris250@gmail.com", password: "123" });
       expect(response.status).to.equal(401);
+=======
+        .post('/api/v1/users/signin')
+        .send({ email: 'boris250@gmail.com', password: '123' });
+      expect(response.status).to.equal(400);
+>>>>>>> f9caf98 (make it better)
     });
     it("should throw error if user does not exist ", async () => {
       const response = await chai
         .request(app)
         .post("/api/v1/users/signin")
         .send(user);
-      expect(response.status).to.equal(401);
+      expect(response.status).to.equal(400);
     });
     it("should respond with an array of users", async () => {
       const loginResponse = await chai

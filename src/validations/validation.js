@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const validator = (Schema) => (req, res, next) => {
   const { error } = Schema.validate(req.body);
   if (error) {
@@ -7,3 +8,8 @@ const validator = (Schema) => (req, res, next) => {
 };
 
 export default validator;
+=======
+/** eg:VALIDATIONS
+ * not a real file
+*/
+>>>>>>> f9caf98 (make it better)
