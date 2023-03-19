@@ -130,14 +130,14 @@ describe('login', () => {
         .request(app)
         .post('/api/v1/users/signin')
         .send({ email: 'boris250@gmail.com', password: '123' });
-      expect(response.status).to.equal(400);
+      expect(response.status).to.equal(401);
     });
     it('should throw error if user does not exist ', async () => {
       const response = await chai
         .request(app)
         .post('/api/v1/users/signin')
         .send(user);
-      expect(response.status).to.equal(400);
+      expect(response.status).to.equal(401);
     });
     it('should respond with an array of users', async () => {
       const loginResponse = await chai

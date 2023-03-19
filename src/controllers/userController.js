@@ -13,9 +13,8 @@ export const getAllUsers = async (req, res) => {
 };
 
 export const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-
   try {
+    const { email, password } = req.body;
     const user = await User.findOne({ where: { email } });
 
     if (user && (await user.checkPassword(password))) {
@@ -23,7 +22,6 @@ export const loginUser = async (req, res) => {
         id: user.id,
         email,
       };
-
       const token = await generateToken(payload);
       res.status(200).json({
         status: 200,
@@ -32,8 +30,8 @@ export const loginUser = async (req, res) => {
         token,
       });
     } else {
-      res.status(400).json({
-        status: 400,
+      res.status(401).json({
+        status: 401,
         success: false,
         message: 'Invalid credentials',
       });
