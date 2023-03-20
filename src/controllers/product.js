@@ -24,7 +24,7 @@ const CreateProduct = async (req, res) => {
       description: req.body.description,
       quantity: req.body.quantity,
       price: req.body.price,
-      category_name: req.body.category_name,
+      categoryName: req.body.categoryName,
       seller_id: '57409d12-ddad-4938-a37a-c17bc33aa4ba',
       expiryDate: new Date(),
     });

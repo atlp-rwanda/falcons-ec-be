@@ -11,7 +11,7 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      category_name: {
+      categoryName: {
         type: Sequelize.STRING,
         allowNull: false,
         validate: {

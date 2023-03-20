@@ -7,6 +7,7 @@ import app from '../server.js';
 import db from '../database/models/index';
 import generateToken from '../helpers/token_generator.js';
 import fs from 'fs';
+import { async } from 'regenerator-runtime';
 
 const { expect } = chai;
 
@@ -14,11 +15,13 @@ chai.should();
 
 chai.use(chaiHttp);
 
+let _TOKEN = '';
+
 describe('Welcome Controller', () => {
-  before(async () => {
-    // run migrations and seeders to prepare the database
-    await db.sequelize.sync({ force: false });
-  });
+  // before(async () => {
+  //   // run migrations and seeders to prepare the database
+  //   await db.sequelize.sync({ force: true });
+  // });
 
   describe('GET /welcome', () => {
     it('should return a 200 response and a welcome message', async () => {
@@ -131,14 +134,14 @@ describe('login', () => {
         .request(app)
         .post('/api/v1/users/signin')
         .send({ email: 'boris250@gmail.com', password: '123' });
-      expect(response.status).to.equal(400);
+      expect(response.status).to.equal(401);
     });
     it('should throw error if user does not exist ', async () => {
       const response = await chai
         .request(app)
         .post('/api/v1/users/signin')
         .send(user);
-      expect(response.status).to.equal(400);
+      expect(response.status).to.equal(401);
     });
     it('should respond with an array of users', async () => {
       const loginResponse = await chai
@@ -155,6 +158,69 @@ describe('login', () => {
   });
 });
 
+describe('Set user role', () => {
+  const fakeUser = {
+    email: 'admin@gmail.com',
+    password: 'password',
+  };
+
+  const unauthorisedUser = {
+    //user with just buyer role
+    email: 'boris@gmail.com',
+    password: '1234',
+  };
+
+  describe('POST /api/v1/users/signup', () => {
+    it('should create a fake admin', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/users/signup')
+        .send(fakeUser);
+      expect(response.status).to.equal(200);
+    });
+  });
+
+  describe('PUT /api/v1/users/:id/roles', () => {
+    it('should authorise the user without admin role', async () => {
+      const loginResponse = await chai
+        .request(app)
+        .post('/api/v1/users/signin')
+        .send(unauthorisedUser);
+      _TOKEN = loginResponse.body.token;
+      expect(loginResponse.status).to.equal(200);
+    });
+
+    it('should deny the unauthorised user', async () => {
+      const response = await chai
+        .request(app)
+        .put(`/api/v1/users/${fakeUser.email}/roles`)
+        .set('Authorization', `Bearer ${_TOKEN}`)
+        .send({ role: 'seller' });
+
+      expect(response.status).to.equal(400);
+    });
+
+    it('should authorise the fake admin', async () => {
+      const loginResponse = await chai
+        .request(app)
+        .post('/api/v1/users/signin')
+        .send(fakeUser);
+      _TOKEN = loginResponse.body.token;
+      expect(loginResponse.status).to.equal(200);
+    });
+
+    it('should set the role to seller', async () => {
+      const response = await chai
+        .request(app)
+        .put(`/api/v1/users/${fakeUser.email}/roles`)
+        .set('Authorization', `Bearer ${_TOKEN}`)
+        .send({ role: 'seller' });
+
+      expect(response.status).to.equal(200);
+    });
+  });
+});
+
 describe('PRODUCT', async () => {
   const realUser = {
     email: 'boris@gmail.com',
@@ -167,22 +233,59 @@ describe('PRODUCT', async () => {
   const { token } = response.body;
   const product = {
     productName: 'test',
+    categoryName:'test',
     description: 'test',
     price: 100,
     quantity: 10,
     expiryDate: '12/12/12',
   };
+   const invalidproduct = {
+     productName: 'test',
+     description: 'test',
+     price: 100,
+     quantity: 10,
+     expiryDate: '12/12/12',
+   };
   expect(response.status).to.equal(200);
   describe('POST /api/v1/products', () => {
     it('should create a Product', async () => {
       const response = await chai
         .request(app)
         .post('/api/v1/products')
-        .set('Authorization',  `Bearer ${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send(product);
       console.log(response.body);
       expect(response.status).to.equal(201);
       // expect(response.body).to.be.an('array');
     });
+  it('should return 400 incase validation fails',async ()=> {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(invalidproduct);
+      console.log(response.body);
+      expect(response.status).to.equal(400);
+
+
+  })
+    it('should return 400 incase validation fails', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(invalidproduct);
+      console.log(response.body);
+      expect(response.status).to.equal(400);
+    });
+
+       it('should return 401 if user is not logged in', async () => {
+         const response = await chai
+           .request(app)
+           .post('/api/v1/products')
+           .send(invalidproduct);
+         expect(response.status).to.equal(401);
+       }); 
+       
   });
 });
