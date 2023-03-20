@@ -1,8 +1,8 @@
 import express from 'express';
 import welcome from '../controllers/welcomeController';
 
-const router = express.Router();
+const welcomeRoute = express.Router();
 
-router.route('/').get(welcome);
+welcomeRoute.route('/').get(welcome);
 
-export default router;
+export default welcomeRoute;

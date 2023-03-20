@@ -1,7 +1,11 @@
-const bcrypt = require("bcrypt");
-const { v4: uuidv4 } = require("uuid");
+/* eslint-disable valid-jsdoc */
+/* eslint-disable require-jsdoc */
+const bcrypt = require('bcrypt');
+const { v4: uuidv4 } = require('uuid');
 
-const { Model } = require("sequelize");
+const {
+  Model
+} = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {

@@ -3,11 +3,11 @@ import chaiHttp from 'chai-http';
 import request from 'supertest';
 import passportStub from 'passport-stub';
 import passport from 'passport';
+import fs from 'fs';
+import { async } from 'regenerator-runtime';
 import app from '../server.js';
 import db from '../database/models/index';
 import generateToken from '../helpers/token_generator.js';
-import fs from 'fs';
-import { async } from 'regenerator-runtime';
 
 const { expect } = chai;
 
@@ -165,7 +165,7 @@ describe('Set user role', () => {
   };
 
   const unauthorisedUser = {
-    //user with just buyer role
+    // user with just buyer role
     email: 'boris@gmail.com',
     password: '1234',
   };
@@ -233,19 +233,19 @@ describe('PRODUCT', async () => {
   const { token } = response.body;
   const product = {
     productName: 'test',
-    categoryName:'test',
+    categoryName: 'test',
     description: 'test',
     price: 100,
     quantity: 10,
     expiryDate: '12/12/12',
   };
-   const invalidproduct = {
-     productName: 'test',
-     description: 'test',
-     price: 100,
-     quantity: 10,
-     expiryDate: '12/12/12',
-   };
+  const invalidproduct = {
+    productName: 'test',
+    description: 'test',
+    price: 100,
+    quantity: 10,
+    expiryDate: '12/12/12',
+  };
   expect(response.status).to.equal(200);
   describe('POST /api/v1/products', () => {
     it('should create a Product', async () => {
@@ -258,7 +258,7 @@ describe('PRODUCT', async () => {
       expect(response.status).to.equal(201);
       // expect(response.body).to.be.an('array');
     });
-  it('should return 400 incase validation fails',async ()=> {
+    it('should return 400 incase validation fails', async () => {
       const response = await chai
         .request(app)
         .post('/api/v1/products')
@@ -266,9 +266,7 @@ describe('PRODUCT', async () => {
         .send(invalidproduct);
       console.log(response.body);
       expect(response.status).to.equal(400);
-
-
-  })
+    });
     it('should return 400 incase validation fails', async () => {
       const response = await chai
         .request(app)
@@ -279,13 +277,12 @@ describe('PRODUCT', async () => {
       expect(response.status).to.equal(400);
     });
 
-       it('should return 401 if user is not logged in', async () => {
-         const response = await chai
-           .request(app)
-           .post('/api/v1/products')
-           .send(invalidproduct);
-         expect(response.status).to.equal(401);
-       }); 
-       
+    it('should return 401 if user is not logged in', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .send(invalidproduct);
+      expect(response.status).to.equal(401);
+    });
   });
 });
