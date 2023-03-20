@@ -11,15 +11,17 @@
       "get": {
         "summary": "Welcome message",
         "description": "This is an api that returns a welcome message",
-        "produces": ["application/json"],
+        "produces": [
+          "application/json"
+        ],
         "responses": {
           "200": {
             "description": "OK",
-            "definitions": {
-              "message": {
-                "type": "object",
-                "properties": {
-                  "message": {
+            "definitions":{
+              "message":{
+                "type":"object",
+                "properties":{
+                  "message":{
                     "type": "string"
                   }
                 }
@@ -121,6 +123,109 @@
                 "properties": {
                   "message": {
                     "default": "OK"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{id}/roles": {
+      "put": {
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Changes account role",
+        "description": "This is an api that sets user roles",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "string",
+            "description": "The user ID."
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "default": "customer"
+                }                
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User role updated",
+            "definitions": {
+              "message": {
+                "type": "object"                
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object"                
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/signup": {
+      "post": {
+        "summary": "creates a dummy admin",
+        "description": "creates a dummy admin",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "default": "email"
+                },
+                "password": {
+                  "type": "string",
+                  "default": "password"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "registration successful",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "registration Successful"
                   }
                 }
               }
