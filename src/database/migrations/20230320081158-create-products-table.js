@@ -17,6 +17,13 @@ module.exports = {
           notEmpty: true,
         },
       },
+      categoryName: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: true,
+        },
+      },
 
       description: {
         type: Sequelize.STRING,
@@ -61,7 +68,13 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      // Add Category_id when the model is created,
+      category_id: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'Category',
+          key: 'id',
+        },
+      },
       seller_id: {
         type: Sequelize.UUID,
         references: {

@@ -131,6 +131,126 @@
         }
       }
     },
+        "/api/v1/products": {
+      "post": {
+        "summary": "Add a new product",
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": [],
+            "google_Oauth2": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "productName",
+            "in": "formData",
+            "description": "The name of the product.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "in": "formData",
+            "description": "A description of the product.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "price",
+            "in": "formData",
+            "description": "The price of the product.",
+            "required": true,
+            "type": "number"
+          },
+          {
+            "name": "images",
+            "in": "formData",
+            "description": "The image(s) of the product.",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "file"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "quantity",
+            "in": "formData",
+            "description": "The quantity of the product.",
+            "required": false,
+            "type": "number"
+          },
+          {
+            "name": "category",
+            "in": "formData",
+            "description": "The category of the product.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "expiryDate",
+            "in": "formData",
+            "description": "The expiry date of the product.",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Product added successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "productId": {
+                  "type": "integer",
+                  "description": "The ID of the new product."
+                },
+                "productName": {
+                  "type": "string",
+                  "description": "The name of the new product."
+                },
+                "description": {
+                  "type": "string",
+                  "description": "The description of the new product."
+                },
+                "price": {
+                  "type": "number",
+                  "description": "The price of the new product."
+                },
+                "images": {
+                  "type": "array",
+                  "description": "The image(s) of the new product.",
+                  "items": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "quantity": {
+                  "type": "number",
+                  "description": "The quantity of the new product."
+                },
+                "category": {
+                  "type": "string",
+                  "description": "The category of the new product."
+                },
+                "expiryDate": {
+                  "type": "string",
+                  "description": "The expiry date of the new product."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/users/{id}/roles": {
       "put": {
         "security": [

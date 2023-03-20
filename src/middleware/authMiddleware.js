@@ -38,4 +38,29 @@ const isLoggedIn = async (req, res, next) => {
     });
   }
 };
+
+export const isSeller = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+
+    const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
+
+    const currentUser = await findOneUserService(decodedData.payload.id);
+    if (currentUser.role === 'seller') {
+      next();
+    } else {
+      res.status(401).json({
+        status: 401,
+        success: false,
+        message: 'User is not a seller',
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: `Error when authorizing user ${error.message}`,
+    });
+  }
+};
 export default isLoggedIn;

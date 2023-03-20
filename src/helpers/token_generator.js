@@ -10,4 +10,5 @@ const generateToken = async (payload, req, res) => {
   });
   return token;
 };
+
 export default generateToken;
