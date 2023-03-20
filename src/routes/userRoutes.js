@@ -12,6 +12,7 @@ import { userSchema, Password} from '../validations/userSchema'
 import validator from '../validations/validation'
 import verifyRole from '../middleware/verifyRole';
 
+
 const userRoutes = express.Router();
 
 userRoutes.get('/api/v1/users', isLoggedIn, getAllUsers);

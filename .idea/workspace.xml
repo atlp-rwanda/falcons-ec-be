@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ef700f1e-7e5a-466d-8547-a1acd51e3a4b" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/controllers/user.controller.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/controllers/users.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/controllers/welcomeController.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/controllers/welcomeController.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/migrations/20230310073430-create-user.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/migrations/20230310073430-create-user.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/models/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/models/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/database/seeders/20230310074904-userData.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/database/seeders/20230310074904-userData.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/server.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/swagger.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/swagger.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tests/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/tests/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/validations/validation.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/validations/validation.js" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2N99U5GpzucNhhLnjZQLE5uyNpn" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "/home/paternen/Projects/Preview/jackson/PaterneSupport/falcons-ec-be",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ef700f1e-7e5a-466d-8547-a1acd51e3a4b" name="Changes" comment="" />
+      <created>1679065445552</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1679065445552</updated>
+      <workItem from="1679065447848" duration="1401000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

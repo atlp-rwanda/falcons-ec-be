@@ -9,7 +9,6 @@ import router from './routes';
 import productRoute from './routes/productRoutes';
 import welcomeRoute from './routes/welcomeRoute';
 
-
 export const app = express();
 
 dotenv.config();
@@ -29,4 +28,10 @@ app.use(
     saveUninitialized: false,
   }),
 );
+app.use('/api/v1', userRoutes);
+app.use('/', passportRouter);
+app.use('/', allRoutes);
+app.use('/welcome', welcomeRoute);
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swagger));
+
 export default app;
