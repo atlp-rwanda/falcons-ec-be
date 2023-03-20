@@ -4,7 +4,7 @@ import '../config/passport';
 
 dotenv.config();
 
-const generateToken = async (payload, req, res) => {
+const generateToken = async (payload) => {
   const token = jwt.sign({ payload }, process.env.JWT_SECRET, {
     expiresIn: '7d',
   });

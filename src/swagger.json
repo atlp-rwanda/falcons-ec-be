@@ -11,17 +11,15 @@
       "get": {
         "summary": "Welcome message",
         "description": "This is an api that returns a welcome message",
-        "produces": [
-          "application/json"
-        ],
+        "produces": ["application/json"],
         "responses": {
           "200": {
             "description": "OK",
-            "definitions":{
-              "message":{
-                "type":"object",
-                "properties":{
-                  "message":{
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
                     "type": "string"
                   }
                 }
@@ -93,6 +91,151 @@
         }
       }
     },
+    "/api/v1/users/{userId}/password": {
+      "parameters":[ {
+        "name":"userId",
+        "in":"path",
+        "required": true,
+        "description":"UUID of the user to update"
+      },
+      {
+        "name":"body",
+        "in":"body",
+        "description":"The password body to be updated",
+        "required":true,
+        "schema":{
+          "type":"object",
+          "properties":{
+            "oldPassword":{
+              "type":"string",
+              "description":"User's old password"
+            },
+            "newPassword":{
+              "type":"string",
+              "description":"User's new password"
+            },
+            "confirmPassword":{
+              "type":"string",
+              "description":"User's new password"
+            }
+          }
+        }
+      }
+    ],
+      "patch": {
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["Password"],
+        "summary": "update password",
+        "description": "As a user, I should be able to update my password",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "password updated successfully"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "definitions":{
+              "error":{
+                "type":"object",
+                "properties":{
+                  "error":{
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "default":"error message"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "definitions":{
+              "message":{
+                "type":"object",
+                "properties":{
+                  "error":{
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "status":{
+                    "default":401
+                  },
+                  "success":{
+                    "default":false
+                  },
+                  "message": {
+                    "default":"Not logged in"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN",
+            "definitions":{
+              "message":{
+                "type":"object",
+                "properties":{
+                  "error":{
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "default":"Invalid password"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/users": {
       "get": {
         "security": [
@@ -122,7 +265,54 @@
                 "type": "object",
                 "properties": {
                   "message": {
-                    "default": "OK"
+                    "type":"string",
+                    "default":"Login Successful"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "definitions":{
+              "error":{
+                "type":"object",
+                "properties":{
+                  "error":{
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "default":"error message"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN",
+            "definitions":{
+              "message":{
+                "type":"object",
+                "properties":{
+                  "error":{
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "default":"Invalid password"
                   }
                 }
               }
@@ -355,7 +545,16 @@
       }
     }
   },
+  
   "securityDefinitions": {
+    "bearerAuth": {
+      "type":"apiKey",
+      "name":"Authorization",
+      "in":"header",
+      "bearerFormat":"jwt",
+      "scheme": "bearer"
+
+    },
     "google_Oauth2": {
       "authorizationUrl": "https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A5000%2Fgoogle%2Fcallback&scope=email%20profile&client_id=111607106086-6e882nl4dni651j6hspjrqg3dsscfdrs.apps.googleusercontent.com",
       "tokenUrl": [],
@@ -363,13 +562,6 @@
       "flow": "accessCode",
       "type": "oauth2",
       "appName": "E-commerce app"
-    },
-    "bearerAuth": {
-      "type": "apiKey",
-      "name": "Authorization",
-      "in": "header",
-      "bearerFormat": "JWT",
-      "scheme": "bearer"
     }
   }
 }

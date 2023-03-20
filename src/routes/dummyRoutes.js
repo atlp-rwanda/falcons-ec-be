@@ -17,11 +17,11 @@ import {
   login,
 } from "../controllers/dummyController";
 
-const router = express.Router();
+// const dummyRoutes = express.Router();
 
-router.route("/").get(getAllUsers).post(createNewUser);
-router.route("/createAdmin").post(createNewAdmin); //for testing
-router.route("/login").post(login);
+// router.route('/').get(getAllUsers).post(createNewUser);
+// router.route('/createAdmin').post(createNewAdmin); // for testing
+// router.route('/login').post(login);
 
 export default router;
 >>>>>>> f983d27b124dafbf776c1b57ed7cddcba9aba2bb

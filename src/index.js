@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import app from './server';
+import { app } from './server';
 import db from './database/models/index';
 
 dotenv.config();
@@ -9,7 +9,9 @@ app.listen(process.env.PORT, () => {
 });
 (async () => {
   try {
-    await db.sequelize.sync().then(() => console.log('-->connected to the db'));
+    await db.sequelize
+      .sync()
+      .then(() => console.log('-->connected to the db'));
   } catch (error) {
     console.log('Error connecting to the db:', error.message);
   }

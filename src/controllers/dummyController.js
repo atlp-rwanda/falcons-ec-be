@@ -1,4 +1,4 @@
-// // import db from '../database/models/index';
+// // // import db from '../database/models/index';
 
 // // const { User } = db;
 
@@ -28,13 +28,16 @@
 
 // // export default { getAllUsers, createNewUser };
 // import * as dotenv from "dotenv";
-// dotenv.config();
-// import bcrypt from "bcrypt";
-// import jwt from "jsonwebtoken";
-// import db from "../database/models/index";
+// // dotenv.config();
+// // import bcrypt from "bcrypt";
+// // import jwt from "jsonwebtoken";
+// // import db from "../database/models/index";
 
+// const { User } = db;
 
 // const User = db["User"];
+// export const getAllUsers = async (req, res) => {
+//   const allUsers = await User.findAll();
 
 // export const getAllUsers = async (req, res) => {
 //   let allUsers = await User.findAll();
