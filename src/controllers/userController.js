@@ -2,6 +2,9 @@
 import db from "../database/models/index";
 import generateToken from "../helpers/token_generator";
 import bcrypt from "bcrypt";
+import { BcryptUtility } from '../utils/bcrypt.util';
+import { UserService } from '../services/user.service';
+import { JwtUtility } from '../utils/jwt.util';
 
 const { User } = db;
 
@@ -45,6 +48,21 @@ const { User } = db;
       success: false,
       message: "Failed to Login",
       error: error.message,
+    });
+  }
+};
+export const registerUser = async (req, res) => {
+  try {
+    const user = { ...req.body };
+    user.password = await BcryptUtility.hashPassword(req.body.password);
+    const { id, email } = await UserService.register(user);
+    const userData = { id, email };
+    const userToken = JwtUtility.generateToken(userData);
+    return res.status(201).json({ user: userData, token: userToken });
+  } catch (err) {
+    return res.status(500).json({
+      error: err.message,
+      message: 'Failed to register a new user',
     });
   }
 };

@@ -1,12 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-<<<<<<< HEAD
-import jwt from "jsonwebtoken";
-import findOneUserService from "../services/authService";
-=======
 import jwt from 'jsonwebtoken';
 import findOneUserService from '../services/authService';
 import { User } from '../database/models/index';
->>>>>>> f9caf98 (make it better)
 
 const isLoggedIn = async (req, res, next) => {
   if (req.headers.authorization) {
@@ -72,6 +67,8 @@ export const isSeller = async (req, res, next) => {
   }
 };
 export const checkUserExists = async (req, res, next) => {
+  const { email } = req.body;
+  const userInDb = await User.findOne({
     where: { email },
   });
   if (userInDb) {
