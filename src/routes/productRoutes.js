@@ -2,8 +2,8 @@ import multer from 'multer';
 import express from 'express';
 import path from 'path';
 import isLoggedIn, { isSeller } from '../middleware/authMiddleware';
-import CreateProduct from '../controllers/product';
-import isValid from '../helpers/isValid';
+import CreateProduct from '../controllers/productController';
+import validator from '../validations/validation'
 import productSchema from '../validations/Product';
 
 const storage = multer.diskStorage({
@@ -30,7 +30,7 @@ productRoute.post(
     }
     next();
   },
-  isValid(productSchema),
+  validator(productSchema),
 
   CreateProduct,
 );
