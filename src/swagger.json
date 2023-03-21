@@ -636,7 +636,7 @@
     ],
     "responses": {
       "200": {
-        "description": "Register successful",
+        "description": "Successful Registered",
         "definitions": {
           "message": {
             "type": "object",
