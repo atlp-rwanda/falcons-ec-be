@@ -24,6 +24,10 @@ module.exports = (sequelize, DataTypes) => {
       password: DataTypes.STRING,
       token: DataTypes.STRING,
       role: DataTypes.STRING,
+      status: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+      },
     },
     {
       sequelize,

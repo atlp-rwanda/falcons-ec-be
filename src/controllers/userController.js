@@ -22,7 +22,8 @@ const { User } = db;
       const payload = {
         id: user.id,
         email,
-        role: user.role
+        role: user.role,
+        status: user.status
       };
       const token = await generateToken(payload);
       res.status(200).json({
@@ -72,12 +73,12 @@ const { User } = db;
       email: req.body.email,
       password: pwd,
       role: "admin",
+      status: true,
       token: "",
     });
 
     res.json({ message: "User created" });
   } catch (err) {
-    console.log(err);
     res.status(400).json(err);
   }
 };
@@ -106,4 +107,26 @@ const updatePassword = async (req, res) => {
   }
 };
 
-export { getAllUsers, loginUser, setRoles, createNewUser, updatePassword};
+const disableAccount = async (req, res) => {
+  if (!req.params.id)
+    return res.status(400).json({ message: "User ID not provided" });
+
+  const foundUser = await User.findOne({ where: { email: req.params.id } });
+
+  if (!foundUser) return res.status(400).json({ message: "User not found" });
+
+  let message = "";
+  if (foundUser.status === true) {
+    foundUser.status = false;
+    message = "Account disabled";
+  } else {
+    foundUser.status = true;
+    message = "Account Enabled";
+  }
+
+  const result = await foundUser.save();
+
+  return res.json({ message });
+};
+
+export { getAllUsers, loginUser, setRoles, createNewUser, updatePassword, disableAccount};

@@ -2,12 +2,12 @@ import * as dotenv from 'dotenv';
 import express from 'express';
 import session from 'express-session';
 import swaggerUI from 'swagger-ui-express';
-import welcomeRoute from './routes/welcomeRoute';
 import swagger from './swagger.json';
 import './config/passport';
 import passportRouter from './routes/passport';
 import router from './routes';
 import productRoute from './routes/productRoutes';
+import welcomeRoute from './routes/welcomeRoute';
 
 
 export const app = express();
