@@ -254,7 +254,6 @@ describe('PRODUCT', async () => {
         .post('/api/v1/products')
         .set('Authorization', `Bearer ${token}`)
         .send(product);
-      console.log(response.body);
       expect(response.status).to.equal(201);
       // expect(response.body).to.be.an('array');
     });
@@ -264,7 +263,6 @@ describe('PRODUCT', async () => {
         .post('/api/v1/products')
         .set('Authorization', `Bearer ${token}`)
         .send(invalidproduct);
-      console.log(response.body);
       expect(response.status).to.equal(400);
     });
     it('should return 400 incase validation fails', async () => {
@@ -273,7 +271,6 @@ describe('PRODUCT', async () => {
         .post('/api/v1/products')
         .set('Authorization', `Bearer ${token}`)
         .send(invalidproduct);
-      console.log(response.body);
       expect(response.status).to.equal(400);
     });
 
