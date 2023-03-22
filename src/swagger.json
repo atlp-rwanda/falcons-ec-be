@@ -544,6 +544,54 @@
         }
       }
     },
+    "/api/v1/users/logout": {
+      "post": {
+        "summary": "creates a token blacklist model",
+        "description": "creates a token blaklist model",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "type": "TEXT",
+                  "default": "token"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "registration successful",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "registration Successful"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/users/{id}/status": {
       "patch": {
         "security": [
