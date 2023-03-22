@@ -7,7 +7,7 @@
   },
   "schemes": ["http", "https"],
   "paths": {
-    "/welcome": {
+    "/api/v1/welcome": {
       "get": {
         "summary": "Welcome message",
         "description": "This is an api that returns a welcome message",
@@ -469,7 +469,7 @@
               "properties": {
                 "role": {
                   "type": "string",
-                  "default": "customer"
+                  "default": "buyer"
                 }                
               }
             }
@@ -538,6 +538,43 @@
                     "default": "registration Successful"
                   }
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{id}/status": {
+      "patch": {
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Toggles account status",
+        "description": "This is an api that enables/disables an account",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "string",
+            "description": "The user ID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account disabled",
+            "definitions": {
+              "message": {
+                "type": "object"                
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object"                
               }
             }
           }

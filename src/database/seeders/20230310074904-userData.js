@@ -9,7 +9,9 @@ module.exports = {
           email: 'gatete@gmail.com',
           role: 'seller',
           password:
-            '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', // 1234
+            "$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS", //1234
+          token:"tokenexample",
+          status: true,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -27,19 +29,29 @@ module.exports = {
           email: 'boris@gmail.com',
           role: 'seller',
           password:
-            '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', // 1234
-
-          token: 'tokenexample',
+            "$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS", //1234
+          token:"tokenexample",
+          status: true,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        {
+          id: '81ccebd5-7907-4940-a6af-5a738e8f1d39',
+          email: 'eric@gmail.com',
+          role: 'admin',
+          password:
+            "$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS", //1234
+          token:"tokenexample",
+          status: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
       ],
-
-      {},
+      {}
     );
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('Users', null, {});
+     await queryInterface.bulkDelete('Users', null, {});
   },
 };

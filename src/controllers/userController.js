@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 
 const { User } = db;
 
-export const getAllUsers = async (req, res) => {
+ const getAllUsers = async (req, res) => {
   const allUsers = await User.findAll();
 
   if (!allUsers) res.status(400).json({ message: "No users found" });
@@ -13,7 +13,7 @@ export const getAllUsers = async (req, res) => {
   res.json(allUsers);
 };
 
-export const loginUser = async (req, res) => {
+ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ where: { email } });
@@ -22,7 +22,8 @@ export const loginUser = async (req, res) => {
       const payload = {
         id: user.id,
         email,
-        role: user.role
+        role: user.role,
+        status: user.status
       };
       const token = await generateToken(payload);
       res.status(200).json({
@@ -48,7 +49,7 @@ export const loginUser = async (req, res) => {
   }
 };
 
-export const setRoles = async (req, res) => {
+ const setRoles = async (req, res) => {
   if (!req.params.id)
     return res.status(400).json({ message: "User ID not provided" });
 
@@ -63,7 +64,7 @@ export const setRoles = async (req, res) => {
 };
 
 //user registration for testing purposes
-export const createNewUser = async (req, res) => {
+ const createNewUser = async (req, res) => {
   try {
     const salt = await bcrypt.genSalt(10);
     const pwd = await bcrypt.hash(req.body.password, salt);
@@ -72,14 +73,60 @@ export const createNewUser = async (req, res) => {
       email: req.body.email,
       password: pwd,
       role: "admin",
+      status: true,
       token: "",
     });
 
     res.json({ message: "User created" });
   } catch (err) {
-    console.log(err);
     res.status(400).json(err);
   }
 };
+const updatePassword = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    // find a user requesting yo update the password
+    // compare his/her oldpassword to
+    // password in the db
+    const user = await User.findByPk(userId);
+    const { oldPassword, newPassword } = req.body;
+    const match = bcrypt.compareSync(oldPassword, user.password);
+    if (!match) {
+      return res.status(403)
+        .json({ error: 'Invalid password' });
+    }
+    // hash and update the new password in the db
 
-export default { getAllUsers, loginUser, setRoles, createNewUser };
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(newPassword, salt);
+    await user.update({ password: hashPassword });
+    await user.save();
+    return res.status(200).json({ message: 'password updated successfully' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+const disableAccount = async (req, res) => {
+  if (!req.params.id)
+    return res.status(400).json({ message: "User ID not provided" });
+
+  const foundUser = await User.findOne({ where: { email: req.params.id } });
+
+  if (!foundUser) return res.status(400).json({ message: "User not found" });
+
+  let message = "";
+  if (foundUser.status === true) {
+    foundUser.status = false;
+    message = "Account disabled";
+  } else {
+    foundUser.status = true;
+    message = "Account Enabled";
+  }
+
+  const result = await foundUser.save();
+
+  return res.json({ message });
+};
+
+export { getAllUsers, loginUser, setRoles, createNewUser, updatePassword, disableAccount};

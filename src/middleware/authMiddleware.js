@@ -1,14 +1,15 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import jwt from 'jsonwebtoken';
-import findOneUserService from '../services/authService';
+import jwt from "jsonwebtoken";
+import findOneUserService from "../services/authService";
 
 const isLoggedIn = async (req, res, next) => {
   if (req.headers.authorization) {
-    const token = req.headers.authorization.split(' ')[1];
+    const token = req.headers.authorization.split(" ")[1];
     try {
       const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
 
       const currentUser = await findOneUserService(decodedData.payload.id);
+      console.log(currentUser);
       const userObj = {
         id: currentUser.id,
         email: currentUser.email,
@@ -17,7 +18,7 @@ const isLoggedIn = async (req, res, next) => {
         res.status(401).json({
           status: 401,
           success: false,
-          message: 'User does not exist!',
+          message: "User does not exist!",
         });
       } else {
         req.user = userObj;
@@ -34,25 +35,26 @@ const isLoggedIn = async (req, res, next) => {
     res.status(401).json({
       status: 401,
       success: false,
-      message: 'Not logged in',
+      message: "Not logged in",
     });
   }
 };
 
 export const isSeller = async (req, res, next) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
+    const token = req.headers.authorization.split(" ")[1];
 
     const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
 
     const currentUser = await findOneUserService(decodedData.payload.id);
-    if (currentUser.role === 'seller') {
+    console.log(currentUser.role);
+    if (currentUser.role === "seller") {
       next();
     } else {
       res.status(401).json({
         status: 401,
         success: false,
-        message: 'User is not a seller',
+        message: "User is not a seller",
       });
     }
   } catch (error) {
