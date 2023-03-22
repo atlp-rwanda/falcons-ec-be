@@ -9,7 +9,7 @@ module.exports = {
           email: 'gatete@gmail.com',
           role: 'seller',
           password:
-            "$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS", //1234
+            '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', //1234
           status: true,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -22,13 +22,14 @@ module.exports = {
           role: 'buyer',
           createdAt: '2023-03-17T10:16:59.334Z',
           updatedAt: '2023-03-17T10:16:59.334Z',
+          lastPasswordUpdate:new Date()
         },
         {
           id: '80ccebd5-7907-4840-a6af-5a738e8f1d35',
           email: 'boris@gmail.com',
           role: 'seller',
           password:
-            "$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS", //1234
+            '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', //1234
           status: true,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -38,7 +39,7 @@ module.exports = {
           email: 'eric@gmail.com',
           role: 'admin',
           password:
-            "$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS", //1234
+            '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', //1234
           status: true,
           createdAt: new Date(),
           updatedAt: new Date(),

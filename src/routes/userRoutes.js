@@ -7,41 +7,44 @@ import {
   updatePassword,
   disableAccount,
   registerUser,
-} from "../controllers/userController";
-import isLoggedIn, { checkUserExists } from "../middleware/authMiddleware";
-import { userSchema, Password } from "../validations/userSchema";
+} from '../controllers/userController';
+import { userSchema, Password } from '../validations/userSchema';
+import validator from '../validations/validation';
+import verifyRole from '../middleware/verifyRole';
 import validateRegister from '../validations/register.validation';
-import validator from "../validations/validation";
-import verifyRole from "../middleware/verifyRole";
 import roleSchema from "../validations/roleSchema";
 import {logout} from "../controllers/blacklisTokenController"
+import isLoggedIn, {
+  checkPassword,
+  checkUserExists,
+} from '../middleware/authMiddleware';
 
 const userRoutes = express.Router();
 
-userRoutes.get("/api/v1/users", isLoggedIn, getAllUsers);
-userRoutes.post("/api/v1/users/signin", validator(userSchema), loginUser);
-userRoutes.post("/api/v1/users/signup", validator(userSchema), createNewUser);
+userRoutes.get('/api/v1/users', isLoggedIn, getAllUsers);
+userRoutes.post('/api/v1/users/signin',validator(userSchema), loginUser);
+userRoutes.post('/api/v1/users/signup', validator(userSchema), createNewUser);
 userRoutes.put(
-  "/api/v1/users/:id/roles",
-  [verifyRole("admin"), validator(roleSchema)],
-  setRoles
+  '/api/v1/users/:id/roles',
+  verifyRole('admin'),
+  setRoles,
 );
 userRoutes.patch(
-  "/api/v1/users/:id/status",
-  verifyRole("admin"),
-  disableAccount
+  '/api/v1/users/:id/status',
+  verifyRole('admin'),
+  disableAccount,
 );
 userRoutes.patch(
-  "/api/v1/users/:userId/password",
+  '/api/v1/users/:userId/password',
   isLoggedIn,
   validator(Password),
-  updatePassword
+  updatePassword,
 );
 userRoutes.post(
-  "/api/v1/users/register",
+  '/api/v1/users/register',
   validateRegister,
   checkUserExists,
-  registerUser
+  registerUser,
 );
 userRoutes.post("/api/v1/users/logout", isLoggedIn, logout);
 

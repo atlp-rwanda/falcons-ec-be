@@ -28,9 +28,16 @@ const loginUser = async (req, res) => {
         status: user.status,
       };
 
-      if (user.status !== true)
-        return res.status(403).json({ message: "Account locked!" });
-
+      if (user.status == 'false')
+        return res.status(403).json({ message: 'Account locked!' });
+      if (user.status == 'NeedsToUpdatePassword')
+        return res
+          .status(419)
+          .json({
+            status: 419,
+            success: false,
+            message: 'Please Update Your Password',
+          });
       const token = await generateToken(payload);
       res.status(200).json({
         status: 200,
@@ -72,11 +79,11 @@ export const registerUser = async (req, res) => {
 
 const setRoles = async (req, res) => {
   if (!req.params.id)
-    return res.status(400).json({ message: "User email not provided" });
+    return res.status(400).json({ message: 'User email not provided' });
 
   const foundUser = await User.findOne({ where: { email: req.params.id } });
 
-  if (!foundUser) return res.status(404).json({ message: "User not found" });
+  if (!foundUser) return res.status(404).json({ message: 'User not found' });
 
   foundUser.role = req.body.role;
   const result = await foundUser.save();
@@ -94,9 +101,10 @@ const createNewUser = async (req, res) => {
       email: req.body.email,
       password: pwd,
       role: 'admin',
-      status: true,
+      status: 'true',
+      lastPasswordUpdate: new Date(),
     });
-    res.status(201);
+
     res.json({ message: 'User created' });
   } catch (err) {
     res.status(400).json(err);
@@ -109,14 +117,17 @@ const updatePassword = async (req, res) => {
     const { oldPassword, newPassword } = req.body;
     const match = bcrypt.compareSync(oldPassword, user.password);
     if (!match) {
-      return res.status(403).json({ error: "Invalid password" });
+      return res.status(403).json({ error: 'Invalid password' });
     }
 
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(newPassword, salt);
-    await user.update({ password: hashPassword });
+    await user.update({
+      password: hashPassword,
+      lastPasswordUpdate: new Date(),
+    });
     await user.save();
-    return res.status(200).json({ message: "password updated successfully" });
+    return res.status(200).json({ message: 'password updated successfully' });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -124,18 +135,18 @@ const updatePassword = async (req, res) => {
 
 const disableAccount = async (req, res) => {
   if (!req.params.id)
-    return res.status(400).json({ message: "User email not provided" });
+    return res.status(400).json({ message: 'User email not provided' });
 
   const foundUser = await User.findOne({ where: { email: req.params.id } });
 
-  if (!foundUser) return res.status(404).json({ message: "User not found" });
+  if (!foundUser) return res.status(404).json({ message: 'User not found' });
 
   let message = '';
-  if (foundUser.status === true) {
-    foundUser.status = false;
+  if (foundUser.status === 'true') {
+    foundUser.status = 'false';
     message = 'Account disabled';
   } else {
-    foundUser.status = true;
+    foundUser.status = 'true';
     message = 'Account Enabled';
   }
 

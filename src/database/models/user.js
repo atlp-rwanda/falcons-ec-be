@@ -3,9 +3,7 @@
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
@@ -23,15 +21,13 @@ module.exports = (sequelize, DataTypes) => {
       email: DataTypes.STRING,
       password: DataTypes.STRING,
       role: DataTypes.STRING,
-      status: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: true,
-      },
+      status: DataTypes.ENUM('true', 'false', 'NeedsToUpdatePassword'),
+      lastPasswordUpdate: DataTypes.DATE,
     },
     {
       sequelize,
-      modelName: "User",
-    }
+      modelName: 'User',
+    },
   );
 
 

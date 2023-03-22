@@ -1,10 +1,11 @@
 import multer from 'multer';
 import express from 'express';
 import path from 'path';
-import isLoggedIn, { isSeller } from '../middleware/authMiddleware';
+import isLoggedIn, { checkPassword, isSeller } from '../middleware/authMiddleware';
 import CreateProduct from '../controllers/productController';
 import validator from '../validations/validation'
 import productSchema from '../validations/Product';
+import verifyRole from '../middleware/verifyRole';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -22,7 +23,8 @@ const productRoute = express.Router();
 productRoute.post(
   '/products',
   isLoggedIn,
-  isSeller,
+  verifyRole('seller'),
+  checkPassword,
   upload.array('images', 8),
   (req, res, next) => {
     if (req.files && req.files.length < 4) {

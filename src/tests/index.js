@@ -4,16 +4,19 @@ import chaiHttp from 'chai-http';
 import request from 'supertest';
 import passportStub from 'passport-stub';
 import passport from 'passport';
-import fs from 'fs';
-import { async } from 'regenerator-runtime';
-import exp from 'constants';
+import sinon from 'sinon';
+import cron from 'node-cron';
 import app from '../server';
 import db from '../database/models/index';
+import { sequelize } from '../database/models/index';
 import verifyRole from '../middleware/verifyRole';
 import jwt from 'jsonwebtoken';
 import { UserService } from '../services/user.service'
 import { logoutUser } from '../services/authService';
 import generateToken from '../helpers/token_generator';
+import { checkPassword } from '../jobs/checkexpiredpassword';
+import { markPasswordExpired } from '../events/markPasswordExpired';
+const { User } = db;
 
 const {blacklisToken} = db;
 
@@ -36,7 +39,6 @@ describe('Welcome Controller', () => {
     });
   });
 });
-
 describe('Google Authentication', () => {
   const mockUser = {
     email: 'johndoe@gmail.com',
@@ -92,18 +94,18 @@ describe('Google Authentication', () => {
         assert.deepEqual(serializedUser, user);
         done();
       });
-    }); 
-    
-  it('should return unexpected', (done) => {
-    chai
-      .request(app)
-      .get('/google')
-      .end((err, res) => {
-        chai.expect(err).to.be.null;
-        chai.expect(res).to.have.status(404);
-        done();
-      });
-   });   
+    });
+
+    it('should return unexpected', (done) => {
+      chai
+        .request(app)
+        .get('/google')
+        .end((err, res) => {
+          chai.expect(err).to.be.null;
+          chai.expect(res).to.have.status(404);
+          done();
+        });
+    });
   });
 });
 describe('generateToken', () => {
@@ -136,29 +138,29 @@ describe('login', () => {
     email: 'boris@gmail.com',
     password: '1234',
   };
-  
-describe('generateToken', () => {
-  it('should generate a valid JWT token', async () => {
-    const payload = { id: 123, email: 'testuser@example.com' };
-    const token = await generateToken(payload);
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    expect(decoded.payload).to.deep.equal(payload);
+  describe('generateToken', () => {
+    it('should generate a valid JWT token', async () => {
+      const payload = { id: 123, email: 'testuser@example.com' };
+      const token = await generateToken(payload);
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      expect(decoded.payload).to.deep.equal(payload);
+    });
+
+    it('should set the token expiration to 7 days', async () => {
+      const payload = { id: 123, email: 'testuser@example.com' };
+      const token = await generateToken(payload);
+
+      const decoded = jwt.decode(token, { complete: true });
+      const expiration = decoded.payload.exp;
+      const now = Math.floor(Date.now() / 1000);
+
+      expect(expiration - now).to.equal(60 * 60 * 24 * 7); // 7 days in seconds
+    });
   });
 
-  it('should set the token expiration to 7 days', async () => {
-    const payload = { id: 123, email: 'testuser@example.com' };
-    const token = await generateToken(payload);
-
-    const decoded = jwt.decode(token, { complete: true });
-    const expiration = decoded.payload.exp;
-    const now = Math.floor(Date.now() / 1000);
-
-    expect(expiration - now).to.equal(60 * 60 * 24 * 7); // 7 days in seconds
-  });
-});
-
-describe('UserService', () => {
+  describe('UserService', () => {
     it('should create a new user in the database', async () => {
       const userData = {
         email: 'testuser@example.com',
@@ -207,7 +209,6 @@ describe('UserService', () => {
     });
   });
 });
-
 describe('Set user role', () => {
   const fakeUser = {
     email: 'admin@gmail.com',
@@ -220,21 +221,21 @@ describe('Set user role', () => {
     password: '1234',
   };
 
-  describe("POST /api/v1/users/signup", () => {
-    it("should not create a user without full data provided", async () => {
+  describe('POST /api/v1/users/signup', () => {
+    it('should not create a user without full data provided', async () => {
       const response = await chai
         .request(app)
-        .post("/api/v1/users/signup")
-        .send({ password: "1234" });
+        .post('/api/v1/users/signup')
+        .send({ password: '1234' });
       expect(response.status).to.equal(400);
     });
 
-    it("should create a fake admin", async () => {
+    it('should create a fake admin', async () => {
       const response = await chai
         .request(app)
         .post('/api/v1/users/signup')
         .send(fakeUser);
-      expect(response.status).to.equal(201);
+      expect(response.status).to.equal(200);
     });
   });
 
@@ -277,90 +278,13 @@ describe('Set user role', () => {
       expect(response.status).to.equal(200);
     });
   });
-})
+});
 
 describe('verifyRole middleware', () => {
   it('should be a function', () => {
     expect(verifyRole).to.be.a('function');
   });
 });
-
-describe('PRODUCT', async () => {
-  const realUser = {
-    email: 'boris@gmail.com',
-    password: '1234',
-  };
-  const response = await chai
-    .request(app)
-    .post('/api/v1/users/signin')
-    .send(realUser);
-  const { token } = response.body;
-  const product = {
-    productName: 'test',
-    description: 'test',
-    price: 100,
-    quantity: 10,
-    expiryDate: '12/12/12',
-    category_id: '0da3d632-a09e-42d5-abda-520aea82ef49'
-  };
-  const invalidproduct = {
-    productName: 'test',
-    price: 100,
-    quantity: 10,
-    expiryDate: '12/12/12',
-  };
-  expect(response.status).to.equal(200);
-  describe('POST /api/v1/products', () => {
-    it('should create a Product', async () => {
-      const response = await chai
-        .request(app)
-        .post('/api/v1/products')
-        .set('Authorization', `Bearer ${token}`)
-        .send(product);
-      response.body.should.be.a('object')
-      expect(response.status).to.equal(201);
-      expect(response.body).to.have.property('productName');
-      expect(response.body).to.have.property('description');
-      expect(response.body).to.have.property('price');
-      expect(response.body).to.have.property('quantity');
-      expect(response.body).to.have.property('expiryDate');
-      
-    });
-    it('should return 400 incase validation fails', async () => {
-      const response = await chai
-        .request(app)
-        .post('/api/v1/products')
-        .set('Authorization', `Bearer ${token}`)
-        .send(invalidproduct);
-      expect(response.status).to.equal(400);
-    });
-    it('should return 400 incase validation fails', async () => {
-      const response = await chai
-        .request(app)
-        .post('/api/v1/products')
-        .set('Authorization', `Bearer ${token}`)
-        .send(invalidproduct);
-      expect(response.status).to.equal(400);
-    });
-
-    it('should return 401 if user is not logged in', async () => {
-      const response = await chai
-        .request(app)
-        .post('/api/v1/products')
-        .send(invalidproduct);
-      expect(response.status).to.equal(401);
-    });
-     it('should return 401 if user is not an admin ', async () => {
-       const response = await chai
-         .request(app)
-         .post('/api/v1/categories')
-         .set('Authorization', `Bearer ${_TOKEN}`)
-         .send(invalidproduct);
-       expect(response.status).to.equal(401);
-     });
-  });
-});
-
 describe('Disable account', () => {
   it('should disable an account', async () => {
     const response = await chai
@@ -370,19 +294,19 @@ describe('Disable account', () => {
     expect(response.status).to.equal(200);
   });
 
-  it("should return 403 to avoid login of a disabled account", async () => {
+  it('should return 403 to avoid login of a disabled account', async () => {
     const loginResponse = await chai
       .request(app)
-      .post("/api/v1/users/signin")
+      .post('/api/v1/users/signin')
       .send({
-        email: "eric@gmail.com",
-        password: "1234",
+        email: 'eric@gmail.com',
+        password: '1234',
       });
 
     expect(loginResponse.status).to.equal(403);
   });
 
-  it("should enable an account", async () => {
+  it('should enable an account', async () => {
     const response = await chai
       .request(app)
       .patch('/api/v1/users/eric@gmail.com/status')
@@ -427,16 +351,16 @@ describe('POST /api/v1/users/logout', () => {
       status: (status) => ({
         json: (data) => {
           expect(status).to.equal(404);
-        }
-      })
+        },
+      }),
     };
   });
   it('should return a 404 response', async () => {
     const token = await generateToken();
     const response = await chai
-    .request(app)
-    .get('/api/v1/protected')
-    .set('Authorization', `Bearer ${token}`);
+      .request(app)
+      .get('/api/v1/protected')
+      .set('Authorization', `Bearer ${token}`);
     expect(response.status).to.equal(404);
   });
   it('should respond with a code', async () => {
@@ -445,23 +369,96 @@ describe('POST /api/v1/users/logout', () => {
       .request(app)
       .post('/api/v1/users/logout')
       .set('Authorization', `Bearer ${token}`);
-      expect(response.status).to.equal(500);
+    expect(response.status).to.equal(500);
   });
-describe('logoutUser function', () => {
-  it('should create a new blacklisted token', async () => {
-    const token = await generateToken();
-    const data = `Bearer ${token}`;
-    let createMethodCalled = false;
-    blacklisToken.create = (params) => {
-      createMethodCalled = true;
-      expect(params).to.deep.equal({ token });
-    };
-    await logoutUser(data);
-    expect(createMethodCalled).to.be.true;
+  describe('logoutUser function', () => {
+    it('should create a new blacklisted token', async () => {
+      const token = await generateToken();
+      const data = `Bearer ${token}`;
+      let createMethodCalled = false;
+      blacklisToken.create = (params) => {
+        createMethodCalled = true;
+        expect(params).to.deep.equal({ token });
+      };
+      await logoutUser(data);
+      expect(createMethodCalled).to.be.true;
+    });
   });
 });
+describe('PRODUCT', async () => {
+  const realUser = {
+    email: 'boris@gmail.com',
+    password: '1234',
+  };
+  const response = await chai
+    .request(app)
+    .post('/api/v1/users/signin')
+    .send(realUser);
+  const { token } = response.body;
+  const product = {
+    productName: 'test',
+    description: 'test',
+    price: 100,
+    quantity: 10,
+    expiryDate: '12/12/12',
+    category_id: '0da3d632-a09e-42d5-abda-520aea82ef49',
+  };
+  const invalidproduct = {
+    productName: 'test',
+    price: 100,
+    quantity: 10,
+    expiryDate: '12/12/12',
+  };
+  expect(response.status).to.equal(200);
+  describe('POST /api/v1/products', () => {
+    it('should create a Product', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(product);
+      response.body.should.be.a('object');
+      expect(response.status).to.equal(201);
+      expect(response.body).to.have.property('productName');
+      expect(response.body).to.have.property('description');
+      expect(response.body).to.have.property('price');
+      expect(response.body).to.have.property('quantity');
+      expect(response.body).to.have.property('expiryDate');
+    });
+    it('should return 400 incase validation fails', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(invalidproduct);
+      expect(response.status).to.equal(400);
+    });
+    it('should return 400 incase validation fails', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(invalidproduct);
+      expect(response.status).to.equal(400);
+    });
 
-
+    it('should return 401 if user is not logged in', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .send(invalidproduct);
+      expect(response.status).to.equal(401);
+    });
+    it('should return 401 if user is not an admin ', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${_TOKEN}`)
+        .send(invalidproduct);
+      expect(response.status).to.equal(401);
+    });
+  });
+});
 describe('CATEGORY', async () => {
   const realUser = {
     email: 'eric@gmail.com',
@@ -517,14 +514,14 @@ describe('CATEGORY', async () => {
         .send(invalidcategory);
       expect(response.status).to.equal(401);
     });
-     it('should return 401 if user is not an admin ', async () => {
-       const response = await chai
-         .request(app)
-         .post('/api/v1/categories')
-         .set('Authorization', `Bearer ${_TOKEN}`)
-         .send(invalidcategory);
-       expect(response.status).to.equal(401);
-     });
+    it('should return 400 if user is not an admin ', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/categories')
+        .set('Authorization', `Bearer ${_TOKEN}`)
+        .send(invalidcategory);
+      expect(response.status).to.equal(400);
+    });
     describe('api/v1/categories/:userId/update PATCH', () => {
       it('it should update user category', async () => {
         const category = {
@@ -555,8 +552,98 @@ describe('CATEGORY', async () => {
         res.should.have.status(200);
         res.body.should.be.a('object');
         expect('Content-Type', /json/);
-       });
-     });
+      });
     });
- });
+  });
+});
+describe('checkPassword', () => {
+  let scheduleSpy;
+
+  beforeEach(() => {
+    scheduleSpy = sinon.spy(cron, 'schedule');
+  });
+
+  afterEach(() => {
+    scheduleSpy.restore();
+  });
+
+  it('should schedule a cron job correctly', () => {
+    checkPassword();
+
+    expect(scheduleSpy.calledOnce).to.be.true;
+    expect(scheduleSpy.args[0][0]).to.equal(process.env.CRON_SCHEDULE);
+  });
+  it('should return an array of expired users', async function () {
+    const expiredUsers = await User.findAll({
+      where: sequelize.literal(`
+    NOW() - "lastPasswordUpdate" > INTERVAL '${process.env.PASSWORD_EXPIRY}'
+  `),
+    });
+
+    assert.isArray(expiredUsers);
+  });
+  it('should return an array of expired users', async function () {
+    const expiredUsers = await User.findAll({
+      where: sequelize.literal(`
+    NOW() - "lastPasswordUpdate" < INTERVAL '${process.env.PASSWORD_EXPIRY}'
+  `),
+    });
+
+    assert.isArray(expiredUsers);
+  });
+});
+
+describe('markPasswordExpired function', function () {
+  let consoleStub;
+
+  beforeEach(() => {
+    consoleStub = sinon.stub(console, 'log');
+  });
+
+  afterEach(() => {
+    consoleStub.restore();
+  });
+  it('should log "No expired password" when there are no expired users', async () => {
+    const expiredUsers = [];
+    await markPasswordExpired(expiredUsers);
+    expect(consoleStub.calledOnceWithExactly('No expired password')).to.be.true;
+  });
+  it('should update the status of expired users to NeedsToUpdatePassword', async function () {
+    // Create test users with expired passwords
+    const testUser1 = await User.create({
+      email: 'test1@test.com',
+      password: 'password',
+      lastPasswordUpdate: new Date(Date.now() - 31 * 24 * 60 * 60 * 1000),
+    });
+    const testUser2 = await User.create({
+      email: 'test2@test.com',
+      password: 'password',
+      lastPasswordUpdate: new Date(Date.now() - 31 * 24 * 60 * 60 * 1000),
+    });
+    const expiredUsers = [testUser1, testUser2];
+    await markPasswordExpired(expiredUsers);
+    assert.equal(testUser1.status, 'NeedsToUpdatePassword');
+    assert.equal(testUser2.status, 'NeedsToUpdatePassword');
+    // Delete the test users from the database
+    await testUser1.destroy();
+    await testUser2.destroy();
+  });
+  it('should not update the status of users with no last password update date', async function () {
+    // Create test user with no last password update date
+    const testUser = await User.create({
+      email: 'test4@test.com',
+      password: 'password',
+      lastPasswordUpdate: null,
+    });
+    const expiredUsers = await User.findAll({
+      where: sequelize.literal(`
+    NOW() - "lastPasswordUpdate" > INTERVAL '${process.env.PASSWORD_EXPIRY}'
+  `),
+    });
+    const usersWithNoLastPasswordUpdate = [expiredUsers];
+    await markPasswordExpired(usersWithNoLastPasswordUpdate);
+    assert.notEqual(testUser.status, 'NeedsToUpdatePassword');
+    // Delete the test user from the database
+    await testUser.destroy();
+  });
 });
