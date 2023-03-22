@@ -13,14 +13,14 @@ dotenv.config();
 _server["default"].listen(process.env.PORT, function () {
   console.log("-->Port ".concat(process.env.PORT, ": the server is up and running!"));
 });
-(0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee() {
+/*#__PURE__*/(0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee() {
   return _regenerator["default"].wrap(function _callee$(_context) {
     while (1) switch (_context.prev = _context.next) {
       case 0:
         _context.prev = 0;
         _context.next = 3;
         return _index["default"].sequelize.sync().then(function () {
-          return console.log('-->connected to the db');
+          return console.log("-->connected to the db");
         });
       case 3:
         _context.next = 8;
@@ -28,11 +28,11 @@ _server["default"].listen(process.env.PORT, function () {
       case 5:
         _context.prev = 5;
         _context.t0 = _context["catch"](0);
-        console.log('Error connecting to the db:', _context.t0.message);
+        console.log("Error connecting to the db:", _context.t0.message);
       case 8:
       case "end":
         return _context.stop();
     }
   }, _callee, null, [[0, 5]]);
-}))();
+}));
 //# sourceMappingURL=index.js.map

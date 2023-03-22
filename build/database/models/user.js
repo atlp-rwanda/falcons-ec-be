@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
@@ -10,6 +10,8 @@ var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime
 var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+/* eslint-disable valid-jsdoc */
+/* eslint-disable require-jsdoc */
 var bcrypt = require('bcrypt');
 var _require = require('uuid'),
   uuidv4 = _require.v4;
@@ -25,16 +27,31 @@ module.exports = function (sequelize, DataTypes) {
     }
     (0, _createClass2["default"])(User, null, [{
       key: "associate",
-      value: function associate(models) {}
+      value: function associate(models) {
+        // define association here
+        User.hasMany(models.Product, {
+          foreignKey: 'seller_id'
+        });
+      }
     }]);
     return User;
   }(Model);
   User.init({
+    id: {
+      type: DataTypes.UUID,
+      primaryKey: true
+    },
     email: DataTypes.STRING,
-    password: DataTypes.STRING
+    password: DataTypes.STRING,
+    token: DataTypes.STRING,
+    role: DataTypes.STRING,
+    status: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
+    }
   }, {
     sequelize: sequelize,
-    modelName: 'User'
+    modelName: "User"
   });
   User.beforeCreate(function (user) {
     user.id = uuidv4();

@@ -28,9 +28,4 @@ app.use(
     saveUninitialized: false,
   }),
 );
-app.use('/api/v1', userRoutes);
-app.use('/', passportRouter);
-app.use('/', allRoutes);
-app.use('/welcome', welcomeRoute);
-app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swagger));
 export default app;

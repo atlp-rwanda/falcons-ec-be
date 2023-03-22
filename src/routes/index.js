@@ -5,6 +5,6 @@ import welcomeRoutes from './welcomeRoute';
 const router = Router();
 
 router.use('/welcome', welcomeRoutes);
-router.use('/users', userRoutes);
+router.use('/', userRoutes);
 
 export default router;

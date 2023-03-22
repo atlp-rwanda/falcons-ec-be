@@ -4,13 +4,15 @@ var fs = require('fs');
 var path = require('path');
 var Sequelize = require('sequelize');
 var process = require('process');
+var User = require('./user');
+var Product = require('./product');
 var basename = path.basename(__filename);
 var env = process.env.NODE_ENV || 'development';
 var config = require('../../config/config.js')[env];
 var db = {};
 var sequelize;
-if (process.env.DEV_DATABASE_URL) {
-  sequelize = new Sequelize(process.env.DEV_DATABASE_URL, config);
+if (config.use_env_variable) {
+  sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {
   sequelize = new Sequelize(config.url, config);
 }
