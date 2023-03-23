@@ -1,6 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import jwt from "jsonwebtoken";
-import findOneUserService from "../services/authService";
+import jwt from 'jsonwebtoken';
+import findOneUserService from '../services/authService';
+import { User } from '../database/models/index';
 
 const isLoggedIn = async (req, res, next) => {
   if (req.headers.authorization) {
@@ -64,5 +65,15 @@ export const isSeller = async (req, res, next) => {
       message: `Error when authorizing user ${error.message}`,
     });
   }
+};
+export const checkUserExists = async (req, res, next) => {
+  const { email } = req.body;
+  const userInDb = await User.findOne({
+    where: { email },
+  });
+  if (userInDb) {
+    return res.status(409).json({ message: 'Email already exists' });
+  }
+  next();
 };
 export default isLoggedIn;
