@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import jwt from "jsonwebtoken";
-import findOneUserService from "../services/authService";
+import jwt from 'jsonwebtoken';
+import findOneUserService from '../services/authService';
 
 const isLoggedIn = async (req, res, next) => {
   if (req.headers.authorization) {
@@ -65,4 +65,5 @@ export const isSeller = async (req, res, next) => {
     });
   }
 };
+
 export default isLoggedIn;

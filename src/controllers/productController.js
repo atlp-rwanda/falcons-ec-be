@@ -1,4 +1,4 @@
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import db from '../database/models/index';
 import cloudinary from '../../uploads';
 
