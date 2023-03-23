@@ -9,7 +9,6 @@ import router from './routes';
 import productRoute from './routes/productRoutes';
 import welcomeRoute from './routes/welcomeRoute';
 
-
 export const app = express();
 
 dotenv.config();

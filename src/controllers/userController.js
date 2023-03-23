@@ -1,19 +1,21 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import db from "../database/models/index";
-import generateToken from "../helpers/token_generator";
-import bcrypt from "bcrypt";
+import bcrypt from 'bcrypt';
+import db from '../database/models/index';
+import generateToken from '../helpers/token_generator';
+import { BcryptUtility } from '../utils/bcrypt.util';
+import { UserService } from '../services/user.service';
 
 const { User } = db;
 
- const getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res) => {
   const allUsers = await User.findAll();
 
-  if (!allUsers) res.status(400).json({ message: "No users found" });
+  if (!allUsers) res.status(400).json({ message: 'No users found' });
 
   res.json(allUsers);
 };
 
- const loginUser = async (req, res) => {
+const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ where: { email } });
@@ -29,42 +31,56 @@ const { User } = db;
       res.status(200).json({
         status: 200,
         success: true,
-        message: "Login successful",
+        message: 'Login successful',
         token,
       });
     } else {
       res.status(401).json({
         status: 401,
         success: false,
-        message: "Invalid credentials",
+        message: 'Invalid credentials',
       });
     }
   } catch (error) {
     res.status(500).send({
       status: 500,
       success: false,
-      message: "Failed to Login",
+      message: 'Failed to Login',
       error: error.message,
     });
   }
 };
+export const registerUser = async (req, res) => {
+  try {
+    const user = { ...req.body };
+    user.password = await BcryptUtility.hashPassword(req.body.password);
+    const { id, email } = await UserService.register(user);
+    const userData = { id, email };
+    const userToken = await generateToken(userData);
+    return res.status(201).json({ user: userData, token: userToken });
+  } catch (err) {
+    return res.status(500).jsonp({
+      error: err.message,
+      message: 'Failed to register a new user',
+    });
+  }
+};
 
- const setRoles = async (req, res) => {
-  if (!req.params.id)
-    return res.status(400).json({ message: "User ID not provided" });
+const setRoles = async (req, res) => {
+  if (!req.params.id) { return res.status(400).json({ message: 'User ID not provided' }); }
 
   const foundUser = await User.findOne({ where: { email: req.params.id } });
 
-  if (!foundUser) return res.status(400).json({ message: "User not found" });
+  if (!foundUser) return res.status(400).json({ message: 'User not found' });
 
   foundUser.role = req.body.role;
   const result = await foundUser.save();
 
-  return res.json({ message: "User role updated" });
+  return res.json({ message: 'User role updated' });
 };
 
-//user registration for testing purposes
- const createNewUser = async (req, res) => {
+// user registration for testing purposes
+const createNewUser = async (req, res) => {
   try {
     const salt = await bcrypt.genSalt(10);
     const pwd = await bcrypt.hash(req.body.password, salt);
@@ -72,12 +88,12 @@ const { User } = db;
     const instance = await User.create({
       email: req.body.email,
       password: pwd,
-      role: "admin",
+      role: 'admin',
       status: true,
-      token: "",
+      token: '',
     });
-
-    res.json({ message: "User created" });
+    res.status(201);
+    res.json({ message: 'User created' });
   } catch (err) {
     res.status(400).json(err);
   }
@@ -108,20 +124,19 @@ const updatePassword = async (req, res) => {
 };
 
 const disableAccount = async (req, res) => {
-  if (!req.params.id)
-    return res.status(400).json({ message: "User ID not provided" });
+  if (!req.params.id) { return res.status(400).json({ message: 'User ID not provided' }); }
 
   const foundUser = await User.findOne({ where: { email: req.params.id } });
 
-  if (!foundUser) return res.status(400).json({ message: "User not found" });
+  if (!foundUser) return res.status(400).json({ message: 'User not found' });
 
-  let message = "";
+  let message = '';
   if (foundUser.status === true) {
     foundUser.status = false;
-    message = "Account disabled";
+    message = 'Account disabled';
   } else {
     foundUser.status = true;
-    message = "Account Enabled";
+    message = 'Account Enabled';
   }
 
   const result = await foundUser.save();
@@ -129,4 +144,6 @@ const disableAccount = async (req, res) => {
   return res.json({ message });
 };
 
-export { getAllUsers, loginUser, setRoles, createNewUser, updatePassword, disableAccount};
+export {
+  getAllUsers, loginUser, setRoles, createNewUser, updatePassword, disableAccount
+};
