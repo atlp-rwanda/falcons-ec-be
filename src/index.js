@@ -13,4 +13,6 @@ app.listen(process.env.PORT, () => {
       .sync()
       .then(() => console.log("-->connected to the db"));
   } catch (error) {
-    console.log("Error connecting to the db:", error.message)}});
+    console.log("Error connecting to the db:", error.message);
+  }
+})();

@@ -628,6 +628,67 @@
           }
         }
       }
+    },
+    "/api/v1/users/register": {
+      "post": {
+        "tags":["users"],
+        "summary": "Registering  a user",
+        "description": "This is an api that register a user with an email, names and password",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "firstname": {
+                  "type": "string",
+                  "default": "firstname"
+                },
+                "lastname": {
+                  "type": "string",
+                  "default": "lastname"
+                },
+                "email": {
+                  "type": "string",
+                  "default": "email"
+                },
+                "password": {
+                  "type": "string",
+                  "default": "password"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Registered",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "Register successful"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   

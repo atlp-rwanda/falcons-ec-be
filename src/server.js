@@ -11,7 +11,6 @@ import router from './routes';
 import productRoute from './routes/productRoutes';
 import logoutRoutes from './routes/logout';
 
-
 export const app = express();
 
 dotenv.config();
