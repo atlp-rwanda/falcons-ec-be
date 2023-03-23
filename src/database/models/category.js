@@ -17,7 +17,13 @@ module.exports = (sequelize, DataTypes) => {
   }
   Category.init(
     {
+      id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+      },
       categoryName: DataTypes.STRING,
+      createdAt: DataTypes.DATE,
+      updatedAt: DataTypes.DATE,
     },
     {
       sequelize,

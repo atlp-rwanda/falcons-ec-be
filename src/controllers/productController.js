@@ -1,7 +1,6 @@
 import * as dotenv from 'dotenv';
 import db from '../database/models/index';
-import cloudinary from '../../uploads';
-
+import cloudinary from '../uploads';
 dotenv.config();
 const { Product } = db;
 
@@ -24,7 +23,6 @@ const CreateProduct = async (req, res) => {
       description: req.body.description,
       quantity: req.body.quantity,
       price: req.body.price,
-      categoryName: req.body.categoryName,
       seller_id: '57409d12-ddad-4938-a37a-c17bc33aa4ba',
       expiryDate: new Date(),
     });
@@ -43,7 +41,7 @@ const CreateProduct = async (req, res) => {
 
     return res.status(201).json(product);
   } catch (error) {
-    res.status(401).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 };
 

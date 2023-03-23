@@ -72,7 +72,7 @@ module.exports = {
         category_id: {
           type: Sequelize.UUID,
           references: {
-            model: 'Category',
+            model: 'Categories',
             key: 'id',
           },
         },
