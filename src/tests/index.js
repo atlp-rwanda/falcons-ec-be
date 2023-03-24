@@ -174,16 +174,16 @@ describe('Set user role', () => {
     password: '1234',
   };
 
-  describe('POST /api/v1/users/signup', () => {
-    it('should not create a user without full data provided', async () => {
+  describe("POST /api/v1/users/signup", () => {
+    it("should not create a user without full data provided", async () => {
       const response = await chai
         .request(app)
-        .post('/api/v1/users/signup')
-        .send({ password: '1234' });
+        .post("/api/v1/users/signup")
+        .send({ password: "1234" });
       expect(response.status).to.equal(400);
     });
 
-    it('should create a fake admin', async () => {
+    it("should create a fake admin", async () => {
       const response = await chai
         .request(app)
         .post('/api/v1/users/signup')
@@ -208,8 +208,8 @@ describe('Set user role', () => {
         .put(`/api/v1/users/${fakeUser.email}/roles`)
         .set('Authorization', `Bearer ${_TOKEN}`)
         .send({ role: 'seller' });
-      console.log(response);
-      expect(response.status).to.equal(400);
+
+      expect(response.status).to.equal(401);
     });
 
     it('should authorise the fake admin', async () => {
@@ -320,8 +320,19 @@ describe('Disable account', () => {
     expect(response.status).to.equal(200);
   });
 
- 
-  it('should enable an account', async () => {
+  it("should return 403 to avoid login of a disabled account", async () => {
+    const loginResponse = await chai
+      .request(app)
+      .post("/api/v1/users/signin")
+      .send({
+        email: "eric@gmail.com",
+        password: "1234",
+      });
+
+    expect(loginResponse.status).to.equal(403);
+  });
+
+  it("should enable an account", async () => {
     const response = await chai
       .request(app)
       .patch('/api/v1/users/eric@gmail.com/status')

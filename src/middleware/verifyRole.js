@@ -14,7 +14,7 @@ export const verifyRole = (allowedRole) => (req, res, next) => {
     if (req.user.role === allowedRole) {
       next();
     } else {
-      res.status(400).json({ message: "unauthorised" });
+      res.status(401).json({ message: "unauthorised" });
     }
   } catch (err) {
     res.status(400).json({ message: "invalid token" });

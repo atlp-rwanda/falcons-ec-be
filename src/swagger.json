@@ -433,7 +433,7 @@
         }
       }
     },
-    "/api/v1/users/{id}/roles": {
+    "/api/v1/users/{email}/roles": {
       "put": {
         "security": [
           {
@@ -447,10 +447,10 @@
         "parameters": [
           {
             "in": "path",
-            "name": "id",
+            "name": "email",
             "required": true,
             "type": "string",
-            "description": "The user ID."
+            "description": "The user email."
           },
           {
             "name": "body",
@@ -536,7 +536,7 @@
         }
       }
     },
-    "/api/v1/users/{id}/status": {
+    "/api/v1/users/{email}/status": {
       "patch": {
         "security": [
           {
@@ -550,10 +550,10 @@
         "parameters": [
           {
             "in": "path",
-            "name": "id",
+            "name": "email",
             "required": true,
             "type": "string",
-            "description": "The user ID."
+            "description": "The user email."
           }
         ],
         "responses": {
