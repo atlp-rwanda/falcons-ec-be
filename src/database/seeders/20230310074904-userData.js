@@ -10,7 +10,6 @@ module.exports = {
           role: 'seller',
           password:
             "$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS", //1234
-          token:"tokenexample",
           status: true,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -20,7 +19,6 @@ module.exports = {
           email: 'kylesjet1@gmail.com',
           password: '$2b$10$CmTI8plpPwMC74n4pnod3..JErxlHetqkQqrhTuiwqt9KXC1rV52W',
           role: 'buyer',
-          token: 'tokenexample',
           createdAt: '2023-03-17T10:16:59.334Z',
           updatedAt: '2023-03-17T10:16:59.334Z'
         },
@@ -30,7 +28,6 @@ module.exports = {
           role: 'seller',
           password:
             "$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS", //1234
-          token:"tokenexample",
           status: true,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -41,7 +38,6 @@ module.exports = {
           role: 'admin',
           password:
             "$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS", //1234
-          token:"tokenexample",
           status: true,
           createdAt: new Date(),
           updatedAt: new Date(),

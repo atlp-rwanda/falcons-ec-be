@@ -90,7 +90,6 @@ const createNewUser = async (req, res) => {
       password: pwd,
       role: 'admin',
       status: true,
-      token: '',
     });
     res.status(201);
     res.json({ message: 'User created' });
