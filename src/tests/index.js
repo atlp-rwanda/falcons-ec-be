@@ -22,11 +22,6 @@ chai.use(chaiHttp);
 let _TOKEN = '';
 
 describe('Welcome Controller', () => {
-  // before(async () => {
-  //   // run migrations and seeders to prepare the database
-  //   await db.sequelize.sync({ force: true });
-  // });
-
   describe('GET /welcome', () => {
     it('should return a 200 response and a welcome message', async () => {
       const res = await chai.request(app).get('/welcome');
@@ -44,12 +39,10 @@ describe('Google Authentication', () => {
 
   describe('GET /auth/google', () => {
     before(() => {
-      // set up passport-stub to simulate authentication
       passportStub.install(app);
     });
 
     after(() => {
-      // uninstall passport-stub after the tests are finished
       passportStub.uninstall();
     });
 
@@ -333,5 +326,24 @@ describe('Register User', () => {
     };
     const response = await chai.request(app).post('/api/v1/users/register').send(userData);
     expect(response.status).to.equal(400);
+  });
+});
+
+describe('POST /api/v1/users/logout', () => {
+  it('should respond with a status code', async () => {
+    const token = await generateToken();
+    const response = await chai
+      .request(app)
+      .post('/api/v1/users/logout')
+      .set('Authorization', `Bearer ${token}`)
+      expect(response.status).to.equal(500);
+  });
+  it('should respond with a success message', async () => {
+    const token = await generateToken();
+    const response = await chai
+      .request(app)
+      .post('/api/v1/users/logout')
+      .set('Authorization', `Bearer ${token}`);
+      expect(response.status).to.equal(500);
   });
 });

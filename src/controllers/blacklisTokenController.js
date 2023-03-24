@@ -1,6 +1,4 @@
 import { logoutUser } from '../services/authService';
-// const jwt = require('jsonwebtoken')
-
 
 export const logout = async (req, res) => {
   try {

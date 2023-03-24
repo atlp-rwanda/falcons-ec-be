@@ -546,44 +546,22 @@
     },
     "/api/v1/users/logout": {
       "post": {
-        "summary": "creates a token blacklist model",
-        "description": "creates a token blaklist model",
-        "produces": ["application/json"],
-        "parameters": [
+        "tags":["User Logout"],
+        "security": [
           {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "token": {
-                  "type": "TEXT",
-                  "default": "token"
-                }
-              }
-            }
+            "jwt": [],
+            "bearerAuth": []
           }
         ],
         "responses": {
           "200": {
-            "description": "registration successful",
+            "description": "Logout successful",
             "definitions": {
               "message": {
                 "type": "object",
                 "properties": {
                   "message": {
                     "type": "string"
-                  }
-                }
-              }
-            },
-            "schema": {
-              "items": {
-                "type": "object",
-                "properties": {
-                  "message": {
-                    "default": "registration Successful"
                   }
                 }
               }
