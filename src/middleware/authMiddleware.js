@@ -12,10 +12,10 @@ const isLoggedIn = async (req, res, next) => {
       const blacklistedToken = await blacklisToken.findOne({ where: { token } });
 
       if (blacklistedToken) {
-          return res.status(500).json({ 
-            status: 500,
-            success: false,
-            message: 'Token blacklisted, login again' });
+        return res.status(401).json({ 
+          status: 401,
+          success: false,
+          message: 'You need to login again' });
       }
 
       const currentUser = await findOneUserService(decodedData.payload.id);

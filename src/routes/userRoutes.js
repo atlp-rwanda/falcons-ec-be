@@ -43,6 +43,6 @@ userRoutes.post(
   checkUserExists,
   registerUser
 );
-userRoutes.post("api/v1/users/logout", isLoggedIn, logout);
+userRoutes.post("/api/v1/users/logout", isLoggedIn, logout);
 
 export default userRoutes;

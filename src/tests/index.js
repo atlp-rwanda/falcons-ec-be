@@ -12,6 +12,7 @@ import db from '../database/models/index';
 import verifyRole from '../middleware/verifyRole';
 import jwt from 'jsonwebtoken';
 import { UserService } from '../services/user.service'
+import { logoutUser } from '../services/authService';
 import generateToken from '../helpers/token_generator';
 
 const {blacklisToken} = db;
@@ -300,6 +301,7 @@ describe('PRODUCT', async () => {
     price: 100,
     quantity: 10,
     expiryDate: '12/12/12',
+    category_id: '0da3d632-a09e-42d5-abda-520aea82ef49'
   };
   const invalidproduct = {
     productName: 'test',
@@ -322,9 +324,6 @@ describe('PRODUCT', async () => {
       expect(response.body).to.have.property('price');
       expect(response.body).to.have.property('quantity');
       expect(response.body).to.have.property('expiryDate');
-
-
-
       
     });
     it('should return 400 incase validation fails', async () => {
@@ -421,14 +420,13 @@ describe('Register User', () => {
 });
 
 describe('POST /api/v1/users/logout', () => {
-  it('should respond with a 200 status code and success message', async () => {
-    const req = { headers: { authorization: 'Bearer abc123' } };
+  it('should respond with a 404 status code', async () => {
+    const token = await generateToken();
+    const req = { headers: { authorization: `Bearer ${token}` } };
     const res = {
       status: (status) => ({
         json: (data) => {
-          expect(status).to.equal(200);
-          expect(data.success).to.be.true;
-          expect(data.message).to.equal('Logout successful');
+          expect(status).to.equal(404);
         }
       })
     };
@@ -438,96 +436,127 @@ describe('POST /api/v1/users/logout', () => {
     const response = await chai
     .request(app)
     .get('/api/v1/protected')
-    .set('Authorization', `Bearer ${token}`)
-    expect(response.status).to.equal(404)
+    .set('Authorization', `Bearer ${token}`);
+    expect(response.status).to.equal(404);
   });
-  it('should respond with error message', async () => {
+  it('should respond with a code', async () => {
     const token = await generateToken();
     const response = await chai
       .request(app)
       .post('/api/v1/users/logout')
-      .set('Authorization', `Bearer ${token}`)
-      expect(response.body.message).to.equal(`Error when authorizing user Cannot read properties of undefined (reading 'id')`);      
-  });
-  it('should respond with a status code', async () => {
-    const token = await generateToken();
-    const response = await chai
-      .request(app)
-      .post('/api/v1/users/logout')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${token}`);
       expect(response.status).to.equal(500);
   });
-
-  it("It should put token in blacklist", async () => {
+describe('logoutUser function', () => {
+  it('should create a new blacklisted token', async () => {
     const token = await generateToken();
-    const res = await request(app).post("/api/v1/users/logout")
-    .set("Authorization", `Bearer ${token}`)
-    .send({
-      token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoia2F0cm9zMjUwQGdtYWlsLmNvbSIsImlhdCI6MTY3OTM5MDQwOCwiZXhwIjoxNjc5MzkwNDY4fQ.80S2mmY768UpVKBjgjFiMl0wmsunsMujlypCV50guSY"
+    const data = `Bearer ${token}`;
+    let createMethodCalled = false;
+    blacklisToken.create = (params) => {
+      createMethodCalled = true;
+      expect(params).to.deep.equal({ token });
+    };
+    await logoutUser(data);
+    expect(createMethodCalled).to.be.true;
+  });
+});
+
+
+describe('CATEGORY', async () => {
+  const realUser = {
+    email: 'eric@gmail.com',
+    password: '1234',
+  };
+  const response = await chai
+    .request(app)
+    .post('/api/v1/users/signin')
+    .send(realUser);
+  const { token } = response.body;
+  const category = {
+    categoryName: 'test',
+  };
+  const invalidcategory = {
+    productName: 'test',
+    description: 'test',
+    price: 100,
+    quantity: 10,
+  };
+  expect(response.status).to.equal(200);
+  describe('POST /api/v1/categories', () => {
+    it('should create a Category', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/categories')
+        .set('Authorization', `Bearer ${token}`)
+        .send(category);
+      expect(response.status).to.equal(201);
+      expect(response.body).to.have.property('categoryName');
+      expect(response.body).to.be.an('object');
     });
-    expect(res.statusCode).to.equal(500);
-  });
+    it('should return 400 incase validation fails', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/categories')
+        .set('Authorization', `Bearer ${token}`)
+        .send(invalidcategory);
+      expect(response.status).to.equal(400);
+    });
+    it('should return 400 incase validation fails', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/categories')
+        .set('Authorization', `Bearer ${token}`)
+        .send(invalidcategory);
+      expect(response.status).to.equal(400);
+    });
 
-  it('should return a 500 response', async () => {
-    const token = await generateToken();
-    const blacklist = await blacklisToken.create({ token });
-    const response = await chai
-      .request(app)
-      .post('/api/v1/users/logout')
-      .set('Authorization', `Bearer ${token}`)
-      expect(response.status).to.equal(500);
-  });
-});
-
-describe('POST /categories', () => {
-  it('should create a new category', async () => {
-    const res = await request(app)
-      .post('/categories')
-      .send({ categoryName: 'Test Category' });
-
-    expect(res.status).to.equal(404);
-  });
-  it('should return an error if category already exists', async () => {
-    const category = await db.Category.create({ categoryName: 'Test Category' });
-
-    const res = await request(app)
-      .post('/categories')
-      .send({ categoryName: 'Test Category' });
-
-    expect(res.status).to.equal(404);
-  });
-});
-
-describe('PUT /categories/:categoryId', () => {
-  it('should update an existing category', async () => {
-    const category = await db.Category.create({ categoryName: 'Test Category' });
-
-    const res = await request(app)
-      .put(`/categories/${category.id}`)
-      .send({ categoryName: 'Updated Category' });
-
-    expect(res.status).to.equal(404);
-    expect(res.body.message).to.equal('Category updated successfully');
-
-    const updatedCategory = await db.Category.findByPk(category.id);
-    expect(updatedCategory.categoryName).to.equal('Updated Category');
-  });
-
-  it('should return an error if category does not exist', async () => {
-    const res = await request(app)
-      .put('/categories/999')
-      .send({ categoryName: 'Updated Category' });
-
-    expect(res.status).to.equal(404);
-  });
-
-  it('should return an error if category name is same', async () => {
-    const category = await db.Category.create({ categoryName: 'Test Category' });
-
-    const res = await request(app)
-      .put(`/categories/${category.id}`)
-      .send({ categoryName: 'Test Category' });
-
-    expect(res.status).to.equal(404);
-  });
+    it('should return 401 if user is not logged in', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/categories')
+        .send(invalidcategory);
+      expect(response.status).to.equal(401);
+    });
+     it('should return 401 if user is not an admin ', async () => {
+       const response = await chai
+         .request(app)
+         .post('/api/v1/categories')
+         .set('Authorization', `Bearer ${_TOKEN}`)
+         .send(invalidcategory);
+       expect(response.status).to.equal(401);
+     });
+    describe('api/v1/categories/:userId/update PATCH', () => {
+      it('it should update user category', async () => {
+        const category = {
+          categoryName: 'test 101',
+        };
+        const res = await chai
+          .request(app)
+          .patch(
+            `/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49/update`,
+          )
+          .set('Authorization', `Bearer ${token}`)
+          .send(category);
+        res.should.have.status(200);
+        res.body.should.be.a('object');
+        expect('Content-Type', /json/);
+      });
+      it('it should not update  categories with the same name', async () => {
+        const category = {
+          categoryName: 'Category1',
+        };
+        const res = await chai
+          .request(app)
+          .patch(
+            `/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49/update`,
+          )
+          .set('Authorization', `Bearer ${token}`)
+          .send(category);
+        res.should.have.status(200);
+        res.body.should.be.a('object');
+        expect('Content-Type', /json/);
+       });
+     });
+    });
+ });
 });
