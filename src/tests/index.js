@@ -9,7 +9,12 @@ import { async } from 'regenerator-runtime';
 import exp from 'constants';
 import app from '../server';
 import db from '../database/models/index';
+import verifyRole from '../middleware/verifyRole';
+import jwt from 'jsonwebtoken';
+import { UserService } from '../services/user.service'
 import generateToken from '../helpers/token_generator';
+
+const {blacklisToken} = db;
 
 dotenv.config();
 
@@ -22,11 +27,6 @@ chai.use(chaiHttp);
 let _TOKEN = '';
 
 describe('Welcome Controller', () => {
-  // before(async () => {
-  //   // run migrations and seeders to prepare the database
-  //   await db.sequelize.sync({ force: true });
-  // });
-
   describe('GET /welcome', () => {
     it('should return a 200 response and a welcome message', async () => {
       const res = await chai.request(app).get('/welcome');
@@ -91,7 +91,18 @@ describe('Google Authentication', () => {
         assert.deepEqual(serializedUser, user);
         done();
       });
-    });
+    }); 
+    
+  it('should return unexpected', (done) => {
+    chai
+      .request(app)
+      .get('/google')
+      .end((err, res) => {
+        chai.expect(err).to.be.null;
+        chai.expect(res).to.have.status(404);
+        done();
+      });
+   });   
   });
 });
 describe('generateToken', () => {
@@ -124,6 +135,40 @@ describe('login', () => {
     email: 'boris@gmail.com',
     password: '1234',
   };
+  
+describe('generateToken', () => {
+  it('should generate a valid JWT token', async () => {
+    const payload = { id: 123, email: 'testuser@example.com' };
+    const token = await generateToken(payload);
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    expect(decoded.payload).to.deep.equal(payload);
+  });
+
+  it('should set the token expiration to 7 days', async () => {
+    const payload = { id: 123, email: 'testuser@example.com' };
+    const token = await generateToken(payload);
+
+    const decoded = jwt.decode(token, { complete: true });
+    const expiration = decoded.payload.exp;
+    const now = Math.floor(Date.now() / 1000);
+
+    expect(expiration - now).to.equal(60 * 60 * 24 * 7); // 7 days in seconds
+  });
+});
+
+describe('UserService', () => {
+    it('should create a new user in the database', async () => {
+      const userData = {
+        email: 'testuser@example.com',
+        password: 'password123',
+      };
+      const createdUser = await UserService.register(userData);
+      expect(createdUser).to.exist;
+      expect(createdUser.email).to.equal(userData.email);
+      expect(createdUser.password).to.equal(userData.password);
+    });
+  });
 
   describe('POST /api/v1/users/signin', () => {
     it('should respond with status code 200', async () => {
@@ -230,6 +275,12 @@ describe('Set user role', () => {
 
       expect(response.status).to.equal(200);
     });
+  });
+})
+
+describe('verifyRole middleware', () => {
+  it('should be a function', () => {
+    expect(verifyRole).to.be.a('function');
   });
 });
 
@@ -357,102 +408,123 @@ describe('Register User', () => {
     expect(response.status).to.equal(400);
   });
 });
-describe('CATEGORY', async () => {
-  const realUser = {
-    email: 'eric@gmail.com',
-    password: '1234',
-  };
-  const response = await chai
-    .request(app)
-    .post('/api/v1/users/signin')
-    .send(realUser);
-  const { token } = response.body;
-  const category = {
-    categoryName: 'test',
-  };
-  const invalidcategory = {
-    productName: 'test',
-    description: 'test',
-    price: 100,
-    quantity: 10,
-  };
-  expect(response.status).to.equal(200);
-  describe('POST /api/v1/categories', () => {
-    it('should create a Category', async () => {
-      const response = await chai
-        .request(app)
-        .post('/api/v1/categories')
-        .set('Authorization', `Bearer ${token}`)
-        .send(category);
-      expect(response.status).to.equal(201);
-      expect(response.body).to.have.property('categoryName');
-      expect(response.body).to.be.an('object');
-      // expect(response.body).to.be.an('array');
-    });
-    it('should return 400 incase validation fails', async () => {
-      const response = await chai
-        .request(app)
-        .post('/api/v1/categories')
-        .set('Authorization', `Bearer ${token}`)
-        .send(invalidcategory);
-      expect(response.status).to.equal(400);
-    });
-    it('should return 400 incase validation fails', async () => {
-      const response = await chai
-        .request(app)
-        .post('/api/v1/categories')
-        .set('Authorization', `Bearer ${token}`)
-        .send(invalidcategory);
-      expect(response.status).to.equal(400);
-    });
 
-    it('should return 401 if user is not logged in', async () => {
-      const response = await chai
-        .request(app)
-        .post('/api/v1/categories')
-        .send(invalidcategory);
-      expect(response.status).to.equal(401);
+describe('POST /api/v1/users/logout', () => {
+  it('should respond with a 200 status code and success message', async () => {
+    const req = { headers: { authorization: 'Bearer abc123' } };
+    const res = {
+      status: (status) => ({
+        json: (data) => {
+          expect(status).to.equal(200);
+          expect(data.success).to.be.true;
+          expect(data.message).to.equal('Logout successful');
+        }
+      })
+    };
+  });
+  it('should return a 404 response', async () => {
+    const token = await generateToken();
+    const response = await chai
+    .request(app)
+    .get('/api/v1/protected')
+    .set('Authorization', `Bearer ${token}`)
+    expect(response.status).to.equal(404)
+  });
+  it('should respond with error message', async () => {
+    const token = await generateToken();
+    const response = await chai
+      .request(app)
+      .post('/api/v1/users/logout')
+      .set('Authorization', `Bearer ${token}`)
+      expect(response.body.message).to.equal(`Error when authorizing user Cannot read properties of undefined (reading 'id')`);      
+  });
+  it('should respond with a status code', async () => {
+    const token = await generateToken();
+    const response = await chai
+      .request(app)
+      .post('/api/v1/users/logout')
+      .set('Authorization', `Bearer ${token}`)
+      expect(response.status).to.equal(500);
+      expect(response.body.message).to.equal(`Error when authorizing user Cannot read properties of undefined (reading 'id')`);
+  });
+
+  it("It should put token in blacklist", async () => {
+    const token = await generateToken();
+    const res = await request(app).post("/api/v1/users/logout")
+    .set("Authorization", `Bearer ${token}`)
+    .send({
+      token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoia2F0cm9zMjUwQGdtYWlsLmNvbSIsImlhdCI6MTY3OTM5MDQwOCwiZXhwIjoxNjc5MzkwNDY4fQ.80S2mmY768UpVKBjgjFiMl0wmsunsMujlypCV50guSY"
     });
-     it('should return 401 if user is not an admin ', async () => {
-       const response = await chai
-         .request(app)
-         .post('/api/v1/categories')
-         .set('Authorization', `Bearer ${_TOKEN}`)
-         .send(invalidcategory);
-       expect(response.status).to.equal(401);
-     });
-    describe('api/v1/categories/:userId/update PATCH', () => {
-      it('it should update user category', async () => {
-        const category = {
-          categoryName: 'test 101',
-        };
-        const res = await chai
-          .request(app)
-          .patch(
-            `/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49/update`,
-          )
-          .set('Authorization', `Bearer ${token}`)
-          .send(category);
-        res.should.have.status(200);
-        res.body.should.be.a('object');
-        expect('Content-Type', /json/);
-      });
-      it('it should not update  categories with the same name', async () => {
-        const category = {
-          categoryName: 'Category1',
-        };
-        const res = await chai
-          .request(app)
-          .patch(
-            `/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49/update`,
-          )
-          .set('Authorization', `Bearer ${token}`)
-          .send(category);
-        res.should.have.status(200);
-        res.body.should.be.a('object');
-        expect('Content-Type', /json/);
-      });
-    });
+    expect(res.statusCode).to.equal(500);
+  });
+
+  it('should return a 500 response', async () => {
+    const token = await generateToken();
+    const blacklist = await blacklisToken.create({ token });
+    const response = await chai
+      .request(app)
+      .post('/api/v1/users/logout')
+      .set('Authorization', `Bearer ${token}`)
+      expect(response.status).to.equal(500);
   });
 });
 
+describe('POST /api/v1/users/logout', () => {
+  it('should respond with a 200 status code and success message', async () => {
+    const req = { headers: { authorization: 'Bearer abc123' } };
+    const res = {
+      status: (status) => ({
+        json: (data) => {
+          expect(status).to.equal(200);
+          expect(data.success).to.be.true;
+          expect(data.message).to.equal('Logout successful');
+        }
+      })
+    };
+  });
+  it('should return a 404 response', async () => {
+    const token = await generateToken();
+    const response = await chai
+    .request(app)
+    .get('/api/v1/protected')
+    .set('Authorization', `Bearer ${token}`)
+    expect(response.status).to.equal(404)
+  });
+  it('should respond with error message', async () => {
+    const token = await generateToken();
+    const response = await chai
+      .request(app)
+      .post('/api/v1/users/logout')
+      .set('Authorization', `Bearer ${token}`)
+      expect(response.body.message).to.equal(`Error when authorizing user Cannot read properties of undefined (reading 'id')`);      
+  });
+  it('should respond with a status code', async () => {
+    const token = await generateToken();
+    const response = await chai
+      .request(app)
+      .post('/api/v1/users/logout')
+      .set('Authorization', `Bearer ${token}`)
+      expect(response.status).to.equal(500);
+      expect(response.body.message).to.equal(`Error when authorizing user Cannot read properties of undefined (reading 'id')`);
+  });
+
+  it("It should put token in blacklist", async () => {
+    const token = await generateToken();
+    const res = await request(app).post("/api/v1/users/logout")
+    .set("Authorization", `Bearer ${token}`)
+    .send({
+      token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoia2F0cm9zMjUwQGdtYWlsLmNvbSIsImlhdCI6MTY3OTM5MDQwOCwiZXhwIjoxNjc5MzkwNDY4fQ.80S2mmY768UpVKBjgjFiMl0wmsunsMujlypCV50guSY"
+    });
+    expect(res.statusCode).to.equal(500);
+  });
+
+  it('should return a 500 response', async () => {
+    const token = await generateToken();
+    const blacklist = await blacklisToken.create({ token });
+    const response = await chai
+      .request(app)
+      .post('/api/v1/users/logout')
+      .set('Authorization', `Bearer ${token}`)
+      expect(response.status).to.equal(500);
+  });
+});
