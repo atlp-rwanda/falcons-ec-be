@@ -61,8 +61,8 @@ describe('Google Authentication', () => {
           if (err) return done(err);
           assert(
             res.headers.location.startsWith(
-              'https://accounts.google.com/o/oauth2/v2/auth'
-            )
+              'https://accounts.google.com/o/oauth2/v2/auth',
+            ),
           );
           done();
         });
@@ -208,7 +208,7 @@ describe('Set user role', () => {
         .put(`/api/v1/users/${fakeUser.email}/roles`)
         .set('Authorization', `Bearer ${_TOKEN}`)
         .send({ role: 'seller' });
-
+      console.log(response);
       expect(response.status).to.equal(400);
     });
 
@@ -245,7 +245,6 @@ describe('PRODUCT', async () => {
   const { token } = response.body;
   const product = {
     productName: 'test',
-    categoryName: 'test',
     description: 'test',
     price: 100,
     quantity: 10,
@@ -253,7 +252,6 @@ describe('PRODUCT', async () => {
   };
   const invalidproduct = {
     productName: 'test',
-    description: 'test',
     price: 100,
     quantity: 10,
     expiryDate: '12/12/12',
@@ -266,8 +264,17 @@ describe('PRODUCT', async () => {
         .post('/api/v1/products')
         .set('Authorization', `Bearer ${token}`)
         .send(product);
+      response.body.should.be.a('object')
       expect(response.status).to.equal(201);
-      // expect(response.body).to.be.an('array');
+      expect(response.body).to.have.property('productName');
+      expect(response.body).to.have.property('description');
+      expect(response.body).to.have.property('price');
+      expect(response.body).to.have.property('quantity');
+      expect(response.body).to.have.property('expiryDate');
+
+
+
+      
     });
     it('should return 400 incase validation fails', async () => {
       const response = await chai
@@ -293,6 +300,14 @@ describe('PRODUCT', async () => {
         .send(invalidproduct);
       expect(response.status).to.equal(401);
     });
+     it('should return 401 if user is not an admin ', async () => {
+       const response = await chai
+         .request(app)
+         .post('/api/v1/categories')
+         .set('Authorization', `Bearer ${_TOKEN}`)
+         .send(invalidproduct);
+       expect(response.status).to.equal(401);
+     });
   });
 });
 
@@ -305,6 +320,7 @@ describe('Disable account', () => {
     expect(response.status).to.equal(200);
   });
 
+ 
   it('should enable an account', async () => {
     const response = await chai
       .request(app)
@@ -318,10 +334,13 @@ describe('Register User', () => {
     firstname: 'Jackson',
     lastname: 'KANAMUGIRE',
     email: 'jackson@gmail.com',
-    password: 'MyPassword2020!'
+    password: 'MyPassword2020!',
   };
   it('User should be registered when fields match requirements', async () => {
-    const response = await chai.request(app).post('/api/v1/users/register').send(userRegister);
+    const response = await chai
+      .request(app)
+      .post('/api/v1/users/register')
+      .send(userRegister);
     expect(response.status).to.equal(201);
   });
   it('User should not be registered when user email, is invalid ', async () => {
@@ -329,9 +348,111 @@ describe('Register User', () => {
       firstname: 'Jackson',
       lastname: 'Gakwandi',
       email: 'sbdhfdhf',
-      password: '34534'
+      password: '34534',
     };
-    const response = await chai.request(app).post('/api/v1/users/register').send(userData);
+    const response = await chai
+      .request(app)
+      .post('/api/v1/users/register')
+      .send(userData);
     expect(response.status).to.equal(400);
   });
 });
+describe('CATEGORY', async () => {
+  const realUser = {
+    email: 'eric@gmail.com',
+    password: '1234',
+  };
+  const response = await chai
+    .request(app)
+    .post('/api/v1/users/signin')
+    .send(realUser);
+  const { token } = response.body;
+  const category = {
+    categoryName: 'test',
+  };
+  const invalidcategory = {
+    productName: 'test',
+    description: 'test',
+    price: 100,
+    quantity: 10,
+  };
+  expect(response.status).to.equal(200);
+  describe('POST /api/v1/categories', () => {
+    it('should create a Category', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/categories')
+        .set('Authorization', `Bearer ${token}`)
+        .send(category);
+      expect(response.status).to.equal(201);
+      expect(response.body).to.have.property('categoryName');
+      expect(response.body).to.be.an('object');
+      // expect(response.body).to.be.an('array');
+    });
+    it('should return 400 incase validation fails', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/categories')
+        .set('Authorization', `Bearer ${token}`)
+        .send(invalidcategory);
+      expect(response.status).to.equal(400);
+    });
+    it('should return 400 incase validation fails', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/categories')
+        .set('Authorization', `Bearer ${token}`)
+        .send(invalidcategory);
+      expect(response.status).to.equal(400);
+    });
+
+    it('should return 401 if user is not logged in', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/categories')
+        .send(invalidcategory);
+      expect(response.status).to.equal(401);
+    });
+     it('should return 401 if user is not an admin ', async () => {
+       const response = await chai
+         .request(app)
+         .post('/api/v1/categories')
+         .set('Authorization', `Bearer ${_TOKEN}`)
+         .send(invalidcategory);
+       expect(response.status).to.equal(401);
+     });
+    describe('api/v1/categories/:userId/update PATCH', () => {
+      it('it should update user category', async () => {
+        const category = {
+          categoryName: 'test 101',
+        };
+        const res = await chai
+          .request(app)
+          .patch(
+            `/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49/update`,
+          )
+          .set('Authorization', `Bearer ${token}`)
+          .send(category);
+        res.should.have.status(200);
+        res.body.should.be.a('object');
+        expect('Content-Type', /json/);
+      });
+      it('it should not update  categories with the same name', async () => {
+        const category = {
+          categoryName: 'Category1',
+        };
+        const res = await chai
+          .request(app)
+          .patch(
+            `/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49/update`,
+          )
+          .set('Authorization', `Bearer ${token}`)
+          .send(category);
+        res.should.have.status(200);
+        res.body.should.be.a('object');
+        expect('Content-Type', /json/);
+      });
+    });
+  });
+});
+

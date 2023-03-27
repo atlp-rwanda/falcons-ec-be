@@ -52,12 +52,10 @@ describe('create user', () => {
       const response = await chai.request(app)
         .get('/api/v1/users')
         .set('Authorization', `Bearer ${token}`);
-        console.log(response.body[2]);
       const res = await chai.request(app)
         .patch(`/api/v1/users/${response.body[2].id}/password`)
         .set('Authorization', `Bearer ${token}`)
         .send(Password);
-        console.log(res);
       res.should.have.status(200);
       res.body.should.be.a('object');
       expect('Content-Type', /json/);

@@ -66,6 +66,31 @@ export const isSeller = async (req, res, next) => {
     });
   }
 };
+export const isAdmin = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+
+    const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
+
+    const currentUser = await findOneUserService(decodedData.payload.id);
+    console.log(currentUser.role);
+    if (currentUser.role === 'admin') {
+      next();
+    } else {
+      res.status(401).json({
+        status: 401,
+        success: false,
+        message: 'User is not an admin',
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: `Error when authorizing user ${error.message}`,
+    });
+  }
+};
 export const checkUserExists = async (req, res, next) => {
   const { email } = req.body;
   const userInDb = await User.findOne({

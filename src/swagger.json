@@ -92,36 +92,37 @@
       }
     },
     "/api/v1/users/{userId}/password": {
-      "parameters":[ {
-        "name":"userId",
-        "in":"path",
-        "required": true,
-        "description":"UUID of the user to update"
-      },
-      {
-        "name":"body",
-        "in":"body",
-        "description":"The password body to be updated",
-        "required":true,
-        "schema":{
-          "type":"object",
-          "properties":{
-            "oldPassword":{
-              "type":"string",
-              "description":"User's old password"
-            },
-            "newPassword":{
-              "type":"string",
-              "description":"User's new password"
-            },
-            "confirmPassword":{
-              "type":"string",
-              "description":"User's new password"
+      "parameters": [
+        {
+          "name": "userId",
+          "in": "path",
+          "required": true,
+          "description": "UUID of the user to update"
+        },
+        {
+          "name": "body",
+          "in": "body",
+          "description": "The password body to be updated",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "properties": {
+              "oldPassword": {
+                "type": "string",
+                "description": "User's old password"
+              },
+              "newPassword": {
+                "type": "string",
+                "description": "User's new password"
+              },
+              "confirmPassword": {
+                "type": "string",
+                "description": "User's new password"
+              }
             }
           }
         }
-      }
-    ],
+      ],
       "patch": {
         "security": [
           {
@@ -132,9 +133,7 @@
         "tags": ["Password"],
         "summary": "update password",
         "description": "As a user, I should be able to update my password",
-        "produces": [
-          "application/json"
-        ],
+        "produces": ["application/json"],
         "responses": {
           "200": {
             "description": "OK",
@@ -161,11 +160,11 @@
           },
           "400": {
             "description": "BAD REQUEST",
-            "definitions":{
-              "error":{
-                "type":"object",
-                "properties":{
-                  "error":{
+            "definitions": {
+              "error": {
+                "type": "object",
+                "properties": {
+                  "error": {
                     "type": "string"
                   }
                 }
@@ -176,18 +175,18 @@
                 "type": "object",
                 "properties": {
                   "error": {
-                    "default":"error message"
+                    "default": "error message"
                   }
                 }
               }
             }
           },
           "401": {
-            "definitions":{
-              "message":{
-                "type":"object",
-                "properties":{
-                  "error":{
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "error": {
                     "type": "string"
                   }
                 }
@@ -197,14 +196,14 @@
               "items": {
                 "type": "object",
                 "properties": {
-                  "status":{
-                    "default":401
+                  "status": {
+                    "default": 401
                   },
-                  "success":{
-                    "default":false
+                  "success": {
+                    "default": false
                   },
                   "message": {
-                    "default":"Not logged in"
+                    "default": "Not logged in"
                   }
                 }
               }
@@ -212,11 +211,11 @@
           },
           "403": {
             "description": "FORBIDDEN",
-            "definitions":{
-              "message":{
-                "type":"object",
-                "properties":{
-                  "error":{
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "error": {
                     "type": "string"
                   }
                 }
@@ -227,7 +226,7 @@
                 "type": "object",
                 "properties": {
                   "error": {
-                    "default":"Invalid password"
+                    "default": "Invalid password"
                   }
                 }
               }
@@ -265,8 +264,8 @@
                 "type": "object",
                 "properties": {
                   "message": {
-                    "type":"string",
-                    "default":"Login Successful"
+                    "type": "string",
+                    "default": "Login Successful"
                   }
                 }
               }
@@ -274,11 +273,11 @@
           },
           "400": {
             "description": "BAD REQUEST",
-            "definitions":{
-              "error":{
-                "type":"object",
-                "properties":{
-                  "error":{
+            "definitions": {
+              "error": {
+                "type": "object",
+                "properties": {
+                  "error": {
                     "type": "string"
                   }
                 }
@@ -289,7 +288,7 @@
                 "type": "object",
                 "properties": {
                   "error": {
-                    "default":"error message"
+                    "default": "error message"
                   }
                 }
               }
@@ -297,11 +296,11 @@
           },
           "403": {
             "description": "FORBIDDEN",
-            "definitions":{
-              "message":{
-                "type":"object",
-                "properties":{
-                  "error":{
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "error": {
                     "type": "string"
                   }
                 }
@@ -312,7 +311,7 @@
                 "type": "object",
                 "properties": {
                   "error": {
-                    "default":"Invalid password"
+                    "default": "Invalid password"
                   }
                 }
               }
@@ -321,7 +320,7 @@
         }
       }
     },
-        "/api/v1/products": {
+    "/api/v1/products": {
       "post": {
         "summary": "Add a new product",
         "security": [
@@ -343,7 +342,7 @@
             "name": "description",
             "in": "formData",
             "description": "A description of the product.",
-            "required": false,
+            "required": true,
             "type": "string"
           },
           {
@@ -368,31 +367,28 @@
             "name": "quantity",
             "in": "formData",
             "description": "The quantity of the product.",
-            "required": false,
+            "required": true,
             "type": "number"
           },
-          {
-            "name": "category",
-            "in": "formData",
-            "description": "The category of the product.",
-            "required": false,
-            "type": "string"
-          },
+
           {
             "name": "expiryDate",
             "in": "formData",
             "description": "The expiry date of the product.",
-            "required": false,
+            "required": true,
             "type": "string",
             "format": "date-time"
+          },
+          {
+            "name": "category_id",
+            "in": "formData",
+            "description": "The Category ID of the product.",
+            "required": true,
+            "type": "string"
           }
         ],
-        "consumes": [
-          "multipart/form-data"
-        ],
-        "produces": [
-          "application/json"
-        ],
+        "consumes": ["multipart/form-data"],
+        "produces": ["application/json"],
         "responses": {
           "200": {
             "description": "Product added successfully.",
@@ -426,10 +422,6 @@
                 "quantity": {
                   "type": "number",
                   "description": "The quantity of the new product."
-                },
-                "category": {
-                  "type": "string",
-                  "description": "The category of the new product."
                 },
                 "expiryDate": {
                   "type": "string",
@@ -470,7 +462,7 @@
                 "role": {
                   "type": "string",
                   "default": "buyer"
-                }                
+                }
               }
             }
           }
@@ -480,12 +472,12 @@
             "description": "User role updated",
             "definitions": {
               "message": {
-                "type": "object"                
+                "type": "object"
               }
             },
             "schema": {
               "items": {
-                "type": "object"                
+                "type": "object"
               }
             }
           }
@@ -569,12 +561,12 @@
             "description": "Account disabled",
             "definitions": {
               "message": {
-                "type": "object"                
+                "type": "object"
               }
             },
             "schema": {
               "items": {
-                "type": "object"                
+                "type": "object"
               }
             }
           }
@@ -583,7 +575,7 @@
     },
     "/api/v1/users/register": {
       "post": {
-        "tags":["users"],
+        "tags": ["users"],
         "summary": "Registering  a user",
         "description": "This is an api that register a user with an email, names and password",
         "produces": ["application/json"],
@@ -641,17 +633,133 @@
           }
         }
       }
+    },
+    "/api/v1/categories": {
+      "post": {
+        "summary": "Create a category",
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": [],
+            "google_Oauth2": []
+          }
+        ],
+        "description": "This is an api that creates a category",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "categoryName": {
+                  "type": "string",
+                  "default": "Name Of Category"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category created successfully",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "Category created successfully"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/categories/{categoryId}/update": {
+      "patch": {
+        "summary": "Update a category",
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": [],
+            "google_Oauth2": []
+          }
+        ],
+        "description": "This is an api that updates a category",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "description": "UUID of the category to update"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "The category body to be updated",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "categoryName": {
+                  "type": "string",
+                  "description": "Name of Category to update"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category Updated Successfully",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "Category Updated Successfully"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
-  
+
   "securityDefinitions": {
     "bearerAuth": {
-      "type":"apiKey",
-      "name":"Authorization",
-      "in":"header",
-      "bearerFormat":"jwt",
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "bearerFormat": "jwt",
       "scheme": "bearer"
-
     },
     "google_Oauth2": {
       "authorizationUrl": "https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A5000%2Fgoogle%2Fcallback&scope=email%20profile&client_id=111607106086-6e882nl4dni651j6hspjrqg3dsscfdrs.apps.googleusercontent.com",
