@@ -17,6 +17,7 @@ import { logoutUser } from '../services/authService';
 import generateToken from '../helpers/token_generator';
 import { checkPassword } from '../jobs/checkExpiredPasswords';
 import { markPasswordExpired } from '../events/markPasswordExpired';
+import tokenDecode from "../helpers/token_decode";
 
 const { blacklisToken } = db;
 const { User } = db;
@@ -37,18 +38,18 @@ describe('Welcome Controller', () => {
     it('should return a 200 response and a welcome message', async () => {
       const res = await chai.request(app).get('/welcome');
       expect(res).to.have.status(200);
-      expect(res.body.message).to.equal('Test controller OK');
+      expect(res.body.message).to.equal("Test controller OK");
     });
   });
 });
 
-describe('Google Authentication', () => {
+describe("Google Authentication", () => {
   const mockUser = {
-    email: 'johndoe@gmail.com',
-    password: '12345678',
+    email: "johndoe@gmail.com",
+    password: "12345678",
   };
 
-  describe('GET /auth/google', () => {
+  describe("GET /auth/google", () => {
     before(() => {
       // set up passport-stub to simulate authentication
       passportStub.install(app);
@@ -59,36 +60,36 @@ describe('Google Authentication', () => {
       passportStub.uninstall();
     });
 
-    it('should redirect to Google auth page', (done) => {
+    it("should redirect to Google auth page", (done) => {
       request(app)
-        .get('/auth/google')
+        .get("/auth/google")
         .expect(302) // expect a redirect
         .end((err, res) => {
           if (err) return done(err);
           assert(
             res.headers.location.startsWith(
-              'https://accounts.google.com/o/oauth2/v2/auth',
-            ),
+              "https://accounts.google.com/o/oauth2/v2/auth"
+            )
           );
           done();
         });
     });
   });
 
-  describe('GET /google/callback', () => {
-    it('should get a Bad Request when accessing google callback with no token', async () => {
-      const response = await request(app).get('/google/callback');
+  describe("GET /google/callback", () => {
+    it("should get a Bad Request when accessing google callback with no token", async () => {
+      const response = await request(app).get("/google/callback");
       expect(response.status).to.equal(302);
     });
 
-    it('should return a token when generateToken is called ', async () => {
+    it("should return a token when generateToken is called ", async () => {
       const response = await generateToken(mockUser);
-      expect(response).to.be.a('string');
+      expect(response).to.be.a("string");
     });
   });
-  describe('serializeUser', () => {
-    it('should serialize user object', (done) => {
-      const user = { id: 123, name: 'John Doe' };
+  describe("serializeUser", () => {
+    it("should serialize user object", (done) => {
+      const user = { id: 123, name: "John Doe" };
       passport.serializeUser((user, done) => {
         done(null, user);
       });
@@ -111,16 +112,16 @@ describe('Google Authentication', () => {
     });
   });
 });
-describe('generateToken', () => {
-  it('should return a token when provided with valid payload', async () => {
-    const payload = { email: 'johndoe@gmail.com', password: '123' };
+describe("generateToken", () => {
+  it("should return a token when provided with valid payload", async () => {
+    const payload = { email: "johndoe@gmail.com", password: "123" };
 
     const token = await generateToken(payload);
 
-    expect(token).to.be.a('string');
+    expect(token).to.be.a("string");
   });
 
-  it('should throw an error when provided with an invalid payload', async () => {
+  it("should throw an error when provided with an invalid payload", async () => {
     const payload = undefined;
     const req = {};
     const res = {};
@@ -128,88 +129,19 @@ describe('generateToken', () => {
     try {
       const token = await generateToken(payload);
     } catch (err) {
-      expect(err).to.be.an('error');
+      expect(err).to.be.an("error");
     }
   });
 });
-describe('Set user role', () => {
-  const fakeUser = {
-    email: 'admin@gmail.com',
-    password: 'password',
-  };
 
-  const unauthorisedUser = {
-    // user with just seller role
-    email: 'gatete@gmail.com',
-    password: '1234',
-  };
-
-  describe('POST /api/v1/users/signup', () => {
-    it('should not create a user without full data provided', async () => {
-      const response = await chai
-        .request(app)
-        .post('/api/v1/users/signup')
-        .send({ password: '1234' });
-      expect(response.status).to.equal(400);
-    });
-
-    it('should create a fake admin', async () => {
-      const response = await chai
-        .request(app)
-        .post('/api/v1/users/signup')
-        .send(fakeUser);
-      expect(response.status).to.equal(201);
-    });
-  });
-
-  describe('PUT /api/v1/users/:id/roles', () => {
-    it('should authorise the user without admin role', async () => {
-      const loginResponse = await chai
-        .request(app)
-        .post('/api/v1/users/signin')
-        .send(unauthorisedUser);
-      _TOKEN = loginResponse.body.token;
-      expect(loginResponse.status).to.equal(200);
-    });
-
-    it('should deny the unauthorised user', async () => {
-      const response = await chai
-        .request(app)
-        .put(`/api/v1/users/${fakeUser.email}/roles`)
-        .set('Authorization', `Bearer ${_TOKEN}`)
-        .send({ role: 'seller' });
-
-      expect(response.status).to.equal(401);
-    });
-
-    it('should authorise the fake admin', async () => {
-      const loginResponse = await chai
-        .request(app)
-        .post('/api/v1/users/signin')
-        .send(fakeUser);
-      _TOKEN = loginResponse.body.token;
-      expect(loginResponse.status).to.equal(200);
-    });
-
-    it('should set the role to seller', async () => {
-      const response = await chai
-        .request(app)
-        .put(`/api/v1/users/${fakeUser.email}/roles`)
-        .set('Authorization', `Bearer ${_TOKEN}`)
-        .send({ role: 'seller' });
-
-      expect(response.status).to.equal(200);
-    });
-  });
-});
 describe('login', () => {
   const user = {
     email: 'johndoe@gmail.com',
     password: '12345678',
   };
   const realUser = {
-    email: 'boris@gmail.com',
-    password: '1234',
+    email: "boris@gmail.com",
+    password: "1234",
   };
 
   describe('POST /api/v1/users/signin', () => {
@@ -262,30 +194,41 @@ describe('PRODUCT', async () => {
   };
   const response = await chai
     .request(app)
-    .post('/api/v1/users/signin')
+    .post("/api/v1/users/signin")
     .send(realUser);
-  const { token } = response.body;
+  let {OTPtoken} = response.body;
+  let token = "";
   const product = {
-    productName: 'test',
-    description: 'test',
+    productName: "test",
+    description: "test",
     price: 100,
     quantity: 10,
     expiryDate: '12/12/12',
     category_id: '0da3d632-a09e-42d5-abda-520aea82ef49',
   };
   const invalidproduct = {
-    productName: 'test',
+    productName: "test",
     price: 100,
     quantity: 10,
-    expiryDate: '12/12/12',
+    expiryDate: "12/12/12",
   };
   expect(response.status).to.equal(200);
-  describe('POST /api/v1/products', () => {
-    it('should create a Product', async () => {
+  describe("POST /api/v1/products", () => {
+    it("should create a Product", async () => {
+      const decoded = await tokenDecode(OTPtoken);
+      const otpSent = decoded.payload.otpCode;
+      const resp = await chai
+        .request(app)
+        .post(`/api/v1/users/otp/verify/${OTPtoken}`)
+        .send({
+          otp: otpSent,
+        });
+      token = resp.body.loginToken;
+
       const response = await chai
         .request(app)
-        .post('/api/v1/products')
-        .set('Authorization', `Bearer ${token}`)
+        .post("/api/v1/products")
+        .set("Authorization", `Bearer ${token}`)
         .send(product);
       response.body.should.be.a('object');
       expect(response.status).to.equal(201);
@@ -298,27 +241,35 @@ describe('PRODUCT', async () => {
       expect(response.body).to.have.property('createdAt');
       expect(response.body).to.have.property('updatedAt');
     });
-    it('should return 400 incase validation fails', async () => {
+    it("should return 400 incase validation fails", async () => {
       const response = await chai
         .request(app)
-        .post('/api/v1/products')
-        .set('Authorization', `Bearer ${token}`)
+        .post("/api/v1/products")
+        .set("Authorization", `Bearer ${token}`)
         .send(invalidproduct);
       expect(response.status).to.equal(400);
     });
-    it('should return 400 incase validation fails', async () => {
+    it("should return 400 incase validation fails", async () => {
       const response = await chai
         .request(app)
-        .post('/api/v1/products')
-        .set('Authorization', `Bearer ${token}`)
+        .post("/api/v1/products")
+        .set("Authorization", `Bearer ${token}`)
         .send(invalidproduct);
       expect(response.status).to.equal(400);
     });
 
-    it('should return 401 if user is not logged in', async () => {
+    it("should return 401 if user is not logged in", async () => {
       const response = await chai
         .request(app)
-        .post('/api/v1/products')
+        .post("/api/v1/products")
+        .send(invalidproduct);
+      expect(response.status).to.equal(401);
+    });
+    it("should return 401 if user is not an admin ", async () => {
+      const response = await chai
+        .request(app)
+        .post("/api/v1/categories")
+        .set("Authorization", `Bearer ${_TOKEN}`)
         .send(invalidproduct);
       expect(response.status).to.equal(401);
     });
@@ -333,12 +284,83 @@ describe('PRODUCT', async () => {
   });
 });
 
-describe('Disable account', () => {
-  it('should disable an account', async () => {
+describe('Set user role', () => {
+  const fakeUser = {
+    email: "admin@gmail.com",
+    password: "password",
+  };
+
+  const unauthorisedUser = {
+    // user with just buyer role
+    email: "umuntu@gmail.com",
+    password: "1234",
+  };
+
+  describe('POST /api/v1/users/signup', () => {
+    it('should not create a user without full data provided', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/users/signup')
+        .send({ password: '1234' });
+      expect(response.status).to.equal(400);
+    });
+
+    it('should create a fake admin', async () => {
+      const response = await chai
+        .request(app)
+        .post("/api/v1/users/signup")
+        .send(fakeUser);
+      expect(response.status).to.equal(201);
+    });
+  });
+
+  describe("PUT /api/v1/users/:id/roles", () => {
+    it("should authorise the user without admin role", async () => {
+      const loginResponse = await chai
+        .request(app)
+        .post("/api/v1/users/signin")
+        .send(unauthorisedUser);
+      _TOKEN=loginResponse.body.token
+      expect(loginResponse.status).to.equal(200);
+    });
+
+    it("should deny the unauthorised user", async () => {
+      const response = await chai
+        .request(app)
+        .put(`/api/v1/users/${fakeUser.email}/roles`)
+        .set("Authorization", `Bearer ${_TOKEN}`)
+        .send({ role: "seller" });
+
+      expect(response.status).to.equal(401);
+    });
+
+    it("should authorise the fake admin", async () => {
+      const loginResponse = await chai
+        .request(app)
+        .post("/api/v1/users/signin")
+        .send(fakeUser);
+      _TOKEN = loginResponse.body.token;
+      expect(loginResponse.status).to.equal(200);
+    });
+
+    it("should set the role to seller", async () => {
+      const response = await chai
+        .request(app)
+        .put(`/api/v1/users/${fakeUser.email}/roles`)
+        .set("Authorization", `Bearer ${_TOKEN}`)
+        .send({ role: "seller" });
+
+      expect(response.status).to.equal(200);
+    });
+  });
+});
+
+describe("Disable account", () => {
+  it("should disable an account", async () => {
     const response = await chai
       .request(app)
-      .patch('/api/v1/users/eric@gmail.com/status')
-      .set('Authorization', `Bearer ${_TOKEN}`);
+      .patch("/api/v1/users/eric@gmail.com/status")
+      .set("Authorization", `Bearer ${_TOKEN}`);
     expect(response.status).to.equal(200);
   });
 
@@ -369,37 +391,37 @@ describe('Disable account', () => {
   it('should enable an account', async () => {
     const response = await chai
       .request(app)
-      .patch('/api/v1/users/eric@gmail.com/status')
-      .set('Authorization', `Bearer ${_TOKEN}`);
+      .patch("/api/v1/users/eric@gmail.com/status")
+      .set("Authorization", `Bearer ${_TOKEN}`);
     expect(response.status).to.equal(200);
   });
 });
-describe('Register User', () => {
+describe("Register User", () => {
   const userRegister = {
-    firstname: 'Jackson',
-    lastname: 'KANAMUGIRE',
-    email: 'jackson@gmail.com',
-    password: 'MyPassword2020!',
+    firstname: "Jackson",
+    lastname: "KANAMUGIRE",
+    email: "jackson@gmail.com",
+    password: "MyPassword2020!",
   };
-  it('User should be registered when fields match requirements', async () => {
+  it("User should be registered when fields match requirements", async () => {
     const response = await chai
       .request(app)
-      .post('/api/v1/users/register')
+      .post("/api/v1/users/register")
       .send(userRegister);
     expect(response.status).to.equal(201);
     expect(response.body).to.have.property('user');
     token = response.body.token;
   });
-  it('User should not be registered when user email, is invalid ', async () => {
+  it("User should not be registered when user email, is invalid ", async () => {
     const userData = {
-      firstname: 'Jackson',
-      lastname: 'Gakwandi',
-      email: 'sbdhfdhf',
-      password: '34534',
+      firstname: "Jackson",
+      lastname: "Gakwandi",
+      email: "sbdhfdhf",
+      password: "34534",
     };
     const response = await chai
       .request(app)
-      .post('/api/v1/users/register')
+      .post("/api/v1/users/register")
       .send(userData);
     expect(response.status).to.equal(400);
   });
@@ -460,59 +482,59 @@ describe('POST /api/v1/users/logout', () => {
     });
   });
 });
-describe('CATEGORY', async () => {
+describe("CATEGORY", async () => {
   const realUser = {
-    email: 'eric@gmail.com',
-    password: '1234',
+    email: "eric@gmail.com",
+    password: "1234",
   };
   const response = await chai
     .request(app)
-    .post('/api/v1/users/signin')
+    .post("/api/v1/users/signin")
     .send(realUser);
   const { token } = response.body;
   const category = {
-    categoryName: 'test',
+    categoryName: "test",
   };
   const invalidcategory = {
-    productName: 'test',
-    description: 'test',
+    productName: "test",
+    description: "test",
     price: 100,
     quantity: 10,
   };
   expect(response.status).to.equal(200);
-  describe('POST /api/v1/categories', () => {
-    it('should create a Category', async () => {
+  describe("POST /api/v1/categories", () => {
+    it("should create a Category", async () => {
       const response = await chai
         .request(app)
-        .post('/api/v1/categories')
-        .set('Authorization', `Bearer ${token}`)
+        .post("/api/v1/categories")
+        .set("Authorization", `Bearer ${token}`)
         .send(category);
       expect(response.status).to.equal(201);
       expect(response.body).to.have.property('id');
       expect(response.body).to.have.property('categoryName');
       expect(response.body).to.be.an('object');
     });
-    it('should return 400 incase validation fails', async () => {
+    it("should return 400 incase validation fails", async () => {
       const response = await chai
         .request(app)
-        .post('/api/v1/categories')
-        .set('Authorization', `Bearer ${token}`)
+        .post("/api/v1/categories")
+        .set("Authorization", `Bearer ${token}`)
         .send(invalidcategory);
       expect(response.status).to.equal(400);
     });
-    it('should return 400 incase validation fails', async () => {
+    it("should return 400 incase validation fails", async () => {
       const response = await chai
         .request(app)
-        .post('/api/v1/categories')
-        .set('Authorization', `Bearer ${token}`)
+        .post("/api/v1/categories")
+        .set("Authorization", `Bearer ${token}`)
         .send(invalidcategory);
       expect(response.status).to.equal(400);
     });
 
-    it('should return 401 if user is not logged in', async () => {
+    it("should return 401 if user is not logged in", async () => {
       const response = await chai
         .request(app)
-        .post('/api/v1/categories')
+        .post("/api/v1/categories")
         .send(invalidcategory);
       expect(response.status).to.equal(401);
     });
@@ -527,7 +549,7 @@ describe('CATEGORY', async () => {
     describe('api/v1/categories/:userId PATCH', () => {
       it('it should update user category', async () => {
         const category = {
-          categoryName: 'test 101',
+          categoryName: "test 101",
         };
         const res = await chai
           .request(app)
@@ -535,12 +557,12 @@ describe('CATEGORY', async () => {
           .set('Authorization', `Bearer ${token}`)
           .send(category);
         res.should.have.status(200);
-        res.body.should.be.a('object');
-        expect('Content-Type', /json/);
+        res.body.should.be.a("object");
+        expect("Content-Type", /json/);
       });
-      it('it should not update  categories with the same name', async () => {
+      it("it should not update  categories with the same name", async () => {
         const category = {
-          categoryName: 'Category1',
+          categoryName: "Category1",
         };
         const res = await chai
           .request(app)

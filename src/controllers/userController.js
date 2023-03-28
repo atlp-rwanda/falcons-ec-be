@@ -13,6 +13,7 @@ import { messageResetPassword, sendVerifyEmail } from '../helpers/sendMessage';
 import findOneUserService from '../services/authService';
 import cloudinary from '../uploads';
 import sendMessage from '../utils/sendgrid.util';
+import tokenDecode from "../helpers/token_decode";
 
 dotenv.config();
 
@@ -24,7 +25,7 @@ sgMail.setApiKey(API_KEY);
 const getAllUsers = async (req, res) => {
   const allUsers = await User.findAll();
 
-  if (!allUsers) res.status(400).json({ message: 'No users found' });
+  if (!allUsers) res.status(400).json({ message: "No users found" });
 
   res.json(allUsers);
 };
@@ -46,25 +47,101 @@ const loginUser = async (req, res) => {
         return res.status(403).json({ message: 'Account locked!' });
       }
 
+      if (user.role === "seller") {
+        const otp = Math.floor(100000 + Math.random() * 900000);
+
+        const OTPcontents = {
+          userId: user.id,
+          otpCode: otp,
+        };
+
+        const OTPtoken = await generateToken(OTPcontents, process.env.OTP_EXPIRY); //expires in 5 minutes
+
+        const message = {
+          from: `Falcons store <${process.env.SENDGRID_EMAIL}>`,
+          to: user.email,
+          subject: "Two factor authentication",
+          text: `Hello, ${otp} is your OTP code. It will expire in 5 minutes, use the below button to verify it and If you did not request for an OTP code, please ignore this email.`,
+          html: `
+        <h1> Hello</h1>
+        <p> <b>${otp}</b> is your OTP code, it expires in 5 minutes so click the button below to verify it. Do not share it with anyone!</p>
+        <a href="http://localhost:5000/api/v1/users/otp/verify?token=${OTPtoken}" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">Verify OTP code</a>
+        <p>If you did not register for an account with Falcons Project, please ignore this email.</p>`,
+        };
+
+        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+        await sgMail.send(message);
+
+        return res.status(200).json({
+          status: 200,
+          success: true,
+          message: `OTP code sent to ${user.email}`,
+          OTPtoken,
+        });
+      }
+
       const token = await generateToken(payload);
       res.status(200).json({
         status: 200,
         success: true,
-        message: 'Login successful',
+        message: "Login successful",
         token,
       });
     } else {
       res.status(401).json({
         status: 401,
         success: false,
-        message: 'Invalid credentials',
+        message: "Invalid credentials",
       });
     }
   } catch (error) {
     res.status(500).send({
       status: 500,
       success: false,
-      message: 'Failed to Login',
+      message: "Failed to Login",
+      error: error.message,
+    });
+  }
+};
+
+export const verifyOTP = async (req, res) => {
+  if (!req.params.token)
+      return res.status(400).json({ message: "No token provided!" });
+  try {
+    const { otp } = req.body;
+    const { token } = req.params;
+    const decoded = await tokenDecode(token);
+
+    if (decoded.payload.otpCode != otp)
+      return res.status(401).json({ message: "The OTP code is invalid" });
+
+    const user = await User.findOne({ where: { id: decoded.payload.userId } });
+
+    if (!user)
+      return res
+        .status(401)
+        .json({ message: "User not found, please restart the process" });
+
+    const payload = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+    };
+
+    const loginToken = await generateToken(payload);
+    return res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Login successful",
+      loginToken,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      status: 500,
+      success: false,
+      message: "Something went wrong",
       error: error.message,
     });
   }
@@ -82,7 +159,7 @@ export const registerUser = async (req, res) => {
   } catch (err) {
     return res.status(500).json({
       error: err.message,
-      message: 'Failed to register a new user',
+      message: "Failed to register a new user",
     });
   }
 };
@@ -100,7 +177,7 @@ const setRoles = async (req, res) => {
   // eslint-disable-next-line no-unused-vars
   const result = await foundUser.save();
 
-  return res.json({ message: 'User role updated' });
+  return res.json({ message: "User role updated" });
 };
 
 // user registration for testing purposes
@@ -171,7 +248,7 @@ const forgotPassword = async (req, res) => {
     if (!user) {
       return res.status(400).json({ error: 'User not found' });
     }
-    const token = await generateToken(user, { expiresIn: '10m' });
+    const token = await generateToken(user, '10m');
     await await sendMessage(userEmail, messageResetPassword(token), 'Reset Password');
     return res.status(200).json({ token, message: 'email sent to the user' });
   } catch (error) {

@@ -13,7 +13,7 @@ import {
   passwordReset,
   disableAccount,
   registerUser,
-  verifyEmail,
+  verifyEmail, verifyOTP,
   getSingleProfile,
   updateProfile,
 } from '../controllers/userController';
@@ -32,6 +32,8 @@ import validator from '../validations/validation';
 import verifyRole from '../middleware/verifyRole';
 import roleSchema from '../validations/roleSchema';
 import { logout } from '../controllers/blacklisTokenController';
+import otpSchema from "../validations/otpSchema";
+
 
 const userRoutes = express.Router();
 const storage = multer.diskStorage({});
@@ -48,6 +50,7 @@ userRoutes.get('', isLoggedIn, checkPassword, verifyRole('admin'), getAllUsers);
 userRoutes.get('/profile/single', isLoggedIn, getSingleProfile);
 userRoutes.post('/signin', validator(userSchema), loginUser);
 userRoutes.post('/signup', validator(userSchema), createNewUser);
+userRoutes.post('/otp/verify/:token', validator(otpSchema), verifyOTP);
 userRoutes.put(
   '/:id/roles',
   [checkPassword, verifyRole('admin'), validator(roleSchema)],

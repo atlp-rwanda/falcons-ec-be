@@ -1,12 +1,12 @@
-import * as dotenv from 'dotenv';
-import jwt from 'jsonwebtoken';
-import '../config/passport';
+import * as dotenv from "dotenv";
+import jwt from "jsonwebtoken";
+import "../config/passport";
 
 dotenv.config();
 
-const generateToken = async (payload) => {
+const generateToken = async (payload, lifeSpan = '7d') => {
   const token = jwt.sign({ payload }, process.env.JWT_SECRET, {
-    expiresIn: '7d',
+    expiresIn: lifeSpan,
   });
   return token;
 };

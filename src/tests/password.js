@@ -83,6 +83,7 @@ describe('create user', () => {
           .request(app)
           .post('/api/v1/users/password-reset-request')
           .send(kyles);
+        console.log(response.body)
         response.should.have.status(200);
         expect('Content-Type', /json/);
         expect(response.body).to.have.property('token');
