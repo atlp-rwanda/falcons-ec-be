@@ -33,7 +33,7 @@ const fileFilter = (req, file, cb) => {
 const uploads = multer({ storage, fileFilter });
 
 userRoutes.get('', isLoggedIn, verifyRole('admin'), getAllUsers);
-userRoutes.get('/profiles', isLoggedIn, getSingleProfile);
+userRoutes.get('/profile/single', isLoggedIn, getSingleProfile);
 userRoutes.post('/signin', validator(userSchema), loginUser);
 userRoutes.post('/signup', validator(userSchema), createNewUser);
 userRoutes.put(

@@ -76,16 +76,16 @@ describe('get profile', () => {
       token = login.body.token;
     });
   });
-  describe('/api/v1/users/profile GET', () => {
+  describe('/api/v1/users/profile/single GET', () => {
     it('it should throw an error if the user is not logged in', async () => {
-      const res = await chai.request(app).get('/api/v1/users/profiles');
+      const res = await chai.request(app).get('/api/v1/users/profile/single');
       res.should.have.status(401);
     });
 
     it('it should return user profile', async () => {
       const res = await chai
         .request(app)
-        .get('/api/v1/users/profiles')
+        .get('/api/v1/users/profile/single')
         .set('Authorization', `Bearer ${token}`);
       res.should.have.status(200);
     });

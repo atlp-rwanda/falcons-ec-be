@@ -922,7 +922,7 @@
         }
       }
     },
-    "/api/v1/users/profiles": {
+    "/api/v1/users/profile/single": {
       "get": {
         "security": [
           {
