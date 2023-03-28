@@ -41,6 +41,7 @@
     },
     "/api/v1/users/signin": {
       "post": {
+        "tags": ["Users"],
         "summary": "Login a user",
         "description": "This is an api that logs in a user with email and password",
         "produces": ["application/json"],
@@ -130,7 +131,7 @@
             "bearerAuth": []
           }
         ],
-        "tags": ["Password"],
+        "tags": ["Users"],
         "summary": "update password",
         "description": "As a user, I should be able to update my password",
         "produces": ["application/json"],
@@ -243,6 +244,7 @@
             "bearerAuth": []
           }
         ],
+        "tags": ["Users"],
         "summary": "Get all users",
         "description": "This is an api that gets all users",
         "produces": ["application/json"],
@@ -322,6 +324,7 @@
     },
     "/api/v1/products": {
       "post": {
+        "tags": ["Products"],
         "summary": "Add a new product",
         "security": [
           {
@@ -441,6 +444,7 @@
             "bearerAuth": []
           }
         ],
+        "tags": ["Users"],
         "summary": "Changes account role",
         "description": "This is an api that sets user roles",
         "produces": ["application/json"],
@@ -486,6 +490,7 @@
     },
     "/api/v1/users/signup": {
       "post": {
+        "tags": ["Users"],
         "summary": "creates a dummy admin",
         "description": "creates a dummy admin",
         "produces": ["application/json"],
@@ -538,7 +543,7 @@
     },
     "/api/v1/users/logout": {
       "post": {
-        "tags":["User Logout"],
+        "tags": ["Users"],
         "security": [
           {
             "jwt": [],
@@ -562,7 +567,7 @@
         }
       }
     },
-    "/api/v1/users/{id}/status": {
+    "/api/v1/users/{email}/status": {
       "patch": {
         "security": [
           {
@@ -570,6 +575,7 @@
             "bearerAuth": []
           }
         ],
+        "tags": ["Users"],
         "summary": "Toggles account status",
         "description": "This is an api that enables/disables an account",
         "produces": ["application/json"],
@@ -601,7 +607,7 @@
     },
     "/api/v1/users/register": {
       "post": {
-        "tags": ["users"],
+        "tags": ["Users"],
         "summary": "Registering  a user",
         "description": "This is an api that register a user with an email, names and password",
         "produces": ["application/json"],
@@ -662,6 +668,7 @@
     },
     "/api/v1/categories": {
       "post": {
+        "tags": ["Products"],
         "summary": "Create a category",
         "security": [
           {
@@ -717,14 +724,8 @@
     },
     "/api/v1/categories/{categoryId}/update": {
       "patch": {
+        "tags": ["Products"],
         "summary": "Update a category",
-        "security": [
-          {
-            "jwt": [],
-            "bearerAuth": [],
-            "google_Oauth2": []
-          }
-        ],
         "description": "This is an api that updates a category",
         "produces": ["application/json"],
         "parameters": [
@@ -769,6 +770,213 @@
                 "properties": {
                   "message": {
                     "default": "Category Updated Successfully"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/profile": {
+      "patch": {
+        "tags": ["Users"],
+        "summary": "Update user profile",
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": [],
+            "google_Oauth2": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "firstname",
+            "in": "formData",
+            "description": "user's first name",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "lastname",
+            "in": "formData",
+            "description": "user's last name",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "gender",
+            "in": "formData",
+            "description": "male/female/other",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "avatar",
+            "in": "formData",
+            "description": "user's profile image",
+            "required": false,
+            "type": "file"
+          },
+          {
+            "name": "preferredLanguage",
+            "in": "formData",
+            "description": "user's preferred language",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "preferredCurrency",
+            "in": "formData",
+            "description": "user's preferred currency",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "birthDate",
+            "in": "formData",
+            "description": "user's date of birth",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "billingAddress[province]",
+            "in": "formData",
+            "description": "province",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "billingAddress[district]",
+            "in": "formData",
+            "description": "district",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "billingAddress[sector]",
+            "in": "formData",
+            "description": "sector",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "billingAddress[cell]",
+            "in": "formData",
+            "description": "cell",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "billingAddress[street]",
+            "in": "formData",
+            "description": "street",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "consumes": ["multipart/form-data"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Product updated successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "firstname": {
+                  "type": "string",
+                  "description": "user's first name"
+                },
+                "lastname": {
+                  "type": "string",
+                  "description": "user's last name"
+                },
+                "gender": {
+                  "type": "string",
+                  "description": "user's gender"
+                },
+                "birthDate": {
+                  "type": "string",
+                  "description": "user's date of birth"
+                },
+                "avatar": {
+                  "type": "string",
+                  "description": "user's profile image"
+                },
+                "preferredLanguage": {
+                  "type": "string",
+                  "description": "user's preferred language"
+                },
+                "preferredCurrency": {
+                  "type": "string",
+                  "description": "user's preferred currency"
+                },
+                "billingAddress": {
+                  "type": "string",
+                  "description": "user's address"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/profiles": {
+      "get": {
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["Users"],
+        "summary": "Get user profile",
+        "description": "This is an api that gets user profile",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "default": "OK"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not Logged In",
+            "definitions": {
+              "error": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "default": "Not logged in"
                   }
                 }
               }

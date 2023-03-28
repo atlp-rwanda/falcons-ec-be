@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 import db from '../database/models/index';
 import cloudinary from '../uploads';
+
 dotenv.config();
 const { Product } = db;
 
@@ -32,6 +33,7 @@ const CreateProduct = async (req, res) => {
           public_id: `${product.productName}_image`,
         }),
       );
+
       const results = await Promise.all(promises);
       product.images = results.map((result) => result.url).filter((url) => url);
       await product.save();

@@ -1,9 +1,12 @@
+/* eslint-disable import/no-named-as-default-member */
+/* eslint-disable import/no-named-as-default */
 import multer from 'multer';
 import express from 'express';
 import path from 'path';
-import isLoggedIn, { isSeller } from '../middleware/authMiddleware';
+import isLoggedIn from '../middleware/authMiddleware';
+import verifyRole from '../middleware/verifyRole';
 import CreateProduct from '../controllers/productController';
-import validator from '../validations/validation'
+import validator from '../validations/validation';
 import productSchema from '../validations/Product';
 
 const storage = multer.diskStorage({
@@ -22,7 +25,7 @@ const productRoute = express.Router();
 productRoute.post(
   '/products',
   isLoggedIn,
-  isSeller,
+  verifyRole('seller'),
   upload.array('images', 8),
   (req, res, next) => {
     if (req.files && req.files.length < 4) {
