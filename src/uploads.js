@@ -1,4 +1,5 @@
 import * as dotenv from 'dotenv';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { v2 as cloudinary } from 'cloudinary';
 
 dotenv.config();

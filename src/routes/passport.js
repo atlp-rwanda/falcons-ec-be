@@ -1,6 +1,5 @@
 import express from 'express';
 import passport from 'passport';
-import generateToken from '../helpers/token_generator';
 
 const passportRouter = express.Router();
 

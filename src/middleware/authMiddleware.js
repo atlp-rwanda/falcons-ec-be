@@ -5,21 +5,23 @@ import { User, blacklisToken } from '../database/models/index';
 
 const isLoggedIn = async (req, res, next) => {
   if (req.headers.authorization) {
-    const token = req.headers.authorization.split(" ")[1];
+    const token = req.headers.authorization.split(' ')[1];
     try {
       const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
 
-      const blacklistedToken = await blacklisToken.findOne({ where: { token } });
+      const blacklistedToken = await blacklisToken.findOne({
+        where: { token },
+      });
 
       if (blacklistedToken) {
-        return res.status(401).json({ 
+        return res.status(401).json({
           status: 401,
           success: false,
-          message: 'You need to login again' });
+          message: 'You need to login again',
+        });
       }
 
       const currentUser = await findOneUserService(decodedData.payload.id);
-      console.log(currentUser);
       const userObj = {
         id: currentUser.id,
         email: currentUser.email,
@@ -28,7 +30,7 @@ const isLoggedIn = async (req, res, next) => {
         res.status(401).json({
           status: 401,
           success: false,
-          message: "User does not exist!",
+          message: 'User does not exist!',
         });
       } else {
         req.user = userObj;
@@ -45,61 +47,11 @@ const isLoggedIn = async (req, res, next) => {
     res.status(401).json({
       status: 401,
       success: false,
-      message: "Not logged in",
+      message: 'Not logged in',
     });
   }
 };
 
-export const isSeller = async (req, res, next) => {
-  try {
-    const token = req.headers.authorization.split(" ")[1];
-
-    const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
-
-    const currentUser = await findOneUserService(decodedData.payload.id);
-    console.log(currentUser.role);
-    if (currentUser.role === "seller") {
-      next();
-    } else {
-      res.status(401).json({
-        status: 401,
-        success: false,
-        message: "User is not a seller",
-      });
-    }
-  } catch (error) {
-    res.status(500).json({
-      status: 500,
-      success: false,
-      message: `Error when authorizing user ${error.message}`,
-    });
-  }
-};
-export const isAdmin = async (req, res, next) => {
-  try {
-    const token = req.headers.authorization.split(' ')[1];
-
-    const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
-
-    const currentUser = await findOneUserService(decodedData.payload.id);
-    console.log(currentUser.role);
-    if (currentUser.role === 'admin') {
-      next();
-    } else {
-      res.status(401).json({
-        status: 401,
-        success: false,
-        message: 'User is not an admin',
-      });
-    }
-  } catch (error) {
-    res.status(500).json({
-      status: 500,
-      success: false,
-      message: `Error when authorizing user ${error.message}`,
-    });
-  }
-};
 export const checkUserExists = async (req, res, next) => {
   const { email } = req.body;
   const userInDb = await User.findOne({

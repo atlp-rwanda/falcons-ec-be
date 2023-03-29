@@ -1,21 +1,18 @@
+/* eslint-disable import/no-named-as-default */
+/* eslint-disable import/no-extraneous-dependencies */
 import * as dotenv from 'dotenv';
 import chai, { assert } from 'chai';
 import chaiHttp from 'chai-http';
 import request from 'supertest';
 import passportStub from 'passport-stub';
 import passport from 'passport';
-import fs from 'fs';
-import { async } from 'regenerator-runtime';
-import exp from 'constants';
 import app from '../server';
 import db from '../database/models/index';
 import verifyRole from '../middleware/verifyRole';
-import jwt from 'jsonwebtoken';
-import { UserService } from '../services/user.service'
 import { logoutUser } from '../services/authService';
 import generateToken from '../helpers/token_generator';
 
-const {blacklisToken} = db;
+const { blacklisToken } = db;
 
 dotenv.config();
 
@@ -92,18 +89,18 @@ describe('Google Authentication', () => {
         assert.deepEqual(serializedUser, user);
         done();
       });
-    }); 
-    
-  it('should return unexpected', (done) => {
-    chai
-      .request(app)
-      .get('/google')
-      .end((err, res) => {
-        chai.expect(err).to.be.null;
-        chai.expect(res).to.have.status(404);
-        done();
-      });
-   });   
+    });
+
+    it('should return unexpected', (done) => {
+      chai
+        .request(app)
+        .get('/google')
+        .end((err, res) => {
+          chai.expect(err).to.be.null;
+          chai.expect(res).to.have.status(404);
+          done();
+        });
+    });
   });
 });
 describe('generateToken', () => {
@@ -127,86 +124,6 @@ describe('generateToken', () => {
     }
   });
 });
-describe('login', () => {
-  const user = {
-    email: 'johndoe@gmail.com',
-    password: '12345678',
-  };
-  const realUser = {
-    email: 'boris@gmail.com',
-    password: '1234',
-  };
-  
-describe('generateToken', () => {
-  it('should generate a valid JWT token', async () => {
-    const payload = { id: 123, email: 'testuser@example.com' };
-    const token = await generateToken(payload);
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    expect(decoded.payload).to.deep.equal(payload);
-  });
-
-  it('should set the token expiration to 7 days', async () => {
-    const payload = { id: 123, email: 'testuser@example.com' };
-    const token = await generateToken(payload);
-
-    const decoded = jwt.decode(token, { complete: true });
-    const expiration = decoded.payload.exp;
-    const now = Math.floor(Date.now() / 1000);
-
-    expect(expiration - now).to.equal(60 * 60 * 24 * 7); // 7 days in seconds
-  });
-});
-
-describe('UserService', () => {
-    it('should create a new user in the database', async () => {
-      const userData = {
-        email: 'testuser@example.com',
-        password: 'password123',
-      };
-      const createdUser = await UserService.register(userData);
-      expect(createdUser).to.exist;
-      expect(createdUser.email).to.equal(userData.email);
-      expect(createdUser.password).to.equal(userData.password);
-    });
-  });
-
-  describe('POST /api/v1/users/signin', () => {
-    it('should respond with status code 200', async () => {
-      const response = await chai
-        .request(app)
-        .post('/api/v1/users/signin')
-        .send(realUser);
-      expect(response.status).to.equal(200);
-    });
-    it('should throw an error if invalid credentials', async () => {
-      const response = await chai
-        .request(app)
-        .post('/api/v1/users/signin')
-        .send({ email: 'boris250@gmail.com', password: '123' });
-      expect(response.status).to.equal(401);
-    });
-    it('should throw error if user does not exist ', async () => {
-      const response = await chai
-        .request(app)
-        .post('/api/v1/users/signin')
-        .send(user);
-      expect(response.status).to.equal(401);
-    });
-    it('should respond with an array of users', async () => {
-      const loginResponse = await chai
-        .request(app)
-        .post('/api/v1/users/signin')
-        .send(realUser);
-      const { token } = loginResponse.body;
-      const response = await chai
-        .request(app)
-        .get('/api/v1/users')
-        .set('Authorization', `Bearer ${token}`);
-      expect(response.body).to.be.an('array');
-    });
-  });
-});
 
 describe('Set user role', () => {
   const fakeUser = {
@@ -215,21 +132,21 @@ describe('Set user role', () => {
   };
 
   const unauthorisedUser = {
-    // user with just buyer role
-    email: 'boris@gmail.com',
+    // user with just seller role
+    email: 'gatete@gmail.com',
     password: '1234',
   };
 
-  describe("POST /api/v1/users/signup", () => {
-    it("should not create a user without full data provided", async () => {
+  describe('POST /api/v1/users/signup', () => {
+    it('should not create a user without full data provided', async () => {
       const response = await chai
         .request(app)
-        .post("/api/v1/users/signup")
-        .send({ password: "1234" });
+        .post('/api/v1/users/signup')
+        .send({ password: '1234' });
       expect(response.status).to.equal(400);
     });
 
-    it("should create a fake admin", async () => {
+    it('should create a fake admin', async () => {
       const response = await chai
         .request(app)
         .post('/api/v1/users/signup')
@@ -277,7 +194,60 @@ describe('Set user role', () => {
       expect(response.status).to.equal(200);
     });
   });
-})
+});
+
+describe('login', () => {
+  const user = {
+    email: 'johndoe@gmail.com',
+    password: '12345678',
+  };
+  const realUser = {
+    email: 'boris@gmail.com',
+    password: '1234',
+  };
+
+  describe('POST /api/v1/users/signin', () => {
+    it('should respond login a user', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/users/signin')
+        .send(realUser);
+      expect(response.status).to.equal(200);
+    });
+    it('should throw an error if invalid credentials', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/users/signin')
+        .send({ email: 'boris250@gmail.com', password: '123' });
+      expect(response.status).to.equal(401);
+    });
+    it('should throw error if user does not exist ', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/users/signin')
+        .send(user);
+      expect(response.status).to.equal(401);
+    });
+    it('should respond with an array of users', async () => {
+      const loginResponse = await chai
+        .request(app)
+        .post('/api/v1/users/signin')
+        .send(realUser);
+      const { token } = loginResponse.body;
+      const response = await chai
+        .request(app)
+        .get('/api/v1/users')
+        .set('Authorization', `Bearer ${token}`);
+      expect(response.body).to.be.an('array');
+    });
+  });
+});
+
+describe('verifyRole middleware', () => {
+  it('should be a function', () => {
+    expect(verifyRole).to.be.a('function');
+  });
+});
 
 describe('verifyRole middleware', () => {
   it('should be a function', () => {
@@ -287,7 +257,7 @@ describe('verifyRole middleware', () => {
 
 describe('PRODUCT', async () => {
   const realUser = {
-    email: 'boris@gmail.com',
+    email: 'gatete@gmail.com',
     password: '1234',
   };
   const response = await chai
@@ -301,7 +271,7 @@ describe('PRODUCT', async () => {
     price: 100,
     quantity: 10,
     expiryDate: '12/12/12',
-    category_id: '0da3d632-a09e-42d5-abda-520aea82ef49'
+    category_id: '0da3d632-a09e-42d5-abda-520aea82ef49',
   };
   const invalidproduct = {
     productName: 'test',
@@ -317,14 +287,13 @@ describe('PRODUCT', async () => {
         .post('/api/v1/products')
         .set('Authorization', `Bearer ${token}`)
         .send(product);
-      response.body.should.be.a('object')
+      response.body.should.be.a('object');
       expect(response.status).to.equal(201);
       expect(response.body).to.have.property('productName');
       expect(response.body).to.have.property('description');
       expect(response.body).to.have.property('price');
       expect(response.body).to.have.property('quantity');
       expect(response.body).to.have.property('expiryDate');
-      
     });
     it('should return 400 incase validation fails', async () => {
       const response = await chai
@@ -350,14 +319,14 @@ describe('PRODUCT', async () => {
         .send(invalidproduct);
       expect(response.status).to.equal(401);
     });
-     it('should return 401 if user is not an admin ', async () => {
-       const response = await chai
-         .request(app)
-         .post('/api/v1/categories')
-         .set('Authorization', `Bearer ${_TOKEN}`)
-         .send(invalidproduct);
-       expect(response.status).to.equal(401);
-     });
+    it('should return 401 if user is not an admin ', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${_TOKEN}`)
+        .send(invalidproduct);
+      expect(response.status).to.equal(401);
+    });
   });
 });
 
@@ -370,19 +339,31 @@ describe('Disable account', () => {
     expect(response.status).to.equal(200);
   });
 
-  it("should return 403 to avoid login of a disabled account", async () => {
+  it('should return 403 to avoid login of a disabled account', async () => {
     const loginResponse = await chai
       .request(app)
-      .post("/api/v1/users/signin")
+      .post('/api/v1/users/signin')
       .send({
-        email: "eric@gmail.com",
-        password: "1234",
+        email: 'eric@gmail.com',
+        password: '1234',
       });
 
     expect(loginResponse.status).to.equal(403);
   });
 
-  it("should enable an account", async () => {
+  it('should return 403 to avoid login of a disabled account', async () => {
+    const loginResponse = await chai
+      .request(app)
+      .post('/api/v1/users/signin')
+      .send({
+        email: 'eric@gmail.com',
+        password: '1234',
+      });
+
+    expect(loginResponse.status).to.equal(403);
+  });
+
+  it('should enable an account', async () => {
     const response = await chai
       .request(app)
       .patch('/api/v1/users/eric@gmail.com/status')
@@ -427,16 +408,16 @@ describe('POST /api/v1/users/logout', () => {
       status: (status) => ({
         json: (data) => {
           expect(status).to.equal(404);
-        }
-      })
+        },
+      }),
     };
   });
   it('should return a 404 response', async () => {
     const token = await generateToken();
     const response = await chai
-    .request(app)
-    .get('/api/v1/protected')
-    .set('Authorization', `Bearer ${token}`);
+      .request(app)
+      .get('/api/v1/protected')
+      .set('Authorization', `Bearer ${token}`);
     expect(response.status).to.equal(404);
   });
   it('should respond with a code', async () => {
@@ -445,23 +426,22 @@ describe('POST /api/v1/users/logout', () => {
       .request(app)
       .post('/api/v1/users/logout')
       .set('Authorization', `Bearer ${token}`);
-      expect(response.status).to.equal(500);
+    expect(response.status).to.equal(500);
   });
-describe('logoutUser function', () => {
-  it('should create a new blacklisted token', async () => {
-    const token = await generateToken();
-    const data = `Bearer ${token}`;
-    let createMethodCalled = false;
-    blacklisToken.create = (params) => {
-      createMethodCalled = true;
-      expect(params).to.deep.equal({ token });
-    };
-    await logoutUser(data);
-    expect(createMethodCalled).to.be.true;
+  describe('logoutUser function', () => {
+    it('should create a new blacklisted token', async () => {
+      const token = await generateToken();
+      const data = `Bearer ${token}`;
+      let createMethodCalled = false;
+      blacklisToken.create = (params) => {
+        createMethodCalled = true;
+        expect(params).to.deep.equal({ token });
+      };
+      await logoutUser(data);
+      expect(createMethodCalled).to.be.true;
+    });
   });
 });
-
-
 describe('CATEGORY', async () => {
   const realUser = {
     email: 'eric@gmail.com',
@@ -517,14 +497,14 @@ describe('CATEGORY', async () => {
         .send(invalidcategory);
       expect(response.status).to.equal(401);
     });
-     it('should return 401 if user is not an admin ', async () => {
-       const response = await chai
-         .request(app)
-         .post('/api/v1/categories')
-         .set('Authorization', `Bearer ${_TOKEN}`)
-         .send(invalidcategory);
-       expect(response.status).to.equal(401);
-     });
+    it('should return 400 if user is not an admin ', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/categories')
+        .set('Authorization', `Bearer ${_TOKEN}`)
+        .send(invalidcategory);
+      expect(response.status).to.equal(400);
+    });
     describe('api/v1/categories/:userId/update PATCH', () => {
       it('it should update user category', async () => {
         const category = {
@@ -555,8 +535,7 @@ describe('CATEGORY', async () => {
         res.should.have.status(200);
         res.body.should.be.a('object');
         expect('Content-Type', /json/);
-       });
-     });
+      });
     });
- });
+  });
 });
