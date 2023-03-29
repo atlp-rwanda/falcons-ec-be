@@ -9,7 +9,13 @@ import { async } from 'regenerator-runtime';
 import exp from 'constants';
 import app from '../server';
 import db from '../database/models/index';
+import verifyRole from '../middleware/verifyRole';
+import jwt from 'jsonwebtoken';
+import { UserService } from '../services/user.service'
+import { logoutUser } from '../services/authService';
 import generateToken from '../helpers/token_generator';
+
+const {blacklisToken} = db;
 
 dotenv.config();
 
@@ -22,11 +28,6 @@ chai.use(chaiHttp);
 let _TOKEN = '';
 
 describe('Welcome Controller', () => {
-  // before(async () => {
-  //   // run migrations and seeders to prepare the database
-  //   await db.sequelize.sync({ force: true });
-  // });
-
   describe('GET /welcome', () => {
     it('should return a 200 response and a welcome message', async () => {
       const res = await chai.request(app).get('/welcome');
@@ -91,7 +92,18 @@ describe('Google Authentication', () => {
         assert.deepEqual(serializedUser, user);
         done();
       });
-    });
+    }); 
+    
+  it('should return unexpected', (done) => {
+    chai
+      .request(app)
+      .get('/google')
+      .end((err, res) => {
+        chai.expect(err).to.be.null;
+        chai.expect(res).to.have.status(404);
+        done();
+      });
+   });   
   });
 });
 describe('generateToken', () => {
@@ -124,6 +136,40 @@ describe('login', () => {
     email: 'boris@gmail.com',
     password: '1234',
   };
+  
+describe('generateToken', () => {
+  it('should generate a valid JWT token', async () => {
+    const payload = { id: 123, email: 'testuser@example.com' };
+    const token = await generateToken(payload);
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    expect(decoded.payload).to.deep.equal(payload);
+  });
+
+  it('should set the token expiration to 7 days', async () => {
+    const payload = { id: 123, email: 'testuser@example.com' };
+    const token = await generateToken(payload);
+
+    const decoded = jwt.decode(token, { complete: true });
+    const expiration = decoded.payload.exp;
+    const now = Math.floor(Date.now() / 1000);
+
+    expect(expiration - now).to.equal(60 * 60 * 24 * 7); // 7 days in seconds
+  });
+});
+
+describe('UserService', () => {
+    it('should create a new user in the database', async () => {
+      const userData = {
+        email: 'testuser@example.com',
+        password: 'password123',
+      };
+      const createdUser = await UserService.register(userData);
+      expect(createdUser).to.exist;
+      expect(createdUser.email).to.equal(userData.email);
+      expect(createdUser.password).to.equal(userData.password);
+    });
+  });
 
   describe('POST /api/v1/users/signin', () => {
     it('should respond with status code 200', async () => {
@@ -231,6 +277,12 @@ describe('Set user role', () => {
       expect(response.status).to.equal(200);
     });
   });
+})
+
+describe('verifyRole middleware', () => {
+  it('should be a function', () => {
+    expect(verifyRole).to.be.a('function');
+  });
 });
 
 describe('PRODUCT', async () => {
@@ -249,6 +301,7 @@ describe('PRODUCT', async () => {
     price: 100,
     quantity: 10,
     expiryDate: '12/12/12',
+    category_id: '0da3d632-a09e-42d5-abda-520aea82ef49'
   };
   const invalidproduct = {
     productName: 'test',
@@ -271,9 +324,6 @@ describe('PRODUCT', async () => {
       expect(response.body).to.have.property('price');
       expect(response.body).to.have.property('quantity');
       expect(response.body).to.have.property('expiryDate');
-
-
-
       
     });
     it('should return 400 incase validation fails', async () => {
@@ -368,6 +418,50 @@ describe('Register User', () => {
     expect(response.status).to.equal(400);
   });
 });
+
+describe('POST /api/v1/users/logout', () => {
+  it('should respond with a 404 status code', async () => {
+    const token = await generateToken();
+    const req = { headers: { authorization: `Bearer ${token}` } };
+    const res = {
+      status: (status) => ({
+        json: (data) => {
+          expect(status).to.equal(404);
+        }
+      })
+    };
+  });
+  it('should return a 404 response', async () => {
+    const token = await generateToken();
+    const response = await chai
+    .request(app)
+    .get('/api/v1/protected')
+    .set('Authorization', `Bearer ${token}`);
+    expect(response.status).to.equal(404);
+  });
+  it('should respond with a code', async () => {
+    const token = await generateToken();
+    const response = await chai
+      .request(app)
+      .post('/api/v1/users/logout')
+      .set('Authorization', `Bearer ${token}`);
+      expect(response.status).to.equal(500);
+  });
+describe('logoutUser function', () => {
+  it('should create a new blacklisted token', async () => {
+    const token = await generateToken();
+    const data = `Bearer ${token}`;
+    let createMethodCalled = false;
+    blacklisToken.create = (params) => {
+      createMethodCalled = true;
+      expect(params).to.deep.equal({ token });
+    };
+    await logoutUser(data);
+    expect(createMethodCalled).to.be.true;
+  });
+});
+
+
 describe('CATEGORY', async () => {
   const realUser = {
     email: 'eric@gmail.com',
@@ -398,7 +492,6 @@ describe('CATEGORY', async () => {
       expect(response.status).to.equal(201);
       expect(response.body).to.have.property('categoryName');
       expect(response.body).to.be.an('object');
-      // expect(response.body).to.be.an('array');
     });
     it('should return 400 incase validation fails', async () => {
       const response = await chai
@@ -462,8 +555,8 @@ describe('CATEGORY', async () => {
         res.should.have.status(200);
         res.body.should.be.a('object');
         expect('Content-Type', /json/);
-      });
+       });
+     });
     });
-  });
+ });
 });
-

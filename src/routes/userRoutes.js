@@ -14,6 +14,7 @@ import validateRegister from '../validations/register.validation';
 import validator from "../validations/validation";
 import verifyRole from "../middleware/verifyRole";
 import roleSchema from "../validations/roleSchema";
+import {logout} from "../controllers/blacklisTokenController"
 
 const userRoutes = express.Router();
 
@@ -42,5 +43,6 @@ userRoutes.post(
   checkUserExists,
   registerUser
 );
+userRoutes.post("/api/v1/users/logout", isLoggedIn, logout);
 
 export default userRoutes;

@@ -7,6 +7,7 @@ const productSchema = joi.object({
   description: joi.string().required(),
   expiryDate: joi.date().required(),
   images: joi.array(),
+  category_id: joi.string().required(),
 });
 
 export default productSchema;

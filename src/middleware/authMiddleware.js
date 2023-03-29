@@ -1,13 +1,22 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import jwt from 'jsonwebtoken';
 import findOneUserService from '../services/authService';
-import { User } from '../database/models/index';
+import { User, blacklisToken } from '../database/models/index';
 
 const isLoggedIn = async (req, res, next) => {
   if (req.headers.authorization) {
     const token = req.headers.authorization.split(" ")[1];
     try {
       const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
+
+      const blacklistedToken = await blacklisToken.findOne({ where: { token } });
+
+      if (blacklistedToken) {
+        return res.status(401).json({ 
+          status: 401,
+          success: false,
+          message: 'You need to login again' });
+      }
 
       const currentUser = await findOneUserService(decodedData.payload.id);
       console.log(currentUser);

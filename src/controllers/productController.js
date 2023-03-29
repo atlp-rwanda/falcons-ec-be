@@ -19,7 +19,6 @@ const CreateProduct = async (req, res) => {
 
     const product = await Product.create({
       productName: req.body.productName,
-      //   category:req.body.category,
       description: req.body.description,
       quantity: req.body.quantity,
       price: req.body.price,
@@ -28,7 +27,6 @@ const CreateProduct = async (req, res) => {
     });
     if (req.files) {
       const promises = req.files.map((file) =>
-        // eslint-disable-next-line implicit-arrow-linebreak
         cloudinary.uploader.upload(file.path, {
           folder: 'Falcons_E-comm_App/ProductImages',
           public_id: `${product.productName}_image`,

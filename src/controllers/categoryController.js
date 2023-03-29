@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import db from '../database/models/index';
-import jwt from 'jsonwebtoken';
 
 dotenv.config();
 const { Category } = db;
