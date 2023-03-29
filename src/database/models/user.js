@@ -48,6 +48,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: 'false',
       },
+      lastPasswordUpdate: DataTypes.DATEONLY,
       status: {
         type: DataTypes.ENUM('true', 'false', 'NeedsToUpdatePassword'),
         defaultValue: 'true',

@@ -50,9 +50,10 @@ userRoutes.post('/signin', validator(userSchema), loginUser);
 userRoutes.post('/signup', validator(userSchema), createNewUser);
 userRoutes.put(
   '/:id/roles',
-  [verifyRole('admin'), checkPassword, validator(roleSchema)],
+  [checkPassword,verifyRole('admin'), validator(roleSchema)],
   setRoles,
 );
+userRoutes.patch('/:id/status', verifyRole('admin'), checkPassword,disableAccount);
 userRoutes.patch(
   '/:id/status',
   verifyRole('admin'),
@@ -64,7 +65,7 @@ userRoutes.post('/register', validateRegister, checkUserExists, registerUser);
 userRoutes.post('/logout', isLoggedIn, logout);
 userRoutes.patch(
   '/profile',
-  [isLoggedIn, uploads.single('avatar'), validator(profileSchema)],
+  [checkPassword,isLoggedIn, uploads.single('avatar'), validator(profileSchema)],
   updateProfile,
 );
 userRoutes.post('/password-reset-request', forgotPassword);
