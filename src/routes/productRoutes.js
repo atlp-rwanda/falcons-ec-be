@@ -3,7 +3,7 @@
 import multer from 'multer';
 import express from 'express';
 import path from 'path';
-import isLoggedIn from '../middleware/authMiddleware';
+import isLoggedIn, { checkPassword } from '../middleware/authMiddleware';
 import verifyRole from '../middleware/verifyRole';
 import CreateProduct from '../controllers/productController';
 import validator from '../validations/validation';
@@ -26,6 +26,7 @@ productRoute.post(
   '/products',
   isLoggedIn,
   verifyRole('seller'),
+  checkPassword,
   upload.array('images', 8),
   (req, res, next) => {
     if (req.files && req.files.length < 4) {

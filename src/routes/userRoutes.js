@@ -13,7 +13,7 @@ import {
   getSingleProfile,
   updateProfile,
 } from '../controllers/userController';
-import isLoggedIn, { checkUserExists } from '../middleware/authMiddleware';
+import isLoggedIn, { checkPassword, checkUserExists } from '../middleware/authMiddleware';
 import { userSchema, Password, profileSchema } from '../validations/userSchema';
 import validateRegister from '../validations/register.validation';
 import validator from '../validations/validation';
@@ -32,16 +32,16 @@ const fileFilter = (req, file, cb) => {
 };
 const uploads = multer({ storage, fileFilter });
 
-userRoutes.get('', isLoggedIn, verifyRole('admin'), getAllUsers);
+userRoutes.get('', isLoggedIn,checkPassword,verifyRole('admin'), getAllUsers);
 userRoutes.get('/profile/single', isLoggedIn, getSingleProfile);
 userRoutes.post('/signin', validator(userSchema), loginUser);
 userRoutes.post('/signup', validator(userSchema), createNewUser);
 userRoutes.put(
   '/:id/roles',
-  [verifyRole('admin'), validator(roleSchema)],
+  [verifyRole('admin'),checkPassword, validator(roleSchema)],
   setRoles,
 );
-userRoutes.patch('/:id/status', verifyRole('admin'), disableAccount);
+userRoutes.patch('/:id/status', verifyRole('admin'), checkPassword,disableAccount);
 userRoutes.patch(
   '/:userId/password',
   isLoggedIn,
@@ -52,7 +52,7 @@ userRoutes.post('/register', validateRegister, checkUserExists, registerUser);
 userRoutes.post('/logout', isLoggedIn, logout);
 userRoutes.patch(
   '/profile',
-  [isLoggedIn, uploads.single('avatar'), validator(profileSchema)],
+  [isLoggedIn,uploads.single('avatar'), validator(profileSchema)],
   updateProfile,
 );
 

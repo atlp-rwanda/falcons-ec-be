@@ -18,7 +18,7 @@ categoryRoute.post(
   CreateCategory,
 );
 categoryRoute.patch(
-  '/categories/:categoryId/update',
+  '/categories/:categoryId',
   isLoggedIn,
   verifyRole('admin'),
   validator(categorySchema),

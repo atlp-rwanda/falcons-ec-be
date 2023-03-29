@@ -11,7 +11,7 @@ module.exports = {
           role: 'seller',
           password:
             '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', // 1234
-          status: true,
+          status: 'true',
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -30,7 +30,7 @@ module.exports = {
           role: 'admin',
           password:
             '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', // 1234
-          status: true,
+          status: 'true',
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -40,7 +40,7 @@ module.exports = {
           role: 'admin',
           password:
             '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', // 1234
-          status: true,
+          status: 'true',
           createdAt: new Date(),
           updatedAt: new Date(),
         },

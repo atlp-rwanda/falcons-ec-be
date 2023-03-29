@@ -44,8 +44,8 @@ module.exports = (sequelize, DataTypes) => {
       avatar: DataTypes.STRING,
       role: DataTypes.STRING,
       status: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: true,
+        type: DataTypes.ENUM('true', 'false', 'NeedsToUpdatePassword'),
+        defaultValue: 'true',
       },
     },
     {
