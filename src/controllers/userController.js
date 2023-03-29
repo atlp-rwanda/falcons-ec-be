@@ -46,7 +46,8 @@ const loginUser = async (req, res) => {
 
       if (user.status == 'false') {
         return res.status(403).json({ message: 'Account locked!' });
-      }
+      } 
+      
 
       if (user.role === "seller") {
         const otp = Math.floor(100000 + Math.random() * 900000);
@@ -223,7 +224,7 @@ const updatePassword = async (req, res) => {
     await user.update({
       password: hashPassword,
       lastPasswordUpdate: new Date(),
-      status: 'true',
+      status:true,
     });
     await user.save();
     return res.status(200).json({ message: 'password updated successfully' });

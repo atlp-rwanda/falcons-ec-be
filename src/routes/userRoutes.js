@@ -56,12 +56,7 @@ userRoutes.put(
   [checkPassword, verifyRole('admin'), validator(roleSchema)],
   setRoles,
 );
-userRoutes.patch(
-  '/:id/status',
-  verifyRole('admin'),
-  checkPassword,
-  disableAccount,
-);
+userRoutes.patch('/:id/status', verifyRole('admin'), checkPassword,disableAccount);
 userRoutes.patch(
   '/:id/status',
   verifyRole('admin'),
