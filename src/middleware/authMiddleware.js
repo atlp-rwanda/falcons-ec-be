@@ -31,6 +31,7 @@ const isLoggedIn = async (req, res, next) => {
           status: 401,
           success: false,
           message: 'User does not exist!',
+          message: 'User does not exist!',
         });
       } else {
         req.user = userObj;
@@ -47,6 +48,7 @@ const isLoggedIn = async (req, res, next) => {
     res.status(401).json({
       status: 401,
       success: false,
+      message: 'Not logged in',
       message: 'Not logged in',
     });
   }

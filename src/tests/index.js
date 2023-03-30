@@ -6,14 +6,13 @@ import chaiHttp from 'chai-http';
 import request from 'supertest';
 import passportStub from 'passport-stub';
 import passport from 'passport';
+import sinon from 'sinon';
+import cron from 'node-cron';
 import app from '../server';
-import db from '../database/models/index';
-import { sequelize } from '../database/models/index';
+import db, { sequelize } from '../database/models/index';
 import verifyRole from '../middleware/verifyRole';
 import { logoutUser } from '../services/authService';
 import generateToken from '../helpers/token_generator';
-import sinon from 'sinon';
-import cron from 'node-cron';
 import { checkPassword } from '../jobs/checkExpiredPasswords';
 import { markPasswordExpired } from '../events/markPasswordExpired';
 
@@ -287,6 +286,7 @@ describe('PRODUCT', async () => {
         .post('/api/v1/products')
         .set('Authorization', `Bearer ${token}`)
         .send(product);
+      console.log(response);
       response.body.should.be.a('object');
       expect(response.status).to.equal(201);
       expect(response.body).to.have.property('productName');
@@ -518,7 +518,7 @@ describe('CATEGORY', async () => {
         };
         const res = await chai
           .request(app)
-          .patch(`/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49`)
+          .patch('/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49')
           .set('Authorization', `Bearer ${token}`)
           .send(category);
         res.should.have.status(200);
@@ -531,7 +531,7 @@ describe('CATEGORY', async () => {
         };
         const res = await chai
           .request(app)
-          .patch(`/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49`)
+          .patch('/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49')
           .set('Authorization', `Bearer ${token}`)
           .send(category);
         res.should.have.status(200);
@@ -561,7 +561,7 @@ describe('checkPassword', () => {
     expect(scheduleSpy.calledOnce).to.be.true;
     expect(scheduleSpy.args[0][0]).to.equal(process.env.CRON_SCHEDULE);
   });
-  it('should return an array of expired users', async function () {
+  it('should return an array of expired users', async () => {
     const expiredUsers = await User.findAll({
       where: sequelize.literal(`
     NOW() - "lastPasswordUpdate" > INTERVAL '${process.env.PASSWORD_EXPIRY}'
@@ -570,7 +570,7 @@ describe('checkPassword', () => {
 
     assert.isArray(expiredUsers);
   });
-  it('should return an array of expired users', async function () {
+  it('should return an array of expired users', async () => {
     const expiredUsers = await User.findAll({
       where: sequelize.literal(`
     NOW() - "lastPasswordUpdate" < INTERVAL '${process.env.PASSWORD_EXPIRY}'
@@ -596,7 +596,7 @@ describe('markPasswordExpired', () => {
     await markPasswordExpired(expiredUsers);
     expect(consoleStub.calledOnceWithExactly('No expired password')).to.be.true;
   });
-  it('should update the status of expired users to NeedsToUpdatePassword', async function () {
+  it('should update the status of expired users to NeedsToUpdatePassword', async () => {
     // Create test users with expired passwords
     const testUser1 = await User.create({
       email: 'test1@test.com',
@@ -616,7 +616,7 @@ describe('markPasswordExpired', () => {
     await testUser1.destroy();
     await testUser2.destroy();
   });
-  it('should not update the status of users with no last password update date', async function () {
+  it('should not update the status of users with no last password update date', async () => {
     // Create test user with no last password update date
     const testUser = await User.create({
       email: 'test4@test.com',

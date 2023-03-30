@@ -1,6 +1,8 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Joi from 'joi';
+import { joiPasswordExtendCore } from 'joi-password';
 
+const joiPassword = Joi.extend(joiPasswordExtendCore);
 const userSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().required(),
@@ -25,5 +27,17 @@ const profileSchema = Joi.object({
     street: Joi.string().min(3),
   }),
 });
+const passwordResetSchema = Joi.object({
+  password: joiPassword
+    .string()
+    .min(8)
+    .minOfUppercase(1)
+    .minOfNumeric(1)
+    .required()
+    .trim(),
+  confirmPassword: Joi.ref('password')
+});
 
-export { userSchema, Password, profileSchema };
+export {
+  userSchema, Password, profileSchema, passwordResetSchema
+};
