@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 import * as dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import db from '../database/models/index';
@@ -35,7 +36,6 @@ export const updateCategory = async (req, res) => {
     if (!category) {
       return res.status(404).json({ error: 'Category not found' });
     }
-
     const { categoryName } = req.body;
     if (categoryName == category.categoryName) {
       return res.status(400).json({ error: 'Category name cannot be same' });

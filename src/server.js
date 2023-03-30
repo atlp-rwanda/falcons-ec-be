@@ -10,9 +10,7 @@ import productRoute from './routes/productRoutes';
 import categoryRoute from './routes/categoryRoutes';
 
 export const app = express();
-
 dotenv.config();
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

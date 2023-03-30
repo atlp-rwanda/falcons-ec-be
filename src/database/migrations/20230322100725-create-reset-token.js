@@ -1,20 +1,19 @@
+/* eslint-disable linebreak-style */
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Categories', {
+    await queryInterface.createTable('resetTokens', {
       id: {
         allowNull: false,
-        autoIncrement: false,
+        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
+        type: Sequelize.INTEGER,
       },
-      categoryName: {
+      token: {
+        type: Sequelize.TEXT,
+      },
+      email: {
         type: Sequelize.STRING,
-        allowNull: false,
-        validate: {
-          notEmpty: true,
-        },
       },
       createdAt: {
         allowNull: false,
@@ -24,11 +23,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
-
     });
   },
-
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Categories');
+    await queryInterface.dropTable('resetTokens');
   },
 };

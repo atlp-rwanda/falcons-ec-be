@@ -2,7 +2,7 @@
 import Joi from 'joi';
 
 const roleSchema = Joi.object({
-  role: Joi.string().valid('buyer','seller','admin').required(),
+  role: Joi.string().valid('buyer', 'seller', 'admin').required(),
 });
 
 export default roleSchema;

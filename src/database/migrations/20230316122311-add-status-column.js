@@ -1,5 +1,4 @@
-'use strict';
-
+/* eslint-disable linebreak-style */
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -9,6 +8,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.removeColumn("Users", "status");
+    await queryInterface.removeColumn('Users', 'status');
   },
 };

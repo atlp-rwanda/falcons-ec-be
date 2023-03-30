@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable import/no-named-as-default-member */
 /* eslint-disable import/no-named-as-default */
 import express from 'express';
@@ -12,12 +13,19 @@ import {
   passwordReset,
   disableAccount,
   registerUser,
+  verifyEmail,
   getSingleProfile,
   updateProfile,
 } from '../controllers/userController';
-import isLoggedIn, { checkPassword, checkUserExists } from '../middleware/authMiddleware';
+import isLoggedIn, {
+  checkPassword,
+  checkUserExists,
+} from '../middleware/authMiddleware';
 import {
-  userSchema, Password, profileSchema, passwordResetSchema
+  userSchema,
+  Password,
+  profileSchema,
+  passwordResetSchema,
 } from '../validations/userSchema';
 import validateRegister from '../validations/register.validation';
 import validator from '../validations/validation';
@@ -45,13 +53,13 @@ userRoutes.put(
   [verifyRole('admin'), checkPassword, validator(roleSchema)],
   setRoles,
 );
-userRoutes.patch('/:id/status', verifyRole('admin'), checkPassword, disableAccount);
 userRoutes.patch(
-  '/password',
-  isLoggedIn,
-  validator(Password),
-  updatePassword,
+  '/:id/status',
+  verifyRole('admin'),
+  checkPassword,
+  disableAccount,
 );
+userRoutes.patch('/password', isLoggedIn, validator(Password), updatePassword);
 userRoutes.post('/register', validateRegister, checkUserExists, registerUser);
 userRoutes.post('/logout', isLoggedIn, logout);
 userRoutes.patch(
@@ -61,5 +69,7 @@ userRoutes.patch(
 );
 userRoutes.post('/password-reset-request', forgotPassword);
 userRoutes.patch('/:token/password-reset', passwordReset);
+userRoutes.post('/register', validateRegister, checkUserExists, registerUser);
+userRoutes.patch('/verify-account/:token', verifyEmail);
 
 export default userRoutes;

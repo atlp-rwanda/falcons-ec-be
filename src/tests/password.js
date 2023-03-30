@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable import/no-extraneous-dependencies */
 import chai from 'chai';
 import chaiHttp from 'chai-http';
@@ -9,7 +10,11 @@ const { expect } = chai;
 chai.should();
 chai.use(chaiHttp);
 
-const invalidPassword = { oldPassword: 'Japhet12345678', newPassword: 'Japhet12345678', confirmPassword: 'Japhet12345678' };
+const invalidPassword = {
+  oldPassword: 'Japhet12345678',
+  newPassword: 'Japhet12345678',
+  confirmPassword: 'Japhet12345678',
+};
 const user = { email: 'boris@gmail.com', password: '1234' };
 const kyles = { email: 'kylesjet1@gmail.com' };
 let token = '';
@@ -29,11 +34,11 @@ describe('create user', () => {
   });
   describe('/api/v1/users/password PATCH', () => {
     it('it should return error and status 403', async () => {
-      const res = await chai.request(app)
+      const res = await chai
+        .request(app)
         .patch('/api/v1/users/password')
         .set('Authorization', `Bearer ${token}`)
         .send(invalidPassword);
-      console.log(token);
       res.should.have.status(403);
       res.body.should.be.a('object');
       expect(res.body).to.have.property('error');
@@ -45,9 +50,10 @@ describe('create user', () => {
       const Password = {
         oldPassword: '1234',
         newPassword: 'Japhet12345678',
-        confirmPassword: 'Japhet12345678'
+        confirmPassword: 'Japhet12345678',
       };
-      const res = await chai.request(app)
+      const res = await chai
+        .request(app)
         .patch('/api/v1/users/password')
         .set('Authorization', `Bearer ${token}`)
         .send(Password);
@@ -60,9 +66,10 @@ describe('create user', () => {
     it('it should return error', async () => {
       const passWord = {
         oldPassword: '123456',
-        confirmPassword: '123456'
+        confirmPassword: '123456',
       };
-      const res = await chai.request(app)
+      const res = await chai
+        .request(app)
         .patch('/api/v1/users/password')
         .set('Authorization', `Bearer ${token}`)
         .send(passWord);
@@ -72,7 +79,8 @@ describe('create user', () => {
   describe('Password reset', () => {
     describe('/api/v1/users/password-reset-request POST', () => {
       it('it should send a request to reset the password', async () => {
-        const response = await chai.request(app)
+        const response = await chai
+          .request(app)
           .post('/api/v1/users/password-reset-request')
           .send(kyles);
         response.should.have.status(200);
@@ -84,7 +92,8 @@ describe('create user', () => {
       });
 
       it('It should not send an email', async () => {
-        const response = await chai.request(app)
+        const response = await chai
+          .request(app)
           .post('/api/v1/users/password-reset-request')
           .send({ email: 'password reset' });
         response.should.have.status(400);
@@ -94,9 +103,13 @@ describe('create user', () => {
       });
 
       it('it should reset user password', async () => {
-        const p = { password: 'Japhet12345678', confirmPassword: 'Japhet12345678' };
+        const p = {
+          password: 'Japhet12345678',
+          confirmPassword: 'Japhet12345678',
+        };
 
-        const reset = await chai.request(app)
+        const reset = await chai
+          .request(app)
           .patch(`/api/v1/users/${tokenSecret}/password-reset`)
           .send(p);
         expect('Content-Type', 'application/json');
@@ -106,8 +119,12 @@ describe('create user', () => {
       });
       it('should return error', async () => {
         const errorToken = 'password';
-        const pwd = { password: 'Japhet12345678', confirmPassword: 'Japhet12345678' };
-        const err = await chai.request(app)
+        const pwd = {
+          password: 'Japhet12345678',
+          confirmPassword: 'Japhet12345678',
+        };
+        const err = await chai
+          .request(app)
           .patch(`/api/v1/users/${errorToken}/password-reset`)
           .send(pwd);
         expect(err.text).to.equal('Bad Request');
