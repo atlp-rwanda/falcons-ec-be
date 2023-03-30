@@ -13,3 +13,10 @@ module.exports = {
     });
   },
 };
+
+  down: async (queryInterface, Sequelize) => {
+    return queryInterface.addColumn('Products', 'categoryName', {
+      type: Sequelize.STRING,
+      allowNull: true,
+    });
+  };

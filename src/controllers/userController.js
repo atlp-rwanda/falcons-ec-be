@@ -1,11 +1,18 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
+import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import db from '../database/models/index';
 import generateToken from '../helpers/token_generator';
 import { BcryptUtility } from '../utils/bcrypt.util';
 import { UserService } from '../services/user.service';
+import verifyToken from '../utils/jwt.util';
+import messageResetPassword from '../helpers/sendMessage';
 import findOneUserService from '../services/authService';
 import cloudinary from '../uploads';
+
+dotenv.config();
+
+const { clientURL } = process.env;
 
 const { User } = db;
 
@@ -32,12 +39,6 @@ const loginUser = async (req, res) => {
 
       if (user.status !== 'true') {
         return res.status(403).json({ message: 'Account locked!' });
-      } else if (user.status == 'NeedsToUpdatePassword') {
-        return res.status(419).json({
-          status: 419,
-          success: false,
-          message: 'Please Update Your Password',
-        });
       }
 
       const token = await generateToken(payload);
@@ -96,6 +97,7 @@ const setRoles = async (req, res) => {
 };
 
 // user registration for testing purposes
+// user registration for testing purposes
 const createNewUser = async (req, res) => {
   try {
     const salt = await bcrypt.genSalt(10);
@@ -117,21 +119,72 @@ const createNewUser = async (req, res) => {
 };
 const updatePassword = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const user = await User.findByPk(userId);
+    const token = req.headers.authorization.split(' ')[1];
+    const decoded = verifyToken(token);
+    // find a user requesting yo update the password
+    // compare his/her oldpassword to
+    // password in the db
+
+    const user = await User.findOne({ where: { email: decoded.payload.email } });
     const { oldPassword, newPassword } = req.body;
     const match = bcrypt.compareSync(oldPassword, user.password);
     if (!match) {
-      return res.status(403).json({ error: 'Invalid password' });
+      return res.status(403)
+        .json({ error: 'Incorrect password' });
+    }
+    // hash and update the new password in the db
+    if (newPassword === oldPassword) {
+      return res.status(406).json({ error: 'Password must differ from old password' });
     }
 
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(newPassword, salt);
-    await user.update({ password: hashPassword,lastPasswordUpdate: new Date()});
+    await user.update({ password: hashPassword, lastPasswordUpdate: new Date() });
     await user.save();
     return res.status(200).json({ message: 'password updated successfully' });
   } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+};
+const forgotPassword = async (req, res) => {
+  try {
+    const userEmail = req.body.email;
+    // find user in the database requesting to reset password
+
+    const user = await User.findOne({ where: { email: userEmail } });
+
+    if (!user) {
+      return res.status(400).json({ error: 'User not found' });
+    }
+    const token = await generateToken(user, { expiresIn: '10m' });
+    await messageResetPassword(userEmail);
+    return res.status(200).json({ token, message: 'email sent to the user' });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+const passwordReset = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const verify = verifyToken(token);
+    if (!verify) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+    const { password, confirmPassword } = req.body;
+    if (!password || !confirmPassword) {
+      res.status(400).json({ error: 'Password and confirm password are required' });
+    } else {
+      // hash the password and update its fields in the database
+      const salt = await bcrypt.genSalt(10);
+      const hashPassword = await bcrypt.hash(password, salt);
+      const Email = verify.payload.email;
+
+      await User.update({ password: hashPassword }, { where: { email: Email } });
+      return res.status(200).json({ message: 'Password reset successfully' });
+    }
+  } catch (error) {
+    res.send(400).json({ message: error.message });
   }
 };
 
@@ -142,6 +195,7 @@ const disableAccount = async (req, res) => {
 
   const foundUser = await User.findOne({ where: { email: req.params.id } });
 
+  if (!foundUser) return res.status(404).json({ message: 'User not found' });
   if (!foundUser) return res.status(404).json({ message: 'User not found' });
 
   let message = '';
@@ -243,12 +297,8 @@ const getSingleProfile = async (req, res) => {
 };
 
 export {
-  getAllUsers,
-  loginUser,
-  setRoles,
-  createNewUser,
-  updatePassword,
-  disableAccount,
+  getAllUsers, loginUser, setRoles, createNewUser
+  , updatePassword, forgotPassword, passwordReset, disableAccount,
   updateProfile,
   getSingleProfile,
 };

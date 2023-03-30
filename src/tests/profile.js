@@ -10,7 +10,7 @@ const { expect } = chai;
 chai.should();
 chai.use(chaiHttp);
 
-const user = { email: 'boris@gmail.com', password: '1234' };
+const user = { email: 'eric@gmail.com', password: '1234' };
 let token = '';
 
 describe('update profile', () => {
@@ -31,7 +31,7 @@ describe('update profile', () => {
       const res = await chai
         .request(app)
         .patch('/api/v1/users/profile')
-        .send({ firstName: 'Boris' });
+        .send({ firstName: 'Eric' });
       res.should.have.status(401);
       res.body.should.be.a('object');
     });
@@ -57,7 +57,7 @@ describe('update profile', () => {
         .request(app)
         .patch('/api/v1/users/profile')
         .set('Authorization', `Bearer ${token}`)
-        .send({ firstname: 'Boris' });
+        .send({ firstname: 'Eric' });
       res.should.have.status(200);
       res.body.should.be.a('object');
     });

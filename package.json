@@ -39,6 +39,7 @@
     "@babel/preset-env": "^7.20.2",
     "@babel/register": "^7.21.0",
     "@babel/runtime": "^7.21.0",
+    "@sendgrid/mail": "^7.7.0",
     "assert": "^2.0.0",
     "bcrypt": "^5.1.0",
     "cloudinary": "^1.35.0",

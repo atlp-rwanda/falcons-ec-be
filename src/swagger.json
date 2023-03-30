@@ -92,38 +92,31 @@
         }
       }
     },
-    "/api/v1/users/{userId}/password": {
-      "parameters": [
-        {
-          "name": "userId",
-          "in": "path",
-          "required": true,
-          "description": "UUID of the user to update"
-        },
-        {
-          "name": "body",
-          "in": "body",
-          "description": "The password body to be updated",
-          "required": true,
-          "schema": {
-            "type": "object",
-            "properties": {
-              "oldPassword": {
-                "type": "string",
-                "description": "User's old password"
-              },
-              "newPassword": {
-                "type": "string",
-                "description": "User's new password"
-              },
-              "confirmPassword": {
-                "type": "string",
-                "description": "User's new password"
-              }
+    "/api/v1/users/password": {
+      "parameters":[{
+        "name":"body",
+        "in":"body",
+        "description":"The password body to be updated",
+        "required":true,
+        "schema":{
+          "type":"object",
+          "properties":{
+            "oldPassword":{
+              "type":"string",
+              "description":"User's old password"
+            },
+            "newPassword":{
+              "type":"string",
+              "description":"User's new password"
+            },
+            "confirmPassword":{
+              "type":"string",
+              "description":"User's new password"
             }
           }
         }
-      ],
+      }
+    ],
       "patch": {
         "security": [
           {
@@ -183,11 +176,12 @@
             }
           },
           "401": {
-            "definitions": {
-              "message": {
-                "type": "object",
-                "properties": {
-                  "error": {
+            "description":"Unauthorized",
+            "definitions":{
+              "message":{
+                "type":"object",
+                "properties":{
+                  "error":{
                     "type": "string"
                   }
                 }
@@ -212,11 +206,11 @@
           },
           "403": {
             "description": "FORBIDDEN",
-            "definitions": {
-              "message": {
-                "type": "object",
-                "properties": {
-                  "error": {
+            "definitions":{
+              "message":{
+                "type":"object",
+                "properties":{
+                  "error":{
                     "type": "string"
                   }
                 }
@@ -227,7 +221,30 @@
                 "type": "object",
                 "properties": {
                   "error": {
-                    "default": "Invalid password"
+                    "default":"Incorrect password"
+                  }
+                }
+              }
+            }
+          },
+          "406": {
+            "description": "Not accepteble",
+            "definitions":{
+              "message":{
+                "type":"object",
+                "properties":{
+                  "error":{
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "default":"password must differ from old password"
                   }
                 }
               }
@@ -373,7 +390,13 @@
             "required": true,
             "type": "number"
           },
-
+          {
+            "name": "categoryName",
+            "in": "formData",
+            "description": "The category of the product.",
+            "required": false,
+            "type": "string"
+          },
           {
             "name": "expiryDate",
             "in": "formData",
@@ -603,6 +626,185 @@
             }
           }
         }
+      }
+    },
+    "/api/v1/users/{token}/password-reset": {
+      "parameters":[{
+        "name":"token",
+        "in":"path",
+        "required":true,
+        "type":"string"
+      }, {
+      "name":"body",
+      "in":"body",
+      "required":true,
+      "type":"object",
+      "schema":{
+        "properties":{
+          "password": {
+            "type":"string"
+          },
+          "confirmPassword":{
+            "type":"string"
+          }
+        }
+      }
+    }],
+      "patch": {
+        "tags":["Password"],
+      "summary":"Reset password",
+      "description":"Users should reset their password when they forget their password",
+      "produces":["application/json"],
+      "responses":{
+        "200":{
+          "description":"OK",
+          "definitions":{
+            "message": {
+              "type":"object",
+              "properties":{
+                "message": {
+                  "type":"string",
+                  "description":"Password reset successfully"
+                }
+              }
+            }
+          },
+          "schema":{
+            "items":{
+              "type":"object",
+             "properties":{
+              "message":{
+                "type":"string",
+                "default":"Password reset successfully"
+              }
+             }
+            }
+          }
+        },
+        "404":{
+          "description":"Not found",
+          "definitions":{
+            "error": {
+              "type":"object",
+              "properties":{
+                "error": {
+                  "type":"string",
+                  "description":"Token not found"
+                }
+              }
+            }
+          },
+          "schema":{
+            "items":{
+              "type":"object",
+              "properties":{
+                "error":{
+                  "type":"string",
+                  "default":"Token not found"
+                }
+              }
+            }
+          }
+        },
+        "401":{
+          "description":"Unauthorized",
+          "definitions":{
+            "error": {
+              "type":"object",
+              "properties":{
+                "error": {
+                  "type":"string",
+                  "description":"Invalid token"
+                }
+              }
+            }
+          },
+          "schema":{
+            "items":{
+              "type":"object",
+              "properties":{
+                "error":{
+                  "type":"string",
+                  "default":"Invalid token"
+                }
+              }
+            }
+          }
+        },
+        "400":{
+          "description":"BAD REQUEST",
+          "definitions":{
+            "error": {
+              "type":"object",
+              "properties":{
+                "error": {
+                  "type":"string",
+                  "description":"Password reset failed"
+                }
+              }
+            }
+          },
+          "schema":{
+            "items":{
+              "type":"object",
+              "properties":{
+                "error":{
+                  "type":"string",
+                  "default":"Password reset failed"
+                }
+              }
+            }
+          }
+        }
+      }
+      }
+    },
+    "/api/v1/users/password-reset-request": {
+      "parameters":[{
+      "name":"email",
+      "in":"body",
+      "required":true,
+      "type":"object",
+      "schema":{
+        "properties":{
+          "email": {
+            "type":"string"
+          }
+        }
+      }
+    }],
+      "post": {
+        "tags":["Password"],
+      "summary":"Reset password",
+      "description":"Users should make a request  to reset their password",
+      "produces":["application/json"],
+      "responses":{
+        "200":{
+          "description":"OK",
+          "definitions":{
+            "message": {
+              "type":"object",
+              "properties":{
+                "message": {
+                  "type":"string",
+                  "description":"Email sent to the user"
+                }
+              }
+            }
+          },
+          "schema":{
+            "items":{
+              "type":"object",
+             "properties":{
+              "message":{
+                "type":"string",
+                "default":"Email sent to the user"
+              }
+             }
+            }
+          }
+        }
+      }
       }
     },
     "/api/v1/users/register": {
