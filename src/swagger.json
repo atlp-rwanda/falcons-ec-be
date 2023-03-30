@@ -722,7 +722,7 @@
         }
       }
     },
-    "/api/v1/categories/{categoryId}/update": {
+    "/api/v1/categories/{categoryId}": {
       "patch": {
         "tags": ["Products"],
         "summary": "Update a category",

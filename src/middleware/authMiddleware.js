@@ -62,4 +62,29 @@ export const checkUserExists = async (req, res, next) => {
   }
   next();
 };
+
+export const checkPassword = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+
+    const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
+
+    const currentUser = await findOneUserService(decodedData.payload.id);
+    if (currentUser.status === false) {
+      res.status(419).json({
+        status: 419,
+        success: false,
+        message: 'Update your Password',
+      });
+    } else {
+      next();
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: `Error when authorizing user ${error.message}`,
+    });
+  }
+};
 export default isLoggedIn;

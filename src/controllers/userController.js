@@ -30,8 +30,14 @@ const loginUser = async (req, res) => {
         status: user.status,
       };
 
-      if (user.status !== true) {
+      if (user.status !== 'true') {
         return res.status(403).json({ message: 'Account locked!' });
+      } else if (user.status == 'NeedsToUpdatePassword') {
+        return res.status(419).json({
+          status: 419,
+          success: false,
+          message: 'Please Update Your Password',
+        });
       }
 
       const token = await generateToken(payload);
@@ -121,7 +127,7 @@ const updatePassword = async (req, res) => {
 
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(newPassword, salt);
-    await user.update({ password: hashPassword });
+    await user.update({ password: hashPassword,lastPasswordUpdate: new Date()});
     await user.save();
     return res.status(200).json({ message: 'password updated successfully' });
   } catch (error) {
@@ -139,11 +145,11 @@ const disableAccount = async (req, res) => {
   if (!foundUser) return res.status(404).json({ message: 'User not found' });
 
   let message = '';
-  if (foundUser.status === true) {
-    foundUser.status = false;
+  if (foundUser.status === 'true') {
+    foundUser.status = 'false';
     message = 'Account disabled';
   } else {
-    foundUser.status = true;
+    foundUser.status = 'true';
     message = 'Account Enabled';
   }
 

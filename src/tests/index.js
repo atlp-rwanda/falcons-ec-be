@@ -8,11 +8,17 @@ import passportStub from 'passport-stub';
 import passport from 'passport';
 import app from '../server';
 import db from '../database/models/index';
+import { sequelize } from '../database/models/index';
 import verifyRole from '../middleware/verifyRole';
 import { logoutUser } from '../services/authService';
 import generateToken from '../helpers/token_generator';
+import sinon from 'sinon';
+import cron from 'node-cron';
+import { checkPassword } from '../jobs/checkExpiredPasswords';
+import { markPasswordExpired } from '../events/markPasswordExpired';
 
 const { blacklisToken } = db;
+const { User } = db;
 
 dotenv.config();
 
@@ -249,12 +255,6 @@ describe('verifyRole middleware', () => {
   });
 });
 
-describe('verifyRole middleware', () => {
-  it('should be a function', () => {
-    expect(verifyRole).to.be.a('function');
-  });
-});
-
 describe('PRODUCT', async () => {
   const realUser = {
     email: 'gatete@gmail.com',
@@ -294,6 +294,9 @@ describe('PRODUCT', async () => {
       expect(response.body).to.have.property('price');
       expect(response.body).to.have.property('quantity');
       expect(response.body).to.have.property('expiryDate');
+      expect(response.body).to.have.property('id');
+      expect(response.body).to.have.property('createdAt');
+      expect(response.body).to.have.property('updatedAt');
     });
     it('should return 400 incase validation fails', async () => {
       const response = await chai
@@ -384,6 +387,7 @@ describe('Register User', () => {
       .post('/api/v1/users/register')
       .send(userRegister);
     expect(response.status).to.equal(201);
+    expect(response.body).to.have.property('user');
   });
   it('User should not be registered when user email, is invalid ', async () => {
     const userData = {
@@ -397,6 +401,7 @@ describe('Register User', () => {
       .post('/api/v1/users/register')
       .send(userData);
     expect(response.status).to.equal(400);
+    expect(response.body).to.be.an('object');
   });
 });
 
@@ -470,6 +475,7 @@ describe('CATEGORY', async () => {
         .set('Authorization', `Bearer ${token}`)
         .send(category);
       expect(response.status).to.equal(201);
+      expect(response.body).to.have.property('id');
       expect(response.body).to.have.property('categoryName');
       expect(response.body).to.be.an('object');
     });
@@ -505,16 +511,14 @@ describe('CATEGORY', async () => {
         .send(invalidcategory);
       expect(response.status).to.equal(400);
     });
-    describe('api/v1/categories/:userId/update PATCH', () => {
+    describe('api/v1/categories/:userId PATCH', () => {
       it('it should update user category', async () => {
         const category = {
           categoryName: 'test 101',
         };
         const res = await chai
           .request(app)
-          .patch(
-            `/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49/update`,
-          )
+          .patch(`/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49`)
           .set('Authorization', `Bearer ${token}`)
           .send(category);
         res.should.have.status(200);
@@ -527,15 +531,107 @@ describe('CATEGORY', async () => {
         };
         const res = await chai
           .request(app)
-          .patch(
-            `/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49/update`,
-          )
+          .patch(`/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49`)
           .set('Authorization', `Bearer ${token}`)
           .send(category);
         res.should.have.status(200);
         res.body.should.be.a('object');
+        expect(response.body).to.have.property('message');
+
         expect('Content-Type', /json/);
       });
     });
+  });
+});
+
+describe('checkPassword', () => {
+  let scheduleSpy;
+
+  beforeEach(() => {
+    scheduleSpy = sinon.spy(cron, 'schedule');
+  });
+
+  afterEach(() => {
+    scheduleSpy.restore();
+  });
+
+  it('should schedule a cron job correctly', () => {
+    checkPassword();
+
+    expect(scheduleSpy.calledOnce).to.be.true;
+    expect(scheduleSpy.args[0][0]).to.equal(process.env.CRON_SCHEDULE);
+  });
+  it('should return an array of expired users', async function () {
+    const expiredUsers = await User.findAll({
+      where: sequelize.literal(`
+    NOW() - "lastPasswordUpdate" > INTERVAL '${process.env.PASSWORD_EXPIRY}'
+  `),
+    });
+
+    assert.isArray(expiredUsers);
+  });
+  it('should return an array of expired users', async function () {
+    const expiredUsers = await User.findAll({
+      where: sequelize.literal(`
+    NOW() - "lastPasswordUpdate" < INTERVAL '${process.env.PASSWORD_EXPIRY}'
+  `),
+    });
+
+    assert.isArray(expiredUsers);
+  });
+});
+
+describe('markPasswordExpired', () => {
+  let consoleStub;
+
+  beforeEach(() => {
+    consoleStub = sinon.stub(console, 'log');
+  });
+
+  afterEach(() => {
+    consoleStub.restore();
+  });
+  it('should log "No expired password" when there are no expired users', async () => {
+    const expiredUsers = [];
+    await markPasswordExpired(expiredUsers);
+    expect(consoleStub.calledOnceWithExactly('No expired password')).to.be.true;
+  });
+  it('should update the status of expired users to NeedsToUpdatePassword', async function () {
+    // Create test users with expired passwords
+    const testUser1 = await User.create({
+      email: 'test1@test.com',
+      password: 'password',
+      lastPasswordUpdate: new Date(Date.now() - 31 * 24 * 60 * 60 * 1000),
+    });
+    const testUser2 = await User.create({
+      email: 'test2@test.com',
+      password: 'password',
+      lastPasswordUpdate: new Date(Date.now() - 31 * 24 * 60 * 60 * 1000),
+    });
+    const expiredUsers = [testUser1, testUser2];
+    await markPasswordExpired(expiredUsers);
+    assert.equal(testUser1.status, 'NeedsToUpdatePassword');
+    assert.equal(testUser2.status, 'NeedsToUpdatePassword');
+    // Delete the test users from the database
+    await testUser1.destroy();
+    await testUser2.destroy();
+  });
+  it('should not update the status of users with no last password update date', async function () {
+    // Create test user with no last password update date
+    const testUser = await User.create({
+      email: 'test4@test.com',
+      password: 'password',
+      lastPasswordUpdate: null,
+    });
+    const expiredUsers = await User.findAll({
+      where: sequelize.literal(`
+    NOW() - "lastPasswordUpdate" > INTERVAL '${process.env.PASSWORD_EXPIRY}'
+  `),
+    });
+    const usersWithNoLastPasswordUpdate = [expiredUsers];
+    await markPasswordExpired(usersWithNoLastPasswordUpdate);
+    assert.notEqual(testUser.status, 'NeedsToUpdatePassword');
+    // Delete the test user from the database
+    await testUser.destroy();
   });
 });
