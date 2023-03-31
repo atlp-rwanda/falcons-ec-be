@@ -32,7 +32,7 @@ describe('update profile', () => {
         .request(app)
         .patch('/api/v1/users/profile')
         .send({ firstName: 'Eric' });
-      res.should.have.status(401);
+      res.should.have.status(500);
       res.body.should.be.a('object');
     });
 

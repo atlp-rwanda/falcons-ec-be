@@ -532,7 +532,7 @@ describe('CATEGORY', async () => {
         };
         const res = await chai
           .request(app)
-          .patch('/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49')
+          .patch(`/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49`)
           .set('Authorization', `Bearer ${token}`)
           .send(category);
         res.should.have.status(200);
@@ -545,7 +545,7 @@ describe('CATEGORY', async () => {
         };
         const res = await chai
           .request(app)
-          .patch('/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49')
+          .patch(`/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49`)
           .set('Authorization', `Bearer ${token}`)
           .send(category);
         res.should.have.status(200);
@@ -575,7 +575,7 @@ describe('checkPassword', () => {
     expect(scheduleSpy.calledOnce).to.be.true;
     expect(scheduleSpy.args[0][0]).to.equal(process.env.CRON_SCHEDULE);
   });
-  it('should return an array of expired users', async () => {
+  it('should return an array of expired users', async function () {
     const expiredUsers = await User.findAll({
       where: sequelize.literal(`
     NOW() - "lastPasswordUpdate" > INTERVAL '${process.env.PASSWORD_EXPIRY}'
@@ -584,7 +584,7 @@ describe('checkPassword', () => {
 
     assert.isArray(expiredUsers);
   });
-  it('should return an array of expired users', async () => {
+  it('should return an array of expired users', async function () {
     const expiredUsers = await User.findAll({
       where: sequelize.literal(`
     NOW() - "lastPasswordUpdate" < INTERVAL '${process.env.PASSWORD_EXPIRY}'
@@ -610,7 +610,7 @@ describe('markPasswordExpired', () => {
     await markPasswordExpired(expiredUsers);
     expect(consoleStub.calledOnceWithExactly('No expired password')).to.be.true;
   });
-  it('should update the status of expired users to NeedsToUpdatePassword', async () => {
+  it('should update the status of expired users to NeedsToUpdatePassword', async function () {
     // Create test users with expired passwords
     const testUser1 = await User.create({
       email: 'test1@test.com',
@@ -630,7 +630,7 @@ describe('markPasswordExpired', () => {
     await testUser1.destroy();
     await testUser2.destroy();
   });
-  it('should not update the status of users with no last password update date', async () => {
+  it('should not update the status of users with no last password update date', async function () {
     // Create test user with no last password update date
     const testUser = await User.create({
       email: 'test4@test.com',

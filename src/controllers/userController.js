@@ -44,9 +44,10 @@ const loginUser = async (req, res) => {
         status: user.status,
       };
 
-      if (user.status !== 'true') {
+      if (user.status == 'false') {
         return res.status(403).json({ message: 'Account locked!' });
-      }
+      } 
+      
 
       const token = await generateToken(payload);
       res.status(200).json({
@@ -75,6 +76,7 @@ export const registerUser = async (req, res) => {
   try {
     const user = { ...req.body };
     user.password = await BcryptUtility.hashPassword(req.body.password);
+    user.lastPasswordUpdate = new Date();
     const { id, email } = await UserService.register(user);
     const userData = { id, email };
     const userToken = await generateToken(userData);
@@ -135,7 +137,8 @@ const createNewUser = async (req, res) => {
       email: req.body.email,
       password: pwd,
       role: 'admin',
-      status: true,
+      status: 'true',
+      lastPasswordUpdate: new Date().getTime(),
     });
     res.status(201);
 
@@ -172,6 +175,7 @@ const updatePassword = async (req, res) => {
     await user.update({
       password: hashPassword,
       lastPasswordUpdate: new Date(),
+      status:'true',
     });
     await user.save();
     return res.status(200).json({ message: 'password updated successfully' });

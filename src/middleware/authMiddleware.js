@@ -73,8 +73,8 @@ export const checkPassword = async (req, res, next) => {
     const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
 
     const currentUser = await findOneUserService(decodedData.payload.id);
-    if (currentUser.status === false) {
-      res.status(419).json({
+    if (currentUser.status === 'NeedsToUpdatePassword') {
+      return res.status(419).json({
         status: 419,
         success: false,
         message: 'Update your Password',
