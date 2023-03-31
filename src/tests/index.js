@@ -1,5 +1,7 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable import/no-named-as-default */
 /* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable linebreak-style */
 import * as dotenv from 'dotenv';
 import chai, { assert } from 'chai';
 import chaiHttp from 'chai-http';
@@ -28,6 +30,7 @@ chai.should();
 chai.use(chaiHttp);
 
 let _TOKEN = '';
+let token;
 
 describe('Welcome Controller', () => {
   describe('GET /welcome', () => {
@@ -129,7 +132,6 @@ describe('generateToken', () => {
     }
   });
 });
-
 describe('Set user role', () => {
   const fakeUser = {
     email: 'admin@gmail.com',
@@ -200,7 +202,6 @@ describe('Set user role', () => {
     });
   });
 });
-
 describe('login', () => {
   const user = {
     email: 'johndoe@gmail.com',
@@ -388,6 +389,7 @@ describe('Register User', () => {
       .send(userRegister);
     expect(response.status).to.equal(201);
     expect(response.body).to.have.property('user');
+    token = response.body.token;
   });
   it('User should not be registered when user email, is invalid ', async () => {
     const userData = {
@@ -401,7 +403,19 @@ describe('Register User', () => {
       .post('/api/v1/users/register')
       .send(userData);
     expect(response.status).to.equal(400);
-    expect(response.body).to.be.an('object');
+  });
+  it('should verify user account when given a valid token', async () => {
+    const response = await chai
+      .request(app)
+      .patch(`/api/v1/users/verify-account/${token}`);
+    expect(response.status).to.equal(200);
+  });
+
+  it('should not verify user account when given an invalid token', async () => {
+    const response = await chai
+      .request(app)
+      .patch('/api/v1/users/verify-account/invalid-token');
+    expect(response.status).to.equal(400);
   });
 });
 

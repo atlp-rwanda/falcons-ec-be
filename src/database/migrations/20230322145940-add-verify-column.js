@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {

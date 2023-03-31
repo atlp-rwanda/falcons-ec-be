@@ -25,7 +25,7 @@ module.exports = {
             notEmpty: true,
           },
         },
-  
+
         description: {
           type: Sequelize.STRING,
           allowNull: false,
@@ -87,7 +87,6 @@ module.exports = {
     } catch (error) {
       console.log(error);
     }
-   
   },
 
   async down(queryInterface, Sequelize) {

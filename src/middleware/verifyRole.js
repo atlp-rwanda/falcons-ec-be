@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 import jwt from 'jsonwebtoken';
 
 export const verifyRole = (allowedRole) => (req, res, next) => {

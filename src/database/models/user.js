@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable valid-jsdoc */
 /* eslint-disable require-jsdoc */
 const bcrypt = require('bcrypt');
@@ -43,6 +44,10 @@ module.exports = (sequelize, DataTypes) => {
       },
       avatar: DataTypes.STRING,
       role: DataTypes.STRING,
+      isVerified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: 'false',
+      },
       status: {
         type: DataTypes.ENUM('true', 'false', 'NeedsToUpdatePassword'),
         defaultValue: 'true',

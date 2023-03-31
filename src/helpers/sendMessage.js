@@ -25,7 +25,7 @@ const messageResetPassword = async (email) => {
       <br>
       <br>
       <span>If you did not initiate this request, ignore this message</span>
-      </p>`
+      </p>`,
     };
     const sendEmail = await sgMail.send(emailMessage);
     return sendEmail;

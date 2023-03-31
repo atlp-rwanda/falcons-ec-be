@@ -1,6 +1,7 @@
+/* eslint-disable linebreak-style */
 import { Router } from 'express';
-import userRoutes from './userRoutes';
 import welcomeRoutes from './welcomeRoute';
+import userRoutes from './userRoutes';
 
 const router = Router();
 

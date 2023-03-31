@@ -1,3 +1,6 @@
+/* eslint-disable linebreak-style */
+/* eslint-disable import/no-named-as-default-member */
+/* eslint-disable linebreak-style */
 /* eslint-disable import/no-named-as-default */
 import express from 'express';
 import isLoggedIn from '../middleware/authMiddleware';
