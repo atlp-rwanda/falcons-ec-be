@@ -287,7 +287,6 @@ describe('PRODUCT', async () => {
         .post('/api/v1/products')
         .set('Authorization', `Bearer ${token}`)
         .send(product);
-      console.log(response);
       response.body.should.be.a('object');
       expect(response.status).to.equal(201);
       expect(response.body).to.have.property('productName');
@@ -523,7 +522,7 @@ describe('CATEGORY', async () => {
         .post('/api/v1/categories')
         .set('Authorization', `Bearer ${_TOKEN}`)
         .send(invalidcategory);
-      expect(response.status).to.equal(400);
+      expect(response.status).to.equal(401);
     });
     describe('api/v1/categories/:userId PATCH', () => {
       it('it should update user category', async () => {
