@@ -9,14 +9,12 @@ import generateToken from '../helpers/token_generator';
 import { BcryptUtility } from '../utils/bcrypt.util';
 import { UserService } from '../services/user.service';
 import verifyToken from '../utils/jwt.util';
-import messageResetPassword from '../helpers/sendMessage';
+import { messageResetPassword, sendVerifyEmail } from '../helpers/sendMessage';
 import findOneUserService from '../services/authService';
 import cloudinary from '../uploads';
-import sendEmail from '../helpers/sendEmail';
+import sendMessage from '../utils/sendgrid.util';
 
 dotenv.config();
-
-const { clientURL } = process.env;
 
 const { User } = db;
 
@@ -46,8 +44,7 @@ const loginUser = async (req, res) => {
 
       if (user.status == 'false') {
         return res.status(403).json({ message: 'Account locked!' });
-      } 
-      
+      }
 
       const token = await generateToken(payload);
       res.status(200).json({
@@ -80,26 +77,7 @@ export const registerUser = async (req, res) => {
     const { id, email } = await UserService.register(user);
     const userData = { id, email };
     const userToken = await generateToken(userData);
-    const message = {
-      from: `"Falcons Project" <${process.env.FROM_EMAIL}>`,
-      to: userData.email,
-      subject: 'Falcons project - Verify your account',
-      text: `Hello, Thank you for registering on our site. Please click on this link to verify your email address: <a href="http://${process.env.url}/verify-account?token=${userToken}">Verify Account</a>. If you did not register for an account with Falcons Project, please ignore this email.`,
-      html: `
-        <h1> Hello,</h1>
-        <p> Thanks for registering on our site.</p>
-        <p> Please click on the button below to verify your account.</p>
-        <a href="http://${process.env.url}/verify-account?token=${userToken}" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">Verify Account</a>
-        <p>If you did not register for an account with Falcons Project, please ignore this email.</p>`,
-    };
-    await sendEmail(
-      userData.email,
-      process.env.FROM_EMAIL,
-      'Falcons project - Verify your account',
-      message.text,
-      message.html,
-    );
-
+    await sendMessage(email, sendVerifyEmail(userToken), 'Email verification');
     return res.status(201).json({ user: userData, token: userToken });
   } catch (err) {
     return res.status(500).json({
@@ -175,7 +153,7 @@ const updatePassword = async (req, res) => {
     await user.update({
       password: hashPassword,
       lastPasswordUpdate: new Date(),
-      status:'true',
+      status: 'true',
     });
     await user.save();
     return res.status(200).json({ message: 'password updated successfully' });
@@ -194,7 +172,7 @@ const forgotPassword = async (req, res) => {
       return res.status(400).json({ error: 'User not found' });
     }
     const token = await generateToken(user, { expiresIn: '10m' });
-    await messageResetPassword(userEmail);
+    await await sendMessage(userEmail, messageResetPassword(token), 'Reset Password');
     return res.status(200).json({ token, message: 'email sent to the user' });
   } catch (error) {
     return res.status(400).json({ error: error.message });
