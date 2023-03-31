@@ -19,7 +19,7 @@ const CreateProduct = async (req, res) => {
     });
 
     if (existingProduct) {
-      return res.status(401).json({ error: 'Product already exists' });
+      return res.status(409).json({ error: 'Product already exists' });
     }
 
     const product = await Product.create({

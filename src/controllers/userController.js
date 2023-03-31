@@ -44,7 +44,7 @@ const loginUser = async (req, res) => {
         status: user.status,
       };
 
-      if (user.status == 'false') {
+      if (user.status == false) {
         return res.status(403).json({ message: 'Account locked!' });
       } 
       
@@ -186,7 +186,7 @@ const createNewUser = async (req, res) => {
       email: req.body.email,
       password: pwd,
       role: 'admin',
-      status: 'true',
+      status: true,
       lastPasswordUpdate: new Date().getTime(),
     });
     res.status(201);
@@ -294,11 +294,11 @@ const disableAccount = async (req, res) => {
   if (!foundUser) return res.status(404).json({ message: 'User not found' });
 
   let message = '';
-  if (foundUser.status === 'true') {
-    foundUser.status = 'false';
+  if (foundUser.status === true) {
+    foundUser.status = false;
     message = 'Account disabled';
   } else {
-    foundUser.status = 'true';
+    foundUser.status = true;
     message = 'Account Enabled';
   }
 

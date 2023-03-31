@@ -12,8 +12,8 @@ module.exports = {
           role: 'seller',
           password:
             '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', // 1234
-          status: 'true',
           isVerified: true,
+          status: true,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -44,8 +44,8 @@ module.exports = {
           role: 'admin',
           password:
             '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', // 1234
-          status: 'true',
           isVerified: true,
+          status: true,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -55,7 +55,18 @@ module.exports = {
           role: 'admin',
           password:
             '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', // 1234
-          status: 'true',
+          isVerified: true,
+          status: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '81ccebd5-7907-4940-a6af-5a738e8f1d31',
+          email: 'dean@gmail.com',
+          role: 'buyer',
+          password:
+            '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', // 1234
+          status: true,
           isVerified: true,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -66,7 +77,7 @@ module.exports = {
           role: 'buyer',
           password:
             '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', // 1234
-          status: 'true',
+          status: true,
           isVerified: true,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -77,7 +88,7 @@ module.exports = {
           role: 'seller',
           password:
             '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', // 1234
-          status: 'true',
+          status: true,
           isVerified: true,
           createdAt: new Date(),
           updatedAt: new Date(),

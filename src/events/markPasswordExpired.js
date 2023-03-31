@@ -3,7 +3,7 @@ export const markPasswordExpired = async (expiredUsers) => {
     try {
       for (let i = 0; i < expiredUsers.length; i++) {
         // Update status of the User to "NeedsToUpdatePassword"
-        await expiredUsers[i].update({ status: 'NeedsToUpdatePassword' });
+        await expiredUsers[i].update({ PasswordExpired:true });
         console.log('Update The Following Password => ' + expiredUsers[i].id);
       }
     } catch (error) {
