@@ -16,6 +16,7 @@ import {
   verifyEmail,
   getSingleProfile,
   updateProfile,
+  verifyOTP
 } from '../controllers/userController';
 import isLoggedIn, {
   checkPassword,
@@ -25,8 +26,9 @@ import {
   userSchema,
   Password,
   profileSchema,
-  passwordResetSchema,
+  passwordResetSchema,  
 } from '../validations/userSchema';
+import otpSchema from '../validations/otpSchema';
 import validateRegister from '../validations/register.validation';
 import validator from '../validations/validation';
 import verifyRole from '../middleware/verifyRole';
@@ -48,12 +50,13 @@ userRoutes.get('', isLoggedIn, checkPassword, verifyRole('admin'), getAllUsers);
 userRoutes.get('/profile/single', isLoggedIn, getSingleProfile);
 userRoutes.post('/signin', validator(userSchema), loginUser);
 userRoutes.post('/signup', validator(userSchema), createNewUser);
+userRoutes.post('/otp/verify/:token', validator(otpSchema), verifyOTP);
 userRoutes.put(
   '/:id/roles',
-  [checkPassword,verifyRole('admin'), validator(roleSchema)],
+  [checkPassword, verifyRole('admin'), validator(roleSchema)],
   setRoles,
 );
-userRoutes.patch('/:id/status', verifyRole('admin'), checkPassword,disableAccount);
+userRoutes.patch('/:id/status', verifyRole('admin'), checkPassword, disableAccount);
 userRoutes.patch(
   '/:id/status',
   verifyRole('admin'),
@@ -65,11 +68,11 @@ userRoutes.post('/register', validateRegister, checkUserExists, registerUser);
 userRoutes.post('/logout', isLoggedIn, logout);
 userRoutes.patch(
   '/profile',
-  [checkPassword,isLoggedIn, uploads.single('avatar'), validator(profileSchema)],
+  [checkPassword, isLoggedIn, uploads.single('avatar'), validator(profileSchema)],
   updateProfile,
 );
 userRoutes.post('/password-reset-request', forgotPassword);
-userRoutes.patch('/:token/password-reset', passwordReset);
+userRoutes.patch('/:token/password-reset', validator(passwordResetSchema), passwordReset);
 userRoutes.post('/register', validateRegister, checkUserExists, registerUser);
 userRoutes.patch('/verify-account/:token', verifyEmail);
 

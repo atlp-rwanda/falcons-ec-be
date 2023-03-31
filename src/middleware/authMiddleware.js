@@ -32,7 +32,12 @@ const isLoggedIn = async (req, res, next) => {
           status: 401,
           success: false,
           message: 'User does not exist!',
-          message: 'User does not exist!',
+        });
+      } else if (!currentUser.isVerified) {
+        res.status(401).json({
+          status: 401,
+          success: false,
+          message: 'User is not verified!',
         });
       } else {
         req.user = userObj;
@@ -49,7 +54,6 @@ const isLoggedIn = async (req, res, next) => {
     res.status(401).json({
       status: 401,
       success: false,
-      message: 'Not logged in',
       message: 'Not logged in',
     });
   }
@@ -79,9 +83,8 @@ export const checkPassword = async (req, res, next) => {
         success: false,
         message: 'Update your Password',
       });
-    } else {
-      next();
     }
+    next();
   } catch (error) {
     res.status(500).json({
       status: 500,
@@ -90,4 +93,5 @@ export const checkPassword = async (req, res, next) => {
     });
   }
 };
+
 export default isLoggedIn;

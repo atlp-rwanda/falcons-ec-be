@@ -6,23 +6,23 @@ import * as dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import db from '../database/models/index';
 import generateToken from '../helpers/token_generator';
+import tokenDecode from '../helpers/token_decode';
 import { BcryptUtility } from '../utils/bcrypt.util';
 import { UserService } from '../services/user.service';
 import verifyToken from '../utils/jwt.util';
-import messageResetPassword from '../helpers/sendMessage';
+import { messageResetPassword, sendVerifyEmail } from '../helpers/sendMessage';
 import findOneUserService from '../services/authService';
 import cloudinary from '../uploads';
-import sendEmail from '../helpers/sendEmail';
+import sendMessage from '../utils/sendgrid.util';
 
 dotenv.config();
-
-const { clientURL } = process.env;
 
 const { User } = db;
 
 dotenv.config();
-const API_KEY = process.env.SENDGRID_API_KEY;
-sgMail.setApiKey(API_KEY);
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 const getAllUsers = async (req, res) => {
   const allUsers = await User.findAll();
 
@@ -46,32 +46,106 @@ const loginUser = async (req, res) => {
 
       if (user.status == 'false') {
         return res.status(403).json({ message: 'Account locked!' });
-      } 
-      
+      }
+
+      if (user.role === "seller") {
+        const otp = Math.floor(100000 + Math.random() * 900000);
+
+        const OTPcontents = {
+          userId: user.id,
+          otpCode: otp,
+        };
+
+        const OTPtoken = await generateToken(OTPcontents, process.env.OTP_EXPIRY); //expires in 5 minutes
+
+        const message = {
+          from: `Falcons store <${process.env.SENDGRID_EMAIL}>`,
+          to: user.email,
+          subject: "Two factor authentication",
+          text: `Hello, ${otp} is your OTP code. It will expire in 5 minutes, use the below button to verify it and If you did not request for an OTP code, please ignore this email.`,
+          html: `
+        <h1> Hello</h1>
+        <p> <b>${otp}</b> is your OTP code, it expires in 5 minutes so click the button below to verify it. Do not share it with anyone!</p>
+        <a href="http://localhost:5000/api/v1/users/otp/verify?token=${OTPtoken}" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">Verify OTP code</a>
+        <p>If you did not register for an account with Falcons Project, please ignore this email.</p>`,
+        };
+
+        await sgMail.send(message);
+
+        return res.status(200).json({
+          status: 200,
+          success: true,
+          message: `OTP code sent to ${user.email}`,
+          OTPtoken,
+        });
+      }
 
       const token = await generateToken(payload);
       res.status(200).json({
         status: 200,
         success: true,
-        message: 'Login successful',
+        message: "Login successful",
         token,
       });
     } else {
       res.status(401).json({
         status: 401,
         success: false,
-        message: 'Invalid credentials',
+        message: "Invalid credentials",
       });
     }
   } catch (error) {
     res.status(500).send({
       status: 500,
       success: false,
-      message: 'Failed to Login',
+      message: "Failed to Login",
       error: error.message,
     });
   }
 };
+
+export const verifyOTP = async (req, res) => {
+  if (!req.params.token)
+      return res.status(400).json({ message: "No token provided!" });
+  try {
+    const { otp } = req.body;
+    const { token } = req.params;
+    const decoded = await tokenDecode(token);
+
+    if (decoded.payload.otpCode != otp)
+      return res.status(401).json({ message: "The OTP code is invalid" });
+
+    const user = await User.findOne({ where: { id: decoded.payload.userId } });
+
+    if (!user)
+      return res
+        .status(401)
+        .json({ message: "User not found, please restart the process" });
+
+    const payload = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+    };
+
+    const loginToken = await generateToken(payload);
+    return res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Login successful",
+      loginToken,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      status: 500,
+      success: false,
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
 export const registerUser = async (req, res) => {
   try {
     const user = { ...req.body };
@@ -80,26 +154,7 @@ export const registerUser = async (req, res) => {
     const { id, email } = await UserService.register(user);
     const userData = { id, email };
     const userToken = await generateToken(userData);
-    const message = {
-      from: `"Falcons Project" <${process.env.FROM_EMAIL}>`,
-      to: userData.email,
-      subject: 'Falcons project - Verify your account',
-      text: `Hello, Thank you for registering on our site. Please click on this link to verify your email address: <a href="http://${process.env.url}/verify-account?token=${userToken}">Verify Account</a>. If you did not register for an account with Falcons Project, please ignore this email.`,
-      html: `
-        <h1> Hello,</h1>
-        <p> Thanks for registering on our site.</p>
-        <p> Please click on the button below to verify your account.</p>
-        <a href="http://${process.env.url}/verify-account?token=${userToken}" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">Verify Account</a>
-        <p>If you did not register for an account with Falcons Project, please ignore this email.</p>`,
-    };
-    await sendEmail(
-      userData.email,
-      process.env.FROM_EMAIL,
-      'Falcons project - Verify your account',
-      message.text,
-      message.html,
-    );
-
+    await sendMessage(email, sendVerifyEmail(userToken), 'Email verification');
     return res.status(201).json({ user: userData, token: userToken });
   } catch (err) {
     return res.status(500).json({
@@ -175,7 +230,7 @@ const updatePassword = async (req, res) => {
     await user.update({
       password: hashPassword,
       lastPasswordUpdate: new Date(),
-      status:'true',
+      status: 'true',
     });
     await user.save();
     return res.status(200).json({ message: 'password updated successfully' });
@@ -194,7 +249,7 @@ const forgotPassword = async (req, res) => {
       return res.status(400).json({ error: 'User not found' });
     }
     const token = await generateToken(user, { expiresIn: '10m' });
-    await messageResetPassword(userEmail);
+    await await sendMessage(userEmail, messageResetPassword(token), 'Reset Password');
     return res.status(200).json({ token, message: 'email sent to the user' });
   } catch (error) {
     return res.status(400).json({ error: error.message });
