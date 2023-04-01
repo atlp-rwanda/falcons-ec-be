@@ -14,4 +14,9 @@ const sendVerifyEmail = (token) => {
   return message;
 };
 
-export { messageResetPassword, sendVerifyEmail };
+const sendOTPEmail= (otp)=>{
+  const message=`Hello, ${otp} is your OTP code. It will expire in 5 minutes, use the below button to verify it and If you did not request for an OTP code, please ignore this email.`
+  return message;
+}
+
+export { messageResetPassword, sendVerifyEmail, sendOTPEmail };

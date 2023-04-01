@@ -280,7 +280,6 @@ describe('PRODUCT', async () => {
     quantity: 10,
     expiryDate: "12/12/12",
   };
-
   
   describe("POST /api/v1/products", () => {
     it("should create a Product", async () => {
@@ -291,7 +290,7 @@ describe('PRODUCT', async () => {
       .send(realUser);
 
       OTPtoken = loginResponse.body.OTPtoken;
-      
+      console.log(loginResponse)
       const decoded = await tokenDecode(OTPtoken);
       const otpSent = decoded.payload.otpCode;
       const resp = await chai

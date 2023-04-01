@@ -10,7 +10,7 @@ import tokenDecode from '../helpers/token_decode';
 import { BcryptUtility } from '../utils/bcrypt.util';
 import { UserService } from '../services/user.service';
 import verifyToken from '../utils/jwt.util';
-import { messageResetPassword, sendVerifyEmail } from '../helpers/sendMessage';
+import { messageResetPassword, sendOTPEmail, sendVerifyEmail } from '../helpers/sendMessage';
 import findOneUserService from '../services/authService';
 import cloudinary from '../uploads';
 import sendMessage from '../utils/sendgrid.util';
@@ -58,19 +58,12 @@ const loginUser = async (req, res) => {
 
         const OTPtoken = await generateToken(OTPcontents, process.env.OTP_EXPIRY); //expires in 5 minutes
 
-        const message = {
-          from: `Falcons store <${process.env.SENDGRID_EMAIL}>`,
-          to: user.email,
-          subject: "Two factor authentication",
-          text: `Hello, ${otp} is your OTP code. It will expire in 5 minutes, use the below button to verify it and If you did not request for an OTP code, please ignore this email.`,
-          html: `
-        <h1> Hello</h1>
+        const html=`<h1> Hello</h1>
         <p> <b>${otp}</b> is your OTP code, it expires in 5 minutes so click the button below to verify it. Do not share it with anyone!</p>
-        <a href="http://localhost:5000/api/v1/users/otp/verify?token=${OTPtoken}" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">Verify OTP code</a>
-        <p>If you did not register for an account with Falcons Project, please ignore this email.</p>`,
-        };
+        <a href="${process.env.clientURL}/api/v1/users/otp/verify?token=${OTPtoken}" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">Verify OTP code</a>
+        <p>If you did not register for an account with Falcons Project, please ignore this email.</p>`
 
-        await sgMail.send(message);
+        await sendMessage(email, sendOTPEmail(otp), 'Two factor authentication', html); //I have made this html parameter optional to prevent breaking the function
 
         return res.status(200).json({
           status: 200,
@@ -106,7 +99,7 @@ const loginUser = async (req, res) => {
 
 export const verifyOTP = async (req, res) => {
   if (!req.params.token)
-      return res.status(400).json({ message: "No token provided!" });
+    return res.status(400).json({ message: "No token provided!" });
   try {
     const { otp } = req.body;
     const { token } = req.params;
