@@ -49,6 +49,28 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        {
+          id: '81ccbbd5-7907-4940-a6af-5a738f8e1d39',
+          email: 'umuntu@gmail.com',
+          role: 'buyer',
+          password:
+            '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', // 1234
+          status: 'true',
+          isVerified: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '41dcbbd5-7907-4940-a6ae-2a738f8e1d34',
+          email: 'pacstudios39@gmail.com',
+          role: 'seller',
+          password:
+            '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', // 1234
+          status: 'true',
+          isVerified: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ],
       {},
     );

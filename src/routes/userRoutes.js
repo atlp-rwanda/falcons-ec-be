@@ -16,6 +16,7 @@ import {
   verifyEmail,
   getSingleProfile,
   updateProfile,
+  verifyOTP
 } from '../controllers/userController';
 import isLoggedIn, {
   checkPassword,
@@ -25,8 +26,9 @@ import {
   userSchema,
   Password,
   profileSchema,
-  passwordResetSchema,
+  passwordResetSchema,  
 } from '../validations/userSchema';
+import otpSchema from '../validations/otpSchema';
 import validateRegister from '../validations/register.validation';
 import validator from '../validations/validation';
 import verifyRole from '../middleware/verifyRole';
@@ -48,6 +50,7 @@ userRoutes.get('', isLoggedIn, checkPassword, verifyRole('admin'), getAllUsers);
 userRoutes.get('/profile/single', isLoggedIn, getSingleProfile);
 userRoutes.post('/signin', validator(userSchema), loginUser);
 userRoutes.post('/signup', validator(userSchema), createNewUser);
+userRoutes.post('/otp/verify/:token', validator(otpSchema), verifyOTP);
 userRoutes.put(
   '/:id/roles',
   [checkPassword, verifyRole('admin'), validator(roleSchema)],

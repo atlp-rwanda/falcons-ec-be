@@ -6,10 +6,11 @@ import * as dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import db from '../database/models/index';
 import generateToken from '../helpers/token_generator';
+import tokenDecode from '../helpers/token_decode';
 import { BcryptUtility } from '../utils/bcrypt.util';
 import { UserService } from '../services/user.service';
 import verifyToken from '../utils/jwt.util';
-import { messageResetPassword, sendVerifyEmail } from '../helpers/sendMessage';
+import { messageResetPassword, sendOTPEmail, sendVerifyEmail } from '../helpers/sendMessage';
 import findOneUserService from '../services/authService';
 import cloudinary from '../uploads';
 import sendMessage from '../utils/sendgrid.util';
@@ -19,8 +20,9 @@ dotenv.config();
 const { User } = db;
 
 dotenv.config();
-const API_KEY = process.env.SENDGRID_API_KEY;
-sgMail.setApiKey(API_KEY);
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 const getAllUsers = async (req, res) => {
   const allUsers = await User.findAll();
 
@@ -46,29 +48,97 @@ const loginUser = async (req, res) => {
         return res.status(403).json({ message: 'Account locked!' });
       }
 
+      if (user.role === "seller") {
+        const otp = Math.floor(100000 + Math.random() * 900000);
+
+        const OTPcontents = {
+          userId: user.id,
+          otpCode: otp,
+        };
+
+        const OTPtoken = await generateToken(OTPcontents, process.env.OTP_EXPIRY); //expires in 5 minutes
+
+        const html=`<h1> Hello</h1>
+        <p> <b>${otp}</b> is your OTP code, it expires in 5 minutes so click the button below to verify it. Do not share it with anyone!</p>
+        <a href="${process.env.clientURL}/api/v1/users/otp/verify?token=${OTPtoken}" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">Verify OTP code</a>
+        <p>If you did not register for an account with Falcons Project, please ignore this email.</p>`
+
+        await sendMessage(email, sendOTPEmail(otp), 'Two factor authentication', html); //I have made this html parameter optional to prevent breaking the function
+
+        return res.status(200).json({
+          status: 200,
+          success: true,
+          message: `OTP code sent to ${user.email}`,
+          OTPtoken,
+        });
+      }
+
       const token = await generateToken(payload);
       res.status(200).json({
         status: 200,
         success: true,
-        message: 'Login successful',
+        message: "Login successful",
         token,
       });
     } else {
       res.status(401).json({
         status: 401,
         success: false,
-        message: 'Invalid credentials',
+        message: "Invalid credentials",
       });
     }
   } catch (error) {
     res.status(500).send({
       status: 500,
       success: false,
-      message: 'Failed to Login',
+      message: "Failed to Login",
       error: error.message,
     });
   }
 };
+
+export const verifyOTP = async (req, res) => {
+  if (!req.params.token)
+    return res.status(400).json({ message: "No token provided!" });
+  try {
+    const { otp } = req.body;
+    const { token } = req.params;
+    const decoded = await tokenDecode(token);
+
+    if (decoded.payload.otpCode != otp)
+      return res.status(401).json({ message: "The OTP code is invalid" });
+
+    const user = await User.findOne({ where: { id: decoded.payload.userId } });
+
+    if (!user)
+      return res
+        .status(401)
+        .json({ message: "User not found, please restart the process" });
+
+    const payload = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+    };
+
+    const loginToken = await generateToken(payload);
+    return res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Login successful",
+      loginToken,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      status: 500,
+      success: false,
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
 export const registerUser = async (req, res) => {
   try {
     const user = { ...req.body };
