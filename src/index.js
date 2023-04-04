@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable import/extensions */
 /* eslint-disable linebreak-style */
 import * as dotenv from 'dotenv';
 import db from './database/models/index';

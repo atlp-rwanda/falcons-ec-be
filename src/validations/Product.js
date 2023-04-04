@@ -5,7 +5,7 @@ const productSchema = joi.object({
   quantity: joi.number().min(0).required(),
   price: joi.number().min(0).required(),
   description: joi.string().required(),
-  expiryDate: joi.date().required(),
+  expiryDate: joi.date().min('now').required(),
   images: joi.array(),
   category_id: joi.string().required(),
 });

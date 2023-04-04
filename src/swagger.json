@@ -996,6 +996,62 @@
         }
       }
     },
+    "/api/v1/categories": {
+      "post": {
+        "tags": ["Products"],
+        "summary": "Create a category",
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": [],
+            "google_Oauth2": []
+          }
+        ],
+        "description": "This is an api that creates a category",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "categoryName": {
+                  "type": "string",
+                  "default": "Name Of Category"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category created successfully",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "Category created successfully"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/users/profile": {
       "patch": {
         "tags": ["Users"],
