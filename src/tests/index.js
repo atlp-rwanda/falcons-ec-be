@@ -262,35 +262,33 @@ describe('PRODUCT', async () => {
     password: '1234',
   };
 
-  let token = "";
-  let OTPtoken="";
+  let token = '';
+  let OTPtoken = '';
 
   const product = {
-    productName: "test",
-    description: "test",
+    productName: 'test',
+    description: 'test',
     price: 100,
     quantity: 10,
-    expiryDate: '12/12/12',
+    expiryDate: '12/12/30',
     category_id: '0da3d632-a09e-42d5-abda-520aea82ef49',
   };
 
   const invalidproduct = {
-    productName: "test",
+    productName: 'test',
     price: 100,
     quantity: 10,
-    expiryDate: "12/12/12",
+    expiryDate: '12/12/12',
   };
-  
-  describe("POST /api/v1/products", () => {
-    it("should create a Product", async () => {
 
+  describe('POST /api/v1/products', () => {
+    it('should create a Product', async () => {
       const loginResponse = await chai
-      .request(app)
-      .post("/api/v1/users/signin")
-      .send(realUser);
+        .request(app)
+        .post('/api/v1/users/signin')
+        .send(realUser);
 
       OTPtoken = loginResponse.body.OTPtoken;
-      console.log(loginResponse)
       const decoded = await tokenDecode(OTPtoken);
       const otpSent = decoded.payload.otpCode;
       const resp = await chai
@@ -300,11 +298,11 @@ describe('PRODUCT', async () => {
           otp: otpSent,
         });
       token = resp.body.loginToken;
-      
+
       const response = await chai
         .request(app)
-        .post("/api/v1/products")
-        .set("Authorization", `Bearer ${token}`)
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${token}`)
         .send(product);
       response.body.should.be.a('object');
       expect(response.status).to.equal(201);
@@ -317,35 +315,35 @@ describe('PRODUCT', async () => {
       expect(response.body).to.have.property('createdAt');
       expect(response.body).to.have.property('updatedAt');
     });
-    it("should return 400 incase validation fails", async () => {
+    it('should return 400 incase validation fails', async () => {
       const response = await chai
         .request(app)
-        .post("/api/v1/products")
-        .set("Authorization", `Bearer ${token}`)
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${token}`)
         .send(invalidproduct);
       expect(response.status).to.equal(400);
     });
-    it("should return 400 incase validation fails", async () => {
+    it('should return 400 incase validation fails', async () => {
       const response = await chai
         .request(app)
-        .post("/api/v1/products")
-        .set("Authorization", `Bearer ${token}`)
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${token}`)
         .send(invalidproduct);
       expect(response.status).to.equal(400);
     });
 
-    it("should return 401 if user is not logged in", async () => {
+    it('should return 401 if user is not logged in', async () => {
       const response = await chai
         .request(app)
-        .post("/api/v1/products")
+        .post('/api/v1/products')
         .send(invalidproduct);
       expect(response.status).to.equal(401);
     });
-    it("should return 401 if user is not an admin ", async () => {
+    it('should return 401 if user is not an admin ', async () => {
       const response = await chai
         .request(app)
-        .post("/api/v1/categories")
-        .set("Authorization", `Bearer ${_TOKEN}`)
+        .post('/api/v1/categories')
+        .set('Authorization', `Bearer ${_TOKEN}`)
         .send(invalidproduct);
       expect(response.status).to.equal(401);
     });
@@ -359,8 +357,6 @@ describe('PRODUCT', async () => {
     });
   });
 });
-
-
 
 describe('Disable account', () => {
   it('should disable an account', async () => {

@@ -1,7 +1,13 @@
+/* eslint-disable func-names */
+/* eslint-disable prefer-arrow-callback */
+/* eslint-disable no-unused-expressions */
 /* eslint-disable import/no-extraneous-dependencies */
-import chai from 'chai';
+import chai, { assert } from 'chai';
 import chaiHttp from 'chai-http';
 import dotenv from 'dotenv';
+import sinon from 'sinon';
+import db from '../database/models/index';
+import markProductExpired from '../events/markProductExpired';
 import { app } from '../server';
 
 dotenv.config();
@@ -89,5 +95,43 @@ describe('get profile', () => {
         .set('Authorization', `Bearer ${token}`);
       res.should.have.status(200);
     });
+  });
+});
+describe('markProductExpired', () => {
+  const { Product } = db;
+  let consoleStub;
+
+  beforeEach(() => {
+    consoleStub = sinon.stub(console, 'log');
+  });
+
+  afterEach(() => {
+    consoleStub.restore();
+  });
+
+  it('should log "No expired products" when there are no expired products', async () => {
+    const expiredProducts = [];
+    await markProductExpired(expiredProducts);
+    expect(consoleStub.calledOnceWithExactly('No expired products')).to.be.true;
+  });
+
+  it('should update the status of expired products to "expired"', async function () {
+    const testProduct1 = await Product.create({
+      productName: 'Test Product',
+      description: 'test',
+      quantity: 10,
+      price: 100,
+      expired: false,
+      seller_id: '60409d12-ddad-4938-a37a-c17bc33aa4ba',
+      expiryDate: new Date(Date.now() - 31 * 24 * 60 * 60 * 1000),
+    });
+    const expiredProducts = [testProduct1];
+    await markProductExpired(expiredProducts);
+
+    const updatedProduct1 = await Product.findByPk(testProduct1.id);
+
+    assert.isTrue(updatedProduct1.expired);
+
+    await testProduct1.destroy();
   });
 });

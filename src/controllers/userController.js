@@ -242,7 +242,11 @@ const forgotPassword = async (req, res) => {
       return res.status(400).json({ error: 'User not found' });
     }
     const token = await generateToken(user, { expiresIn: '10m' });
-    await await sendMessage(userEmail, messageResetPassword(token), 'Reset Password');
+    await await sendMessage(
+      userEmail,
+      messageResetPassword(token),
+      'Reset Password',
+    );
     return res.status(200).json({ token, message: 'email sent to the user' });
   } catch (error) {
     return res.status(400).json({ error: error.message });

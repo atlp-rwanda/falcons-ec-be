@@ -18,6 +18,17 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: '60409d12-ddad-4938-a37a-c17bc33aa4ba',
+          email: 'kirengaboris5@gmail.com',
+          role: 'seller',
+          password:
+            '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', // 1234
+          status: 'true',
+          isVerified: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
           id: 'dbc8fb75-2bd9-4e49-90d5-01ebdd4076e2',
           email: 'kylesjet1@gmail.com',
           password:

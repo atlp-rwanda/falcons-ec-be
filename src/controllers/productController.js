@@ -1,5 +1,6 @@
 /* eslint-disable linebreak-style */
 import * as dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
 import db from '../database/models/index';
 import cloudinary from '../uploads';
 
@@ -8,10 +9,12 @@ const { Product } = db;
 
 const CreateProduct = async (req, res) => {
   try {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
     const existingProduct = await Product.findOne({
       where: {
         productName: req.body.productName,
-        seller_id: '57409d12-ddad-4938-a37a-c17bc33aa4ba',
+        seller_id: decodedData.payload.id,
       },
     });
 
@@ -24,8 +27,9 @@ const CreateProduct = async (req, res) => {
       description: req.body.description,
       quantity: req.body.quantity,
       price: req.body.price,
-      seller_id: '57409d12-ddad-4938-a37a-c17bc33aa4ba',
+      seller_id: decodedData.payload.id,
       expiryDate: new Date(),
+      category_id: req.body.category_id,
     });
     if (req.files) {
       const promises = req.files.map((file) =>

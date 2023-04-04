@@ -53,7 +53,10 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: true,
         },
       },
-
+      expired: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: 'false',
+      },
       category_id: {
         type: DataTypes.UUID,
         references: {

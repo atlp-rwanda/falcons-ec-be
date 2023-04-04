@@ -17,7 +17,7 @@ const profileSchema = Joi.object({
   firstname: Joi.string().min(3),
   lastname: Joi.string().min(3),
   gender: Joi.string().valid('male', 'female', 'other'),
-  birthDate: Joi.date(),
+  birthDate: Joi.date().max('now'),
   preferredLanguage: Joi.string().min(3),
   preferredCurrency: Joi.string().min(3),
   billingAddress: Joi.object({
@@ -36,9 +36,7 @@ const passwordResetSchema = Joi.object({
     .minOfNumeric(1)
     .required()
     .trim(),
-  confirmPassword: Joi.ref('password')
+  confirmPassword: Joi.ref('password'),
 });
 
-export {
-  userSchema, Password, profileSchema, passwordResetSchema
-};
+export { userSchema, Password, profileSchema, passwordResetSchema };

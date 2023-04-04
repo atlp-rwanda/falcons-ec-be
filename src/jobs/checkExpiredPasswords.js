@@ -1,8 +1,10 @@
+/* eslint-disable import/prefer-default-export */
 import * as dotenv from 'dotenv';
-import db, { sequelize } from '../database/models/index';
-import { markPasswordExpired } from '../events/markPasswordExpired';
 import cron from 'node-cron';
 import EventEmitter from 'events';
+import db, { sequelize } from '../database/models/index';
+import { markPasswordExpired } from '../events/markPasswordExpired';
+
 const emitter = new EventEmitter();
 const { User } = db;
 dotenv.config();
