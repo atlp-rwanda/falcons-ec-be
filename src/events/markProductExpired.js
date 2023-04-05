@@ -2,7 +2,7 @@
 /* eslint-disable no-await-in-loop */
 
 import { productsExpiration } from '../helpers/sendMessage';
-import findOneUserService from '../services/auth';
+import findOneUserService from '../services/authService';
 import sendMessage from '../utils/sendgrid.util';
 
 /* eslint-disable no-console */

@@ -44,9 +44,10 @@ const loginUser = async (req, res) => {
         status: user.status,
       };
 
-      if (user.status == 'false') {
+      if (user.status == false) {
         return res.status(403).json({ message: 'Account locked!' });
-      }
+      } 
+      
 
       if (user.role === "seller") {
         const otp = Math.floor(100000 + Math.random() * 900000);
@@ -185,7 +186,7 @@ const createNewUser = async (req, res) => {
       email: req.body.email,
       password: pwd,
       role: 'admin',
-      status: 'true',
+      status: true,
       lastPasswordUpdate: new Date().getTime(),
     });
     res.status(201);
@@ -223,7 +224,7 @@ const updatePassword = async (req, res) => {
     await user.update({
       password: hashPassword,
       lastPasswordUpdate: new Date(),
-      status: 'true',
+      status:true,
     });
     await user.save();
     return res.status(200).json({ message: 'password updated successfully' });
@@ -293,11 +294,11 @@ const disableAccount = async (req, res) => {
   if (!foundUser) return res.status(404).json({ message: 'User not found' });
 
   let message = '';
-  if (foundUser.status === 'true') {
-    foundUser.status = 'false';
+  if (foundUser.status === true) {
+    foundUser.status = false;
     message = 'Account disabled';
   } else {
-    foundUser.status = 'true';
+    foundUser.status = true;
     message = 'Account Enabled';
   }
 

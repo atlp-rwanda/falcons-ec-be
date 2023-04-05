@@ -18,9 +18,11 @@ import generateToken from '../helpers/token_generator';
 import tokenDecode from '../helpers/token_decode';
 import { checkPassword } from '../jobs/checkExpiredPasswords';
 import { markPasswordExpired } from '../events/markPasswordExpired';
+import { async } from 'regenerator-runtime';
 
 const { blacklisToken } = db;
 const { User } = db;
+const { Cart } = db;
 
 dotenv.config();
 
@@ -42,7 +44,6 @@ describe('Welcome Controller', () => {
     });
   });
 });
-
 describe('Google Authentication', () => {
   const mockUser = {
     email: 'johndoe@gmail.com',
@@ -280,25 +281,24 @@ describe('PRODUCT', async () => {
     quantity: 10,
     expiryDate: '12/12/12',
   };
+  const loginResponse = await chai
+    .request(app)
+    .post('/api/v1/users/signin')
+    .send(realUser);
+
+  OTPtoken = loginResponse.body.OTPtoken;
+  const decoded = await tokenDecode(OTPtoken);
+  const otpSent = decoded.payload.otpCode;
+  const resp = await chai
+    .request(app)
+    .post(`/api/v1/users/otp/verify/${OTPtoken}`)
+    .send({
+      otp: otpSent,
+    });
+  token = resp.body.loginToken;
 
   describe('POST /api/v1/products', () => {
     it('should create a Product', async () => {
-      const loginResponse = await chai
-        .request(app)
-        .post('/api/v1/users/signin')
-        .send(realUser);
-
-      OTPtoken = loginResponse.body.OTPtoken;
-      const decoded = await tokenDecode(OTPtoken);
-      const otpSent = decoded.payload.otpCode;
-      const resp = await chai
-        .request(app)
-        .post(`/api/v1/users/otp/verify/${OTPtoken}`)
-        .send({
-          otp: otpSent,
-        });
-      token = resp.body.loginToken;
-
       const response = await chai
         .request(app)
         .post('/api/v1/products')
@@ -375,7 +375,6 @@ describe('Disable account', () => {
         email: 'eric@gmail.com',
         password: '1234',
       });
-
     expect(loginResponse.status).to.equal(403);
   });
 
@@ -634,7 +633,7 @@ describe('markPasswordExpired', () => {
     await markPasswordExpired(expiredUsers);
     expect(consoleStub.calledOnceWithExactly('No expired password')).to.be.true;
   });
-  it('should update the status of expired users to NeedsToUpdatePassword', async function () {
+  it('should update the status of expired users to true', async function () {
     // Create test users with expired passwords
     const testUser1 = await User.create({
       email: 'test1@test.com',
@@ -648,8 +647,8 @@ describe('markPasswordExpired', () => {
     });
     const expiredUsers = [testUser1, testUser2];
     await markPasswordExpired(expiredUsers);
-    assert.equal(testUser1.status, 'NeedsToUpdatePassword');
-    assert.equal(testUser2.status, 'NeedsToUpdatePassword');
+    assert.equal(testUser1.PasswordExpired, true);
+    assert.equal(testUser2.PasswordExpired, true);
     // Delete the test users from the database
     await testUser1.destroy();
     await testUser2.destroy();
@@ -668,8 +667,170 @@ describe('markPasswordExpired', () => {
     });
     const usersWithNoLastPasswordUpdate = [expiredUsers];
     await markPasswordExpired(usersWithNoLastPasswordUpdate);
-    assert.notEqual(testUser.status, 'NeedsToUpdatePassword');
+    assert.notEqual(testUser.PasswordExpired, true);
     // Delete the test user from the database
     await testUser.destroy();
+  });
+});
+
+describe('AddToCart function', async () => {
+  // create a seller and a product
+  const realUser = {
+    email: 'eric@gmail.com',
+    password: '1234',
+  };
+  const buyer = {
+    email: 'dean@gmail.com',
+    password: '1234',
+  };
+  const loginResponse = await chai
+    .request(app)
+    .post('/api/v1/users/signin')
+    .send(realUser);
+  token = loginResponse.body.token;
+  const res = await chai.request(app).post('/api/v1/users/signin').send(buyer);
+  const buyerToken = res.body.token;
+  describe('POST /api/v1/cart', () => {
+    // test case for adding a product to cart
+    it('should add product to cart and return a success message', async () => {
+      // send a POST request to /api/cart with the product ID in the body
+      const response = await chai
+        .request(app)
+        .post('/api/v1/cart')
+        .set('Authorization', `Bearer ${buyerToken}`)
+        .send({
+          product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c',
+          quantity: 1,
+        });
+      //assert that the response has a status code of 200
+      expect(response.status).to.equal(200);
+      // assert that the response message is 'Successfully Added to Cart'
+      expect(response.body.message).to.equal('Successfully Added to Cart');
+    });
+    it('should ask user to login', async () => {
+      // send a POST request to /api/cart with the product ID in the body
+      const response = await chai
+        .request(app)
+        .post('/api/v1/cart')
+        .send({ product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c' });
+      // assert that the response has a status code of 401
+      expect(response.status).to.equal(401);
+      expect(response.body.message).to.equal('Not logged in');
+    });
+    it('should return an error in case its not a buyer', async () => {
+      // send a POST request to /api/cart with the product ID in the body
+      const response = await chai
+        .request(app)
+        .post('/api/v1/cart')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c' });
+      // assert that the response has a status code of 200
+      expect(response.status).to.equal(401);
+      expect(response.body.message).to.equal('unauthorised');
+    });
+  });
+  describe('GET /api/v1/cart', () => {
+    // test case for adding a product to cart
+    it('should get the cart and return a success message', async () => {
+      // send a POST request to /api/cart with the product ID in the body
+      const response = await chai
+        .request(app)
+        .get('/api/v1/cart')
+        .set('Authorization', `Bearer ${buyerToken}`)
+        .send({ product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c' });
+      expect(response.status).to.equal(200);
+    });
+    it('should ask user to login', async () => {
+      // send a POST request to /api/cart with the product ID in the body
+      const response = await chai
+        .request(app)
+        .post('/api/v1/cart')
+        .send({ product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c' });
+      // assert that the response has a status code of 401
+      expect(response.status).to.equal(401);
+      expect(response.body.message).to.equal('Not logged in');
+    });
+    it('should return an error in case its not a buyer', async () => {
+      // send a POST request to /api/cart with the product ID in the body
+      const response = await chai
+        .request(app)
+        .post('/api/v1/cart')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c' });
+      // assert that the response has a status code of 200
+      expect(response.status).to.equal(401);
+      expect(response.body.message).to.equal('unauthorised');
+    });
+  });
+  describe('DELETE /api/v1/cart', () => {
+    // test case for adding a product to cart
+    it('should clear the cart and return an empty cart', async () => {
+      // send a POST request to /api/cart with the product ID in the body
+      const response = await chai
+        .request(app)
+        .delete('/api/v1/cart')
+        .set('Authorization', `Bearer ${buyerToken}`);
+      expect(response.status).to.equal(200);
+    });
+    it('should ask user to login', async () => {
+      // send a POST request to /api/cart with the product ID in the body
+      const response = await chai
+        .request(app)
+        .post('/api/v1/cart')
+        .send({ product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c' });
+      // assert that the response has a status code of 401
+      expect(response.status).to.equal(401);
+      expect(response.body.message).to.equal('Not logged in');
+    });
+    it('should return an error in case its not a buyer', async () => {
+      // send a POST request to /api/cart with the product ID in the body
+      const response = await chai
+        .request(app)
+        .post('/api/v1/cart')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c' });
+      // assert that the response has a status code of 200
+      expect(response.status).to.equal(401);
+      expect(response.body.message).to.equal('unauthorised');
+    });
+  });
+  describe('PUT /api/v1/cart', () => {
+    // test case for adding a product to cart
+    it('should update cart and return a success message', async () => {
+      // send a POST request to /api/cart with the product ID in the body
+      const response = await chai
+        .request(app)
+        .put('/api/v1/cart')
+        .set('Authorization', `Bearer ${buyerToken}`)
+        .send({
+          product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c',
+          quantity: 1,
+        });
+      //assert that the response has a status code of 200
+      expect(response.status).to.equal(200);
+      // assert that the response message is 'Successfully Added to Cart'
+      expect(response.body.message).to.equal('Successfully Updated Cart');
+    });
+    it('should ask user to login', async () => {
+      // send a PUT request to /api/cart with the product ID in the body
+      const response = await chai
+        .request(app)
+        .put('/api/v1/cart')
+        .send({ product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c' });
+      // assert that the response has a status code of 401
+      expect(response.status).to.equal(401);
+      expect(response.body.message).to.equal('Not logged in');
+    });
+    it('should return an error in case its not a buyer', async () => {
+      // send a PUT request to /api/cart with the product ID in the body
+      const response = await chai
+        .request(app)
+        .put('/api/v1/cart')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c' });
+      // assert that the response has a status code of 200
+      expect(response.status).to.equal(401);
+      expect(response.body.message).to.equal('unauthorised');
+    });
   });
 });

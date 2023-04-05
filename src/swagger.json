@@ -1259,36 +1259,21 @@
         }
       }
     },
-    "/api/v1/users/otp/verify/{token}": {
-      "post": {
-        "summary": "Verify OTP code received",
-        "description": "This is an api that completes 2FA",
-        "produces": ["application/json"],
-        "parameters": [
+    "/api/v1/cart": {
+      "get": {
+        "security": [
           {
-            "name": "token",
-            "in": "path",
-            "required": true,
-            "description": "token encoded with user id and the otp code"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "otp": {
-                  "type": "string",
-                  "default": ""
-                }               
-              }
-            }
+            "jwt": [],
+            "bearerAuth": []
           }
         ],
+        "tags": ["Carts"],
+        "summary": "Get Cart",
+        "description": "This is an api that gets the cart",
+        "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "Login successful",
+            "description": "OK",
             "definitions": {
               "message": {
                 "type": "object",
@@ -1304,7 +1289,208 @@
                 "type": "object",
                 "properties": {
                   "message": {
-                    "default": "Login Successful"
+                    "type": "string",
+                    "default": "Cart Displayed"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "definitions": {
+              "error": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "default": "error message"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "default": ""
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Carts"],
+        "summary": "Add To Cart",
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": [],
+            "google_Oauth2": []
+          }
+        ],
+        "description": "This is an api that adds to cart",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "default": "926ade6c-21f7-4866-ae7f-360d1574839d"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "default": "1"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Added to cart successfully",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "Added to cart successfully"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Carts"],
+        "summary": "Update To Cart",
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": [],
+            "google_Oauth2": []
+          }
+        ],
+        "description": "This is an api that adds to cart",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "default": "926ade6c-21f7-4866-ae7f-360d1574839d"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "default": "1"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Added to cart successfully",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "Added to cart successfully"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Carts"],
+        "summary": "Clear The Cart",
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": [],
+            "google_Oauth2": []
+          }
+        ],
+        "description": "This is an api that clears the cart",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Cleared the cart successfully",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "Cleared the cart successfully"
                   }
                 }
               }
@@ -1312,6 +1498,102 @@
           }
         }
       }
+    },
+       "/api/v1/cart/{item_id}": {
+      "delete": {
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["Carts"],
+        "summary": "Remove from Cart",
+        "description": "This is an api that removes one item from the cart",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "type": "string",
+            "description": "The item id."
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "default": "Cart Displayed"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "definitions": {
+              "error": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "default": "error message"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "default": ""
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    
     }
   },
   "securityDefinitions": {

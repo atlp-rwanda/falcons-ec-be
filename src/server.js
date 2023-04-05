@@ -8,17 +8,12 @@ import passportRouter from './routes/passport';
 import router from './routes';
 import productRoute from './routes/productRoutes';
 import categoryRoute from './routes/categoryRoutes';
+import cartRoute from './routes/cartRoutes';
 
 export const app = express();
 dotenv.config();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-app.use('/api/v1', productRoute);
-app.use('/api/v1', categoryRoute);
-app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swagger));
-app.use('/', passportRouter);
-app.use(router);
 app.use(
   session({
     secret: process.env.EXPRESS_SESSION,
@@ -26,4 +21,11 @@ app.use(
     saveUninitialized: false,
   }),
 );
+app.use('/api/v1', productRoute);
+app.use('/api/v1', categoryRoute);
+app.use('/api/v1',cartRoute);
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swagger));
+app.use('/', passportRouter);
+app.use(router);
+
 export default app;
