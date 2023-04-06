@@ -92,6 +92,61 @@
         }
       }
     },
+    "/api/v1/users/otp/verify/{token}": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Verify OTP code received",
+        "description": "This is an api that completes 2FA",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "description": "token encoded with user id and the otp code"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "otp": {
+                  "type": "string",
+                  "default": ""
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "Login Successful"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/users/password": {
       "parameters": [
         {
@@ -475,10 +530,10 @@
         ],
         "parameters": [
           {
-          "name": "id",
-          "in": "path",
-          "description": "The product id",
-          "required": true
+            "name": "id",
+            "in": "path",
+            "description": "The product id",
+            "required": true
           }
         ],
         "consumes": ["multipart/form-data"],
@@ -1542,7 +1597,7 @@
         }
       }
     },
-       "/api/v1/cart/{item_id}": {
+    "/api/v1/cart/{item_id}": {
       "delete": {
         "security": [
           {
@@ -1636,7 +1691,54 @@
           }
         }
       }
-    
+    },
+    "/api/v1/orders/checkout": {
+      "post": {
+        "tags": ["Orders"],
+        "summary": "Performs checkout",
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": [],
+            "google_Oauth2": []
+          }
+        ],
+        "description": "This is an api for checkout",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Order created, use the url to complete payment",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  },
+                  "order_id": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "Order created, use the url to complete payment"
+                  },
+                  "order_id": { "default": "" },
+                  "url": { "default": "" }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "securityDefinitions": {
