@@ -5,7 +5,7 @@ import express from 'express';
 import path from 'path';
 import isLoggedIn, { checkPassword } from '../middleware/authMiddleware';
 import verifyRole from '../middleware/verifyRole';
-import CreateProduct from '../controllers/productController';
+import CreateProduct, { updateProductAvailability } from '../controllers/productController';
 import validator from '../validations/validation';
 import productSchema from '../validations/Product';
 
@@ -37,6 +37,12 @@ productRoute.post(
   validator(productSchema),
 
   CreateProduct,
+);
+productRoute.patch(
+  '/products/:id/availability',
+  isLoggedIn,
+  verifyRole('seller'),
+  updateProductAvailability
 );
 
 export default productRoute;

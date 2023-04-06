@@ -21,7 +21,7 @@ import { markPasswordExpired } from '../events/markPasswordExpired';
 import { async } from 'regenerator-runtime';
 
 const { blacklisToken } = db;
-const { User } = db;
+const { User, Product } = db;
 const { Cart } = db;
 
 dotenv.config();
@@ -34,6 +34,7 @@ chai.use(chaiHttp);
 
 let _TOKEN = '';
 let token;
+const email = 'gatete@gmail.com';
 
 describe('Welcome Controller', () => {
   describe('GET /welcome', () => {
@@ -354,6 +355,63 @@ describe('PRODUCT', async () => {
         .set('Authorization', `Bearer ${_TOKEN}`)
         .send(invalidproduct);
       expect(response.status).to.equal(401);
+    });
+  });
+  describe('PATCH /api/v1/products/:id/availability', () => {
+    it('should update the product availability', async () => {
+      const response = await chai
+        .request(app)
+        .patch('/api/v1/products/9974076f-e16a-486f-a923-362ec1747a12/availability')
+        .set('Authorization', `Bearer ${token}`);
+      expect(response.status).to.equal(400);
+    });
+    it('should return a 500 error', async () => {
+      const response = await chai
+        .request(app)
+        .patch('/api/v1/products/999999/availability')
+        .set('Authorization', `Bearer ${token}`);
+      expect(response.status).to.equal(500);
+      expect(response.body).to.have.property('message');
+      expect(response.body.message).to.equal('invalid input syntax for type uuid: "999999"');
+    });
+    it('should return a 400 error', async () => {
+      const response = await chai
+        .request(app)
+        .patch('/api/v1/products/7eb6da79-c94a-4d36-9a05-b9acabb08b3f/availability')
+        .set('Authorization', `Bearer ${token}`);
+      expect(response.status).to.equal(400);
+      expect(response.body).to.have.property('message');
+      expect(response.body.message).to.equal('Product not found');
+    });
+    it('should return an error message', async () => {
+      const payload = { email: 'mukakalisajeanne@gmail.com', password: '1234' };
+      const userToken = generateToken(payload);
+      const response = await chai
+        .request(app)
+        .patch('/api/v1/products/:id/availability')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ id: '7eb6da79-c94a-4d36-9a05-b9acabb08b3b' });
+      expect(response.status).to.equal(500);
+      expect(response.body).to.have.property('message');
+      expect(response.body.message).to.equal('Error when authorizing user jwt malformed');
+    });
+    it('should return a 500 error', async () => {
+      sinon.stub(Product, 'findOne').throws(new Error('Server error'));
+      const response = await chai
+        .request(app)
+        .patch(`/api/v1/products/${product.id}/availability`)
+        .set('Authorization', `Bearer ${token}`);
+      expect(response.status).to.equal(500);
+      expect(response.body).to.have.property('message');
+      expect(response.body.message).to.equal('Server error');
+      Product.findOne.restore();
+    });
+    it('should update the product availability', async () => {
+      const item = await Product.findOne({ where: { productName: 'test' } });
+      const res = await request(app)
+        .patch(`/api/v1/products/${item.id}/availability`)
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).to.equal(200);
     });
   });
 });
@@ -702,7 +760,6 @@ describe('AddToCart function', async () => {
           product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c',
           quantity: 1,
         });
-      //assert that the response has a status code of 200
       expect(response.status).to.equal(200);
       // assert that the response message is 'Successfully Added to Cart'
       expect(response.body.message).to.equal('Successfully Added to Cart');

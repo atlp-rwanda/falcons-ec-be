@@ -50,4 +50,32 @@ const CreateProduct = async (req, res) => {
   }
 };
 
+export const updateProductAvailability = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findOne({ where: { id } });
+    if (!product) {
+      return res.status(400).json({ status: 400, success: false, message: 'Product not found' });
+    }
+
+    if (product.seller_id !== req.user.id) {
+      return res.status(401).json({ status: 401, success: false, message: 'Unauthorized access!' });
+    }
+
+    // toggle availability
+    const newAvailability = !product.availability;
+
+    await Product.update({ availability: newAvailability }, { where: { id } });
+
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: 'Product availability updated',
+      data: { id, availability: newAvailability }
+    });
+  } catch (error) {
+    res.status(500).json({ status: 500, success: false, message: error.message });
+  }
+};
+
 export default CreateProduct;

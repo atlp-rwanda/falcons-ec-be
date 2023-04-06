@@ -399,6 +399,12 @@
             "type": "string"
           },
           {
+            "name": "category_id",
+            "in": "formData",
+            "description": "The category of the product.",
+            "required": true
+          },
+          {
             "name": "expiryDate",
             "in": "formData",
             "description": "The expiry date of the product.",
@@ -450,6 +456,43 @@
                 "expiryDate": {
                   "type": "string",
                   "description": "The expiry date of the new product."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/{id}/availability": {
+      "patch": {
+        "tags": ["Products"],
+        "summary": "Update product availability",
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+          "name": "id",
+          "in": "path",
+          "description": "The product id",
+          "required": true
+          }
+        ],
+        "consumes": ["multipart/form-data"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Product availability updated.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "productId": {
+                  "type": "integer",
+                  "description": "The ID of the new product.",
+                  "availability": "newAvailability"
                 }
               }
             }
