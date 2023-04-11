@@ -5,7 +5,7 @@ import express from 'express';
 import path from 'path';
 import isLoggedIn, { checkPassword } from '../middleware/authMiddleware';
 import verifyRole from '../middleware/verifyRole';
-import CreateProduct, { updateProductAvailability } from '../controllers/productController';
+import CreateProduct, { deleteProduct, updateProduct, updateProductAvailability } from '../controllers/productController';
 import validator from '../validations/validation';
 import productSchema from '../validations/Product';
 
@@ -43,6 +43,26 @@ productRoute.patch(
   isLoggedIn,
   verifyRole('seller'),
   updateProductAvailability
+);
+
+productRoute.patch(
+  '/products/:id',
+  isLoggedIn,
+  verifyRole('seller'),
+  upload.array('images', 8),
+  (req, res, next) => {
+    if (req.files && req.files.length < 4) {
+      return res.status(400).send('At least 4 images are required');
+    }
+    next();
+  },
+  updateProduct
+);
+productRoute.delete(
+  '/products/:id/delete',
+  isLoggedIn,
+  verifyRole('seller'),
+  deleteProduct
 );
 
 export default productRoute;
