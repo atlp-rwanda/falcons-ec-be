@@ -16,7 +16,7 @@ import {
   verifyEmail,
   getSingleProfile,
   updateProfile,
-  verifyOTP
+  verifyOTP,
 } from '../controllers/userController';
 import isLoggedIn, { checkPassword, checkUserExists } from '../middleware/authMiddleware';
 import {

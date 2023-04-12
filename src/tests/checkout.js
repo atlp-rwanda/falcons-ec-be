@@ -13,13 +13,16 @@ chai.should();
 chai.use(chaiHttp);
 const user = {
   email: 'umuntu@gmail.com',
-  password: '1234'
+  password: '1234',
 };
 let token = '';
 let session_id = '';
 describe('Checkout', () => {
   it('should login the user', async () => {
-    const login = await chai.request(app).post('/api/v1/users/signin').send(user);
+    const login = await chai
+      .request(app)
+      .post('/api/v1/users/signin')
+      .send(user);
     token = login.body.token;
   });
 
@@ -30,7 +33,7 @@ describe('Checkout', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c',
-        quantity: 1
+        quantity: 1,
       });
     expect(response.status).to.equal(200);
     expect(response.body.message).to.equal('Successfully Added to Cart');
@@ -44,7 +47,9 @@ describe('Checkout', () => {
     session_id = response.body.session_id;
 
     expect(response.status).to.equal(200);
-    expect(response.body.message).to.equal('Order created, use the url to complete payment');
+    expect(response.body.message).to.equal(
+      'Order created, use the url to complete payment',
+    );
   });
 
   it('should update the order status', async () => {
@@ -85,7 +90,7 @@ describe('Checkout', () => {
               data: [],
               has_more: false,
               total_count: 0,
-              url: '/v1/charges?payment_intent=pi_test_xxxxxxxxxxxxx'
+              url: '/v1/charges?payment_intent=pi_test_xxxxxxxxxxxxx',
             },
             client_secret: 'pi_test_xxxxxxxxxxxxx_secret_xxxxxxxxxxxxx',
             confirmation_method: 'automatic',
@@ -104,8 +109,8 @@ describe('Checkout', () => {
               card: {
                 installments: null,
                 network: null,
-                request_three_d_secure: 'automatic'
-              }
+                request_three_d_secure: 'automatic',
+              },
             },
             payment_method_types: ['card'],
             receipt_email: null,
@@ -117,20 +122,20 @@ describe('Checkout', () => {
             statement_descriptor_suffix: null,
             status: 'succeeded',
             transfer_data: null,
-            transfer_group: null
+            transfer_group: null,
           },
           payment_method_types: ['card'],
           status: 'completed',
-          success_url: 'https://example.com/success'
-        }
+          success_url: 'https://example.com/success',
+        },
       },
       livemode: false,
       pending_webhooks: 1,
       request: {
         id: null,
-        idempotency_key: null
+        idempotency_key: null,
       },
-      type: 'checkout.session.completed'
+      type: 'checkout.session.completed',
     };
 
     const response = await chai.request(app).post('/webhook').send(event);
@@ -176,7 +181,7 @@ describe('Checkout', () => {
               data: [],
               has_more: false,
               total_count: 0,
-              url: '/v1/charges?payment_intent=pi_test_xxxxxxxxxxxxx'
+              url: '/v1/charges?payment_intent=pi_test_xxxxxxxxxxxxx',
             },
             client_secret: 'pi_test_xxxxxxxxxxxxx_secret_xxxxxxxxxxxxx',
             confirmation_method: 'automatic',
@@ -195,8 +200,8 @@ describe('Checkout', () => {
               card: {
                 installments: null,
                 network: null,
-                request_three_d_secure: 'automatic'
-              }
+                request_three_d_secure: 'automatic',
+              },
             },
             payment_method_types: ['card'],
             receipt_email: null,
@@ -208,20 +213,20 @@ describe('Checkout', () => {
             statement_descriptor_suffix: null,
             status: 'succeeded',
             transfer_data: null,
-            transfer_group: null
+            transfer_group: null,
           },
           payment_method_types: ['card'],
           status: 'completed',
-          success_url: 'https://example.com/success'
-        }
+          success_url: 'https://example.com/success',
+        },
       },
       livemode: false,
       pending_webhooks: 1,
       request: {
         id: null,
-        idempotency_key: null
+        idempotency_key: null,
       },
-      type: 'checkout.session.failed'
+      type: 'checkout.session.failed',
     };
 
     const response = await chai.request(app).post('/webhook').send(event);

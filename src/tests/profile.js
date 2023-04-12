@@ -9,6 +9,7 @@ import sinon from 'sinon';
 import db from '../database/models/index';
 import markProductExpired from '../events/markProductExpired';
 import { app } from '../server';
+import tokenDecode from '../helpers/token_decode';
 
 dotenv.config();
 // eslint-disable-next-line no-unused-vars
@@ -18,6 +19,7 @@ chai.use(chaiHttp);
 
 const user = { email: 'eric@gmail.com', password: '1234' };
 let token = '';
+let OTPtoken = '';
 
 describe('update profile', () => {
   before(async () => {
@@ -133,5 +135,83 @@ describe('markProductExpired', () => {
     assert.isTrue(updatedProduct1.expired);
 
     await testProduct1.destroy();
+  });
+});
+describe('order items', async () => {
+  const realSeller = {
+    email: 'kirengaboris5@gmail.com',
+    password: '1234',
+  };
+  const unauthorizedSeller = {
+    email: 'gatete@gmail.com',
+    password: '1234',
+  };
+
+  const realSellerLogin = await chai
+    .request(app)
+    .post('/api/v1/users/signin')
+    .send(realSeller);
+
+  const unauthorizedSellerLogin = await chai
+    .request(app)
+    .post('/api/v1/users/signin')
+    .send(unauthorizedSeller);
+
+  OTPtoken = realSellerLogin.body.OTPtoken;
+  const decoded = await tokenDecode(OTPtoken);
+  const otpSent = decoded.payload.otpCode;
+  const resp = await chai
+    .request(app)
+    .post(`/api/v1/users/otp/verify/${OTPtoken}`)
+    .send({
+      otp: otpSent,
+    });
+  const realSellerToken = resp.body.loginToken;
+
+  OTPtoken = unauthorizedSellerLogin.body.OTPtoken;
+  const decoded1 = await tokenDecode(OTPtoken);
+  const otpSent1 = decoded1.payload.otpCode;
+  const resp1 = await chai
+    .request(app)
+    .post(`/api/v1/users/otp/verify/${OTPtoken}`)
+    .send({
+      otp: otpSent1,
+    });
+  const unauthorizedSellerToken = resp1.body.loginToken;
+
+  describe('PATCH /api/v1/orderItems/:id/status', () => {
+    it('should deny the unauthorised seller', async () => {
+      const response = await chai
+        .request(app)
+        .patch('/api/v1/orderItems/0ec2d632-d05e-42e5-abda-120fcd82ef52/status')
+        .set('Authorization', `Bearer ${unauthorizedSellerToken}`)
+        .send({ status: 'canceled' });
+
+      expect(response.status).to.equal(401);
+    });
+
+    it('should update the order item status', async () => {
+      const response = await chai
+        .request(app)
+        .patch('/api/v1/orderItems/0ec2d632-d05e-42e5-abda-120fcd82ef52/status')
+        .set('Authorization', `Bearer ${realSellerToken}`)
+        .send({ status: 'canceled' });
+
+      expect(response.status).to.equal(201);
+    });
+    it('it should return seller order items', async () => {
+      const res = await chai
+        .request(app)
+        .get('/api/v1/orderItems')
+        .set('Authorization', `Bearer ${realSellerToken}`);
+      res.should.have.status(200);
+    });
+    it('it should return empty array if seller has no order items', async () => {
+      const res = await chai
+        .request(app)
+        .get('/api/v1/orderItems')
+        .set('Authorization', `Bearer ${unauthorizedSellerToken}`);
+      res.should.have.status(404);
+    });
   });
 });

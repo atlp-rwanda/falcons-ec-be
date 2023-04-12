@@ -28,6 +28,9 @@ const profileSchema = Joi.object({
     street: Joi.string().min(3),
   }),
 });
+const orderItemStatus = Joi.object({
+  status: Joi.string().valid('canceled', 'approved'),
+});
 const passwordResetSchema = Joi.object({
   password: joiPassword
     .string()
@@ -39,4 +42,10 @@ const passwordResetSchema = Joi.object({
   confirmPassword: Joi.ref('password'),
 });
 
-export { userSchema, Password, profileSchema, passwordResetSchema };
+export {
+  userSchema,
+  Password,
+  profileSchema,
+  passwordResetSchema,
+  orderItemStatus,
+};

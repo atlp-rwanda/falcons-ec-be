@@ -10,7 +10,11 @@ import tokenDecode from '../helpers/token_decode';
 import { BcryptUtility } from '../utils/bcrypt.util';
 import { UserService } from '../services/user.service';
 import verifyToken from '../utils/jwt.util';
-import { messageResetPassword, sendOTPEmail, sendVerifyEmail } from '../helpers/sendMessage';
+import {
+  messageResetPassword,
+  sendOTPEmail,
+  sendVerifyEmail,
+} from '../helpers/sendMessage';
 import findOneUserService from '../services/authService';
 import cloudinary from '../uploads';
 import sendMessage from '../utils/sendgrid.util';
@@ -76,7 +80,7 @@ const loginUser = async (req, res) => {
         status: 200,
         success: true,
         message: 'Login successful',
-        token
+        token,
       });
     } else {
       res.status(401).json({

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -23,6 +24,19 @@ module.exports = {
           description: 'Description 2',
           quantity: 10,
           price: 1400,
+          seller_id: '60409d12-ddad-4938-a37a-c17bc33aa4ba',
+          images: ['https://picsum.photos/id/26/4209/2769'],
+          expired: false,
+          expiryDate: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '956ade6c-21f7-4866-ae7f-360d1574839d',
+          productName: 'Product 3',
+          description: 'Description 3',
+          quantity: 10,
+          price: 1500,
           seller_id: '60409d12-ddad-4938-a37a-c17bc33aa4ba',
           images: ['https://picsum.photos/id/26/4209/2769'],
           expired: false,
