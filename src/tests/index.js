@@ -39,6 +39,7 @@ let _TOKEN = '';
 let token;
 const sellerToken = '';
 const item = '';
+const email = 'gatete@gmail.com';
 
 describe('Welcome Controller', () => {
   describe('GET /welcome', () => {
@@ -452,7 +453,7 @@ describe('PRODUCT', async () => {
       expect(response.body).to.have.property('message');
       expect(response.body.message).to.equal('invalid input syntax for type uuid: "999999"');
     });
-    it('should return a 400 error', async () => {
+    it('should return a 404 error', async () => {
       const response = await chai
         .request(app)
         .patch('/api/v1/products/7eb6da79-c94a-4d36-9a05-b9acabb08b3f/availability')
