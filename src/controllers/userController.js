@@ -19,8 +19,6 @@ dotenv.config();
 
 const { User } = db;
 
-dotenv.config();
-
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const getAllUsers = async (req, res) => {
@@ -41,36 +39,35 @@ const loginUser = async (req, res) => {
         id: user.id,
         email,
         role: user.role,
-        status: user.status,
+        status: user.status
       };
 
       if (user.status == false) {
         return res.status(403).json({ message: 'Account locked!' });
-      } 
-      
+      }
 
-      if (user.role === "seller") {
+      if (user.role === 'seller') {
         const otp = Math.floor(100000 + Math.random() * 900000);
 
         const OTPcontents = {
           userId: user.id,
-          otpCode: otp,
+          otpCode: otp
         };
 
-        const OTPtoken = await generateToken(OTPcontents, process.env.OTP_EXPIRY); //expires in 5 minutes
+        const OTPtoken = await generateToken(OTPcontents, process.env.OTP_EXPIRY); // expires in 5 minutes
 
-        const html=`<h1> Hello</h1>
+        const html = `<h1> Hello</h1>
         <p> <b>${otp}</b> is your OTP code, it expires in 5 minutes so click the button below to verify it. Do not share it with anyone!</p>
         <a href="${process.env.clientURL}/api/v1/users/otp/verify?token=${OTPtoken}" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">Verify OTP code</a>
-        <p>If you did not register for an account with Falcons Project, please ignore this email.</p>`
+        <p>If you did not register for an account with Falcons Project, please ignore this email.</p>`;
 
-        await sendMessage(email, sendOTPEmail(otp), 'Two factor authentication', html); //I have made this html parameter optional to prevent breaking the function
+        await sendMessage(email, sendOTPEmail(otp), 'Two factor authentication', html); // I have made this html parameter optional to prevent breaking the function
 
         return res.status(200).json({
           status: 200,
           success: true,
           message: `OTP code sent to ${user.email}`,
-          OTPtoken,
+          OTPtoken
         });
       }
 
@@ -78,64 +75,62 @@ const loginUser = async (req, res) => {
       res.status(200).json({
         status: 200,
         success: true,
-        message: "Login successful",
-        token,
+        message: 'Login successful',
+        token
       });
     } else {
       res.status(401).json({
         status: 401,
         success: false,
-        message: "Invalid credentials",
+        message: 'Invalid credentials'
       });
     }
   } catch (error) {
     res.status(500).send({
       status: 500,
       success: false,
-      message: "Failed to Login",
-      error: error.message,
+      message: 'Failed to Login',
+      error: error.message
     });
   }
 };
 
 export const verifyOTP = async (req, res) => {
-  if (!req.params.token)
-    return res.status(400).json({ message: "No token provided!" });
+  if (!req.params.token) return res.status(400).json({ message: 'No token provided!' });
   try {
     const { otp } = req.body;
     const { token } = req.params;
     const decoded = await tokenDecode(token);
 
     if (decoded.payload.otpCode != otp)
-      return res.status(401).json({ message: "The OTP code is invalid" });
+      return res.status(401).json({ message: 'The OTP code is invalid' });
 
     const user = await User.findOne({ where: { id: decoded.payload.userId } });
 
-    if (!user)
-      return res
-        .status(401)
-        .json({ message: "User not found, please restart the process" });
+    if (!user) {
+      return res.status(401).json({ message: 'User not found, please restart the process' });
+    }
 
     const payload = {
       id: user.id,
       email: user.email,
       role: user.role,
-      status: user.status,
+      status: user.status
     };
 
     const loginToken = await generateToken(payload);
     return res.status(200).json({
       status: 200,
       success: true,
-      message: "Login successful",
-      loginToken,
+      message: 'Login successful',
+      loginToken
     });
   } catch (error) {
     return res.status(500).send({
       status: 500,
       success: false,
-      message: "Something went wrong",
-      error: error.message,
+      message: 'Something went wrong',
+      error: error.message
     });
   }
 };
@@ -153,7 +148,7 @@ export const registerUser = async (req, res) => {
   } catch (err) {
     return res.status(500).json({
       error: err.message,
-      message: 'Failed to register a new user',
+      message: 'Failed to register a new user'
     });
   }
 };
@@ -187,7 +182,7 @@ const createNewUser = async (req, res) => {
       password: pwd,
       role: 'admin',
       status: true,
-      lastPasswordUpdate: new Date().getTime(),
+      lastPasswordUpdate: new Date().getTime()
     });
     res.status(201);
 
@@ -205,7 +200,7 @@ const updatePassword = async (req, res) => {
     // password in the db
 
     const user = await User.findOne({
-      where: { email: decoded.payload.email },
+      where: { email: decoded.payload.email }
     });
     const { oldPassword, newPassword } = req.body;
     const match = bcrypt.compareSync(oldPassword, user.password);
@@ -214,9 +209,7 @@ const updatePassword = async (req, res) => {
     }
     // hash and update the new password in the db
     if (newPassword === oldPassword) {
-      return res
-        .status(406)
-        .json({ error: 'Password must differ from old password' });
+      return res.status(406).json({ error: 'Password must differ from old password' });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -224,7 +217,7 @@ const updatePassword = async (req, res) => {
     await user.update({
       password: hashPassword,
       lastPasswordUpdate: new Date(),
-      status:true,
+      status: true
     });
     await user.save();
     return res.status(200).json({ message: 'password updated successfully' });
@@ -243,11 +236,7 @@ const forgotPassword = async (req, res) => {
       return res.status(400).json({ error: 'User not found' });
     }
     const token = await generateToken(user, { expiresIn: '10m' });
-    await await sendMessage(
-      userEmail,
-      messageResetPassword(token),
-      'Reset Password',
-    );
+    await await sendMessage(userEmail, messageResetPassword(token), 'Reset Password');
     return res.status(200).json({ token, message: 'email sent to the user' });
   } catch (error) {
     return res.status(400).json({ error: error.message });
@@ -263,19 +252,14 @@ const passwordReset = async (req, res) => {
     }
     const { password, confirmPassword } = req.body;
     if (!password || !confirmPassword) {
-      res
-        .status(400)
-        .json({ error: 'Password and confirm password are required' });
+      res.status(400).json({ error: 'Password and confirm password are required' });
     } else {
       // hash the password and update its fields in the database
       const salt = await bcrypt.genSalt(10);
       const hashPassword = await bcrypt.hash(password, salt);
       const Email = verify.payload.email;
 
-      await User.update(
-        { password: hashPassword },
-        { where: { email: Email } },
-      );
+      await User.update({ password: hashPassword }, { where: { email: Email } });
       return res.status(200).json({ message: 'Password reset successfully' });
     }
   } catch (error) {
@@ -313,23 +297,21 @@ const verifyEmail = async (req, res) => {
     const verify = jwt.verify(token, process.env.JWT_SECRET);
     if (verify) {
       const verifiedUser = await User.findOne({
-        where: { email: verify.payload.email },
+        where: { email: verify.payload.email }
       });
       verifiedUser.isVerified = true;
       await verifiedUser.save();
       res.status(200).json({
         status: 200,
         success: true,
-        message: 'Account successfully verified!',
+        message: 'Account successfully verified!'
       });
     }
     if (!verify) {
       return res.status(400).json({ status: 400, success: false });
     }
   } catch (error) {
-    res
-      .status(400)
-      .json({ status: 400, success: false, message: error.message });
+    res.status(400).json({ status: 400, success: false, message: error.message });
   }
 };
 
@@ -340,7 +322,7 @@ const updateProfile = async (req, res) => {
       return res.status(400).json({
         status: 400,
         success: false,
-        message: 'No data provided',
+        message: 'No data provided'
       });
     }
 
@@ -349,16 +331,16 @@ const updateProfile = async (req, res) => {
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: 'Falcons_E-comm_App/ProductImages',
-        public_id: `${user.firstname}_image`,
+        public_id: `${user.firstname}_image`
       });
       updateData.avatar = result.url;
     }
 
     const updatedProfile = await user.update(updateData, {
       where: {
-        id: user.id,
+        id: user.id
       },
-      returning: true,
+      returning: true
     });
 
     const returnedProfile = {
@@ -369,20 +351,20 @@ const updateProfile = async (req, res) => {
       preferredLanguage: updatedProfile.preferredLanguage,
       preferredCurrency: updatedProfile.preferredCurrency,
       BillingAddress: updatedProfile.billingAddress,
-      avatar: updatedProfile.avatar,
+      avatar: updatedProfile.avatar
     };
 
     res.status(200).json({
       status: 200,
       success: true,
       message: 'Profile updated successfully',
-      data: returnedProfile,
+      data: returnedProfile
     });
   } catch (error) {
     res.status(500).json({
       status: 500,
       success: false,
-      message: `Internal Server Error ${error.message}`,
+      message: `Internal Server Error ${error.message}`
     });
   }
 };
@@ -398,20 +380,20 @@ const getSingleProfile = async (req, res) => {
       preferredLanguage: profile.preferredLanguage,
       preferredCurrency: profile.preferredCurrency,
       BillingAddress: profile.billingAddress,
-      avatar: profile.avatar,
+      avatar: profile.avatar
     };
 
     res.status(200).json({
       status: 200,
       success: true,
-      data: profileData,
+      data: profileData
     });
   } catch (error) {
     res.status(500).send({
       status: 500,
       success: false,
       message: 'Failed to get the profile',
-      error: error.message,
+      error: error.message
     });
   }
 };
@@ -427,5 +409,5 @@ export {
   disableAccount,
   updateProfile,
   getSingleProfile,
-  verifyEmail,
+  verifyEmail
 };

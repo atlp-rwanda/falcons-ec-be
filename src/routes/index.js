@@ -2,6 +2,7 @@
 import { Router } from 'express';
 import welcomeRoutes from './welcomeRoute';
 import userRoutes from './userRoutes';
+import orderRoutes from './orderRoutes';
 
 const router = Router();
 
