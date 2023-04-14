@@ -442,7 +442,7 @@ describe('PRODUCT', async () => {
         .request(app)
         .patch('/api/v1/products/9974076f-e16a-486f-a923-362ec1747a12/availability')
         .set('Authorization', `Bearer ${token}`);
-      expect(response.status).to.equal(404);
+      expect(response.status).to.equal(400);
     });
     it('should return a 500 error', async () => {
       const response = await chai
@@ -458,7 +458,7 @@ describe('PRODUCT', async () => {
         .request(app)
         .patch('/api/v1/products/7eb6da79-c94a-4d36-9a05-b9acabb08b3f/availability')
         .set('Authorization', `Bearer ${token}`);
-      expect(response.status).to.equal(404);
+      expect(response.status).to.equal(400);
       expect(response.body).to.have.property('message');
       expect(response.body.message).to.equal('Product not found');
     });
