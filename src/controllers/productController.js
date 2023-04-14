@@ -58,7 +58,7 @@ export const updateProductAvailability = async (req, res) => {
     const { id } = req.params;
     const product = await Product.findOne({ where: { id } });
     if (!product) {
-      return res.status(404).json({ status: 404, success: false, message: 'Product not found' });
+      return res.status(400).json({ status: 400, success: false, message: 'Product not found' });
     }
 
     if (product.seller_id !== req.user.id) {
@@ -73,13 +73,14 @@ export const updateProductAvailability = async (req, res) => {
     res.status(200).json({
       status: 200,
       success: true,
-      message: 'Product availability updated!',
+      message: 'Product availability updated',
       data: { id, availability: newAvailability }
     });
   } catch (error) {
     res.status(500).json({ status: 500, success: false, message: error.message });
   }
 };
+
 
 export const updateProduct = async (req, res) => {
   try {

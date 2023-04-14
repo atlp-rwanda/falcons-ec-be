@@ -39,6 +39,7 @@ let _TOKEN = '';
 let token;
 const sellerToken = '';
 const item = '';
+const email = 'gatete@gmail.com';
 
 describe('Welcome Controller', () => {
   describe('GET /welcome', () => {
