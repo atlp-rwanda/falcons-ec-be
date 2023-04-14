@@ -46,6 +46,11 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: true,
         },
       },
+      availability: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
       expiryDate: {
         type: DataTypes.DATE,
         allowNull: false,

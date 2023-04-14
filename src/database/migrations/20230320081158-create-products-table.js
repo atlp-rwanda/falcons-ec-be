@@ -54,6 +54,11 @@ module.exports = {
             notEmpty: true,
           },
         },
+        availability: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
         expiryDate: {
           type: Sequelize.DATE,
           allowNull: true,
