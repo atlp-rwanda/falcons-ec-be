@@ -6,8 +6,9 @@ import path from 'path';
 import isLoggedIn, { checkPassword } from '../middleware/authMiddleware';
 import verifyRole from '../middleware/verifyRole';
 import CreateProduct, { deleteProduct, updateProduct, updateProductAvailability } from '../controllers/productController';
-import validator from '../validations/validation';
-import productSchema from '../validations/Product';
+import validator, { validateSearch } from '../validations/validation';
+import productSchema, { searchSchema } from '../validations/Product';
+import searchProduct from '../controllers/productSearchController';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -64,5 +65,6 @@ productRoute.delete(
   verifyRole('seller'),
   deleteProduct
 );
+productRoute.get('/products/search', isLoggedIn, validateSearch(searchSchema), searchProduct,);
 
 export default productRoute;

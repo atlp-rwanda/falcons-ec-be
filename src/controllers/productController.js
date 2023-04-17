@@ -32,12 +32,10 @@ const CreateProduct = async (req, res) => {
       category_id: req.body.category_id,
     });
     if (req.files) {
-      const promises = req.files.map((file) =>
-        cloudinary.uploader.upload(file.path, {
-          folder: 'Falcons_E-comm_App/ProductImages',
-          public_id: `${product.productName}_image`,
-        }),
-      );
+      const promises = req.files.map((file) => cloudinary.uploader.upload(file.path, {
+        folder: 'Falcons_E-comm_App/ProductImages',
+        public_id: `${product.productName}_image`,
+      }),);
 
       const results = await Promise.all(promises);
       product.images = results.map((result) => result.url).filter((url) => url);

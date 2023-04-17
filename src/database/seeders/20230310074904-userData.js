@@ -44,7 +44,7 @@ module.exports = {
           email: 'kylesjet1@gmail.com',
           password:
             '$2b$10$CmTI8plpPwMC74n4pnod3..JErxlHetqkQqrhTuiwqt9KXC1rV52W',
-          role: 'buyer',
+          role: 'seller',
           isVerified: true,
           createdAt: '2023-03-17T10:16:59.334Z',
           updatedAt: '2023-03-17T10:16:59.334Z',

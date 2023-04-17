@@ -10,4 +10,11 @@ const productSchema = joi.object({
   category_id: joi.string().required(),
 });
 
+export const searchSchema = joi.object({
+  name: joi.string().min(1),
+  description: joi.string().min(1),
+  maxPrice: joi.number().min(1),
+  minPrice: joi.number().min(1),
+  category: joi.string().min(1),
+});
 export default productSchema;

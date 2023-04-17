@@ -3,6 +3,7 @@
 import jwt from 'jsonwebtoken';
 import findOneUserService from '../services/authService';
 import { User, blacklisToken } from '../database/models/index';
+import verifyToken from '../utils/jwt.util';
 
 const isLoggedIn = async (req, res, next) => {
   if (req.headers.authorization) {
@@ -94,4 +95,12 @@ export const checkPassword = async (req, res, next) => {
   }
 };
 
+export const verifyEmail = (req, res, next) => {
+  try {
+    const token = req.headers.authorization.split[' '][1];
+    const decoded = verifyToken(token);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
 export default isLoggedIn;
