@@ -1958,38 +1958,110 @@
             "jwt": [],
             "bearerAuth": [],
             "google_Oauth2": []
+    }],
+  "description": "This is an api for checkout",
+  "produces": ["application/json"],
+  "responses": {
+    "200": {
+      "description": "Order created, use the url to complete payment",
+      "definitions": {
+        "message": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "order_id": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            }
           }
-        ],
-        "description": "This is an api for checkout",
-        "produces": ["application/json"],
-        "responses": {
-          "200": {
-            "description": "Order created, use the url to complete payment",
-            "definitions": {
-              "message": {
-                "type": "object",
-                "properties": {
-                  "message": {
-                    "type": "string"
-                  },
-                  "order_id": {
-                    "type": "string"
-                  },
-                  "url": {
-                    "type": "string"
-                  }
+        }
+      },
+      "schema": {
+        "items": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "default": "Order created, use the url to complete payment"
+            },
+            "order_id": { "default": "" },
+            "url": { "default": "" }
+          }
+        }
+      }
+    }
+  }
+}
+}
+  },
+  "/api/v1/products/search": {
+    "parameters": [
+      {
+        "name": "name",
+        "in": "query",
+        "type": "string"
+      },
+      {
+        "name":"description",
+        "in":"query",
+        "type":"string"
+      },
+      {
+        "name":"category",
+        "in":"query",
+        "type":"string"
+      },
+      {
+        "name": "minPrice",
+        "in": "query",
+        "type": "string"
+      },
+      {
+        "name":"maxPrice",
+        "in":"query",
+        "type":"string"
+      }
+    ],
+    "get": {
+      "security": [
+        {
+          "jwt": [],
+          "bearerAuth": []
+        }
+      ],
+      "tags": ["Products"],
+      "summary": "Search product",
+      "description": "Users should be able to search products by name, price range and category or combination of filters.",
+      "produces": ["application/json"],
+      "responses": {
+        "200": {
+          "description": "OK",
+          "definitions": {
+          }
+        },
+        "404": {
+          "description": "Not found",
+          "definitions": {
+            "error": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "description": "Product not found"
                 }
               }
-            },
-            "schema": {
-              "items": {
-                "type": "object",
-                "properties": {
-                  "message": {
-                    "default": "Order created, use the url to complete payment"
-                  },
-                  "order_id": { "default": "" },
-                  "url": { "default": "" }
+            }
+          },
+          "schema": {
+            "items": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "Product not found"
                 }
               }
             }
@@ -1997,7 +2069,8 @@
         }
       }
     }
-  },
+       
+   },
   "securityDefinitions": {
     "bearerAuth": {
       "type": "apiKey",

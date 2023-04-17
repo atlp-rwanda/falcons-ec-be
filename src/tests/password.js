@@ -15,6 +15,7 @@ const invalidPassword = {
   newPassword: 'Japhet12345678',
   confirmPassword: 'Japhet12345678',
 };
+
 const user = { email: 'boris@gmail.com', password: '1234' };
 const kyles = { email: 'kylesjet1@gmail.com' };
 let token = '';

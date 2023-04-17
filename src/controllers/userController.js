@@ -58,7 +58,8 @@ const loginUser = async (req, res) => {
           otpCode: otp
         };
 
-        const OTPtoken = await generateToken(OTPcontents, process.env.OTP_EXPIRY); // expires in 5 minutes
+        const OTPtoken = await generateToken(OTPcontents, process.env.OTP_EXPIRY);
+        // expires in 5 minutes
 
         const html = `<h1> Hello</h1>
         <p> <b>${otp}</b> is your OTP code, it expires in 5 minutes so click the button below to verify it. Do not share it with anyone!</p>
@@ -66,7 +67,6 @@ const loginUser = async (req, res) => {
         <p>If you did not register for an account with Falcons Project, please ignore this email.</p>`;
 
         await sendMessage(email, sendOTPEmail(otp), 'Two factor authentication', html); // I have made this html parameter optional to prevent breaking the function
-
         return res.status(200).json({
           status: 200,
           success: true,
@@ -106,8 +106,7 @@ export const verifyOTP = async (req, res) => {
     const { token } = req.params;
     const decoded = await tokenDecode(token);
 
-    if (decoded.payload.otpCode != otp)
-      return res.status(401).json({ message: 'The OTP code is invalid' });
+    if (decoded.payload.otpCode != otp) { return res.status(401).json({ message: 'The OTP code is invalid' }); }
 
     const user = await User.findOne({ where: { id: decoded.payload.userId } });
 
@@ -147,6 +146,7 @@ export const registerUser = async (req, res) => {
     const { id, email } = await UserService.register(user);
     const userData = { id, email };
     const userToken = await generateToken(userData);
+    await sendMessage(email, sendVerifyEmail(userToken), 'Email verification');
     await sendMessage(email, sendVerifyEmail(userToken), 'Email verification');
     return res.status(201).json({ user: userData, token: userToken });
   } catch (err) {
@@ -239,8 +239,17 @@ const forgotPassword = async (req, res) => {
     if (!user) {
       return res.status(400).json({ error: 'User not found' });
     }
-    const token = await generateToken(user, { expiresIn: '10m' });
-    await await sendMessage(userEmail, messageResetPassword(token), 'Reset Password');
+    const token = await generateToken(user.email, { expiresIn: '10m' });
+    const html = `<h1> Hello</h1>
+    <p><b>A request has been recieved to reset your password for your E-commerce account</b></p>
+    <a href="${process.env.clientURL}/api/v1/users/${token}/password-reset" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">Reset password</a>
+    <p>If you did not initiate this request, please ignore this email.</p>`;
+    await sendMessage(
+      userEmail,
+      messageResetPassword(token),
+      'Reset Password',
+      html
+    );
     return res.status(200).json({ token, message: 'email sent to the user' });
   } catch (error) {
     return res.status(400).json({ error: error.message });
@@ -256,14 +265,19 @@ const passwordReset = async (req, res) => {
     }
     const { password, confirmPassword } = req.body;
     if (!password || !confirmPassword) {
-      res.status(400).json({ error: 'Password and confirm password are required' });
+      res
+        .status(400)
+        .json({ error: 'Password and confirm password are required' });
     } else {
       // hash the password and update its fields in the database
       const salt = await bcrypt.genSalt(10);
       const hashPassword = await bcrypt.hash(password, salt);
-      const Email = verify.payload.email;
+      const Email = verify.payload;
 
-      await User.update({ password: hashPassword }, { where: { email: Email } });
+      await User.update(
+        { password: hashPassword },
+        { where: { email: Email } },
+      );
       return res.status(200).json({ message: 'Password reset successfully' });
     }
   } catch (error) {
