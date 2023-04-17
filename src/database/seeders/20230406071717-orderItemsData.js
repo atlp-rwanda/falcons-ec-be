@@ -12,7 +12,7 @@ module.exports = {
           status: 'approved',
           quantity: 2, // unit price=700
           createdAt: new Date(),
-          updatedAt: new Date(),
+          updatedAt: new Date()
         },
         {
           id: '8dc2f332-d05e-42e5-abdc-220fcd82ef59',
@@ -22,14 +22,14 @@ module.exports = {
           status: 'approved',
           quantity: 1, // unit price=1400
           createdAt: new Date(),
-          updatedAt: new Date(),
-        },
+          updatedAt: new Date()
+        }
       ],
-      {},
+      {}
     );
   },
 
   async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('Orders', null, {});
-  },
+  }
 };

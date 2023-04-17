@@ -1,6 +1,6 @@
-import * as dotenv from 'dotenv';
-import jwt from 'jsonwebtoken';
-import '../config/passport';
+import * as dotenv from "dotenv";
+import jwt from "jsonwebtoken";
+import "../config/passport";
 
 dotenv.config();
 

@@ -1995,8 +1995,7 @@
     }
   }
 }
-}
-  },
+},
   "/api/v1/products/search": {
     "parameters": [
       {
@@ -2071,6 +2070,188 @@
     }
        
    },
+      "/api/v1/orders/{order_id}": {
+      "get": {
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["Orders"],
+        "summary": "Get Order Status",
+        "description": "This is an api that gets the status of  one order",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "required": true,
+            "type": "string",
+            "description": "The order id."
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "default": "Order Status Displayed"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "definitions": {
+              "error": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "default": "error message"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "default": ""
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+     "/api/v1/orders/": {
+      "get": {
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["Orders"],
+        "summary": "Get All Orders",
+        "description": "This is an api that gets all orders",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "default": "Order Status Displayed"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "definitions": {
+              "error": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "default": "error message"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "default": ""
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "securityDefinitions": {
     "bearerAuth": {
       "type": "apiKey",

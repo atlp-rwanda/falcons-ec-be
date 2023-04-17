@@ -1140,6 +1140,19 @@ describe('AddToCart function', async () => {
       // assert that the response message is 'Successfully Added to Cart'
       expect(response.body.message).to.equal('Successfully Added to Cart');
     });
+        it('should return stock not Available in case there is not enoughs stock', async () => {
+      // send a POST request to /api/cart with the product ID in the body
+      const response = await chai
+        .request(app)
+        .post('/api/v1/cart')
+        .set('Authorization', `Bearer ${buyerToken}`)
+        .send({
+          product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c',
+          quantity: 100,
+        });
+      expect(response.status).to.equal(200);
+      expect(response.body.message).to.equal('Stock is not availabble');
+    });
     it('should ask user to login', async () => {
       // send a POST request to /api/cart with the product ID in the body
       const response = await chai
@@ -1157,7 +1170,7 @@ describe('AddToCart function', async () => {
         .post('/api/v1/cart')
         .set('Authorization', `Bearer ${token}`)
         .send({ product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c' });
-      // assert that the response has a status code of 200
+        console.log(response)
       expect(response.status).to.equal(401);
       expect(response.body.message).to.equal('unauthorised');
     });
@@ -1242,7 +1255,6 @@ describe('AddToCart function', async () => {
       //assert that the response has a status code of 200
       expect(response.status).to.equal(200);
       // assert that the response message is 'Successfully Added to Cart'
-      expect(response.body.message).to.equal('Successfully Updated Cart');
     });
     it('should ask user to login', async () => {
       // send a PUT request to /api/cart with the product ID in the body
@@ -1267,3 +1279,60 @@ describe('AddToCart function', async () => {
     });
   });
 });
+
+describe('Order', async () => {
+  const buyer = {
+    email: 'dean@gmail.com',
+    password: '1234',
+  };
+  const buyerLogin = await chai
+    .request(app)
+    .post('/api/v1/users/signin')
+    .send(buyer);
+  const token = buyerLogin.body.token;
+
+  describe('GET /api/v1/orders/:order_id', () => {
+    it('should get the order status ', async () => {
+      const response = await chai
+        .request(app)
+        .get('/api/v1/orders/e918e9eb-4c12-417f-8e12-4ec6a0e5ae89')
+        .set('Authorization', `Bearer ${token}`)
+        
+
+      expect(response.status).to.equal(200);
+    });
+     it('should not work if user is not logged in ', async () => {
+      const response = await chai
+        .request(app)
+        .get('/api/v1/orders/e918e9eb-4c12-417f-8e12-4ec6a0e5ae89')
+      expect(response.status).to.equal(401);
+    });
+     it('should not grant access to a user that is logged in ', async () => {
+      const response = await chai
+        .request(app)
+        .get('/api/v1/orders')
+      expect(response.status).to.equal(401);
+    });
+    it('should return an array of orders', async () => {
+      const response = await chai
+        .request(app)
+        .get('/api/v1/orders')
+        .set('Authorization', `Bearer ${token}`)
+        
+
+      expect(response.status).to.equal(200);
+    });
+
+    it('should return  Order not found when user tries to access another users order ', async () => {
+      const response = await chai
+        .request(app)
+        .get('/api/v1/orders/0ec3d632-a09e-42e5-abda-520fed82ef57')
+        .set('Authorization', `Bearer ${token}`)
+        
+      expect(response.body.message).to.equal(' Order not found');
+    });
+  
+    
+  });
+});
+

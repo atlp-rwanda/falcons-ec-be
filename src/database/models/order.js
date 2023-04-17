@@ -1,6 +1,3 @@
-/* eslint-disable require-jsdoc */
-const { v4: uuidv4 } = require('uuid');
-
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
@@ -14,27 +11,25 @@ module.exports = (sequelize, DataTypes) => {
       id: {
         type: DataTypes.UUID,
         primaryKey: true,
+        defaultValue: DataTypes.UUIDV4
       },
       buyer_id: {
         type: DataTypes.UUID,
         references: {
           model: 'User',
-          key: 'id',
-        },
+          key: 'id'
+        }
       },
       status: {
         type: DataTypes.ENUM,
-        values: ['successfull', 'pending', 'canceled'],
+        values: ['successfull', 'pending', 'canceled', 'processing']
       },
-      total: DataTypes.FLOAT,
+      total: DataTypes.FLOAT
     },
     {
       sequelize,
-      modelName: 'Order',
-    },
+      modelName: 'Order'
+    }
   );
-  Order.beforeCreate((order) => {
-    order.id = uuidv4();
-  });
   return Order;
 };
