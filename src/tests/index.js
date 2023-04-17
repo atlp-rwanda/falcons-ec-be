@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 /* eslint-disable linebreak-style */
 /* eslint-disable import/no-named-as-default */
 /* eslint-disable import/no-extraneous-dependencies */
@@ -34,6 +35,8 @@ chai.use(chaiHttp);
 
 let _TOKEN = '';
 let token;
+const sellerToken = '';
+const item = '';
 const email = 'gatete@gmail.com';
 
 describe('Welcome Controller', () => {
@@ -333,6 +336,85 @@ describe('PRODUCT', async () => {
       expect(response.status).to.equal(400);
     });
 
+    it('should return 401 if authorization header is not provided', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .send(product);
+      expect(response.status).to.equal(401);
+    });
+    it('should return 400 if product name is not provided', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          description: 'test',
+          price: 100,
+          quantity: 10,
+          expiryDate: '12/12/30',
+          category_id: '0da3d632-a09e-42d5-abda-520aea82ef49',
+        });
+      expect(response.status).to.equal(400);
+    });
+    it('should return 400 if category_id is not provided', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          productName: 'test',
+          description: 'test',
+          price: 100,
+          quantity: 10,
+          expiryDate: '12/12/30',
+        });
+      expect(response.status).to.equal(400);
+    });
+    it('should return 409 if category_id is not a valid UUID', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          productName: 'test',
+          description: 'test',
+          price: 100,
+          quantity: 10,
+          expiryDate: '12/12/30',
+          category_id: 'invalid-uuid',
+        });
+      expect(response.status).to.equal(409);
+    });
+    it('should return 400 if price is not provided', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          productName: 'test',
+          description: 'test',
+          quantity: 10,
+          expiryDate: '12/12/30',
+          category_id: '0da3d632-a09e-42d5-abda-520aea82ef49',
+        });
+      expect(response.status).to.equal(400);
+    });
+    it('should return 400 if category_id is not provided', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          productName: 'test',
+          description: 'test',
+          price: 100,
+          quantity: 10,
+          expiryDate: '12/12/30',
+        });
+      expect(response.status).to.equal(400);
+    });
+
     it('should return 401 if user is not logged in', async () => {
       const response = await chai
         .request(app)
@@ -355,6 +437,61 @@ describe('PRODUCT', async () => {
         .set('Authorization', `Bearer ${_TOKEN}`)
         .send(invalidproduct);
       expect(response.status).to.equal(401);
+    });
+    it('should return 400 if validation fails', async () => {
+      const res = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(invalidproduct);
+      expect(res).to.have.status(400);
+      expect(res.body).to.be.an('object');
+    });
+    it('should return 401 if authorization header is not provided', async () => {
+      const res = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .send(product);
+      expect(res).to.have.status(401);
+      expect(res).to.be.json;
+      expect(res.body).to.be.an('object');
+    });
+    it('should return 409 if product already exists', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(product);
+      expect(response.status).to.equal(409);
+    });
+    it('should return 400 if product name is not provided', async () => {
+      const res = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          description: 'test',
+          price: 100,
+          quantity: 10,
+          expiryDate: '12/12/30',
+          category_id: '0da3d632-a09e-42d5-abda-520aea82ef49',
+        });
+      expect(res.status).to.equal(400);
+    });
+    it('should return 400 if expiry date is invalid', async () => {
+      const response = await chai
+        .request(app)
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          productName: 'test',
+          description: 'test',
+          price: 100,
+          quantity: 10,
+          expiryDate: 'not a valid date',
+          category_id: '0da3d632-a09e-42d5-abda-520aea82ef49',
+        });
+      expect(response.status).to.equal(400);
     });
   });
   describe('PATCH /api/v1/products/:id/availability', () => {
@@ -412,6 +549,245 @@ describe('PRODUCT', async () => {
         .patch(`/api/v1/products/${item.id}/availability`)
         .set('Authorization', `Bearer ${token}`);
       expect(res.status).to.equal(200);
+    });
+  });
+  describe('PATCH /api/v1/products/:id', () => {
+    it('updates a product and returns the updated data', async () => {
+      const updatedProductData = {
+        productName: 'Updated Product Name',
+        price: 19.99,
+        quantity: 5,
+        category_id: 2,
+      };
+
+      const response = await request(app)
+        .patch('/api/v1/products/:id')
+        .set('Authorization', 'Bearer valid_token')
+        .field('productName', updatedProductData.productName)
+        .field('price', updatedProductData.price)
+        .field('quantity', updatedProductData.quantity)
+        .field('category_id', updatedProductData.category_id);
+      expect(response.status).to.equal(500);
+    });
+    it('should update the product', async () => {
+      const payload = { email: 'boris@gmail.com', password: '1234' };
+      const userToken = generateToken(payload);
+      const res = await chai
+        .request(app)
+        .patch('/api/v1/products/9974076f-e16a-486f-a923-362ec1747a12')
+        .set('Authorization', `Bearer ${userToken}`);
+      expect(res.status).to.equal(500);
+    });
+    it('Update product - No data provided', async () => {
+      const response = await request(app)
+        .put('/products/1')
+        .set('Authorization', `Bearer ${token}`)
+        .send({});
+      expect(response.status).to.equal(404);
+      expect(response.body.success).to.be.undefined;
+    });
+    it('should return a 400 error', async () => {
+      const response = await chai
+        .request(app)
+        .patch('/api/v1/products/7eb6da79-c94a-4d36-9a05-b9acabb08b3f')
+        .set('Authorization', `Bearer ${token}`);
+      expect(response.status).to.equal(400);
+      expect(response.body).to.have.property('message');
+      expect(response.body.message).to.equal('No data provided');
+    });
+    it('should return an error message', async () => {
+      const payload = { email: 'eric@gmail.com', password: '1234' };
+      const userToken = generateToken(payload);
+      const response = await chai
+        .request(app)
+        .patch('/api/v1/products/:id')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ id: '7eb6da79-c94a-4d36-9a05-b9acabb08b3b' });
+      expect(response.status).to.equal(500);
+      expect(response.body).to.have.property('message');
+      expect(response.body.message).to.equal('Error when authorizing user jwt malformed');
+    });
+    it('it should return 500 if there are no product in store', async () => {
+      const newseller = await User.create({
+        firstname: 'fstname',
+        lastname: 'sdname',
+        email: 'example23@gmail.com',
+        password: 'testpass2345',
+      });
+      const newSellerToken = generateToken(newseller);
+      const response = await request(app)
+        .patch('/api/v1/products/1a2ef741-1488-4435-b2e2-4075a6a169eb')
+        .set('Authorization', `Bearer ${newSellerToken}`);
+      expect(response.statusCode).to.equal(500);
+    });
+    it('it should return 500 if there are no product in seller collection', async () => {
+      const newseller = await User.create({
+        firstname: 'fstname',
+        lastname: 'sdname',
+        email: 'example2@gmail.com',
+        password: 'testpass2345',
+      });
+      await newseller.update({ role: 'seller' });
+      const newSellerToken = generateToken(newseller);
+      const response = await request(app)
+        .patch('/api/v1/products/:id')
+        .set('Authorization', `Bearer ${newSellerToken}`);
+      expect(response.statusCode).to.equal(500);
+    });
+    it('it should return 500 if the product is not found in seller collection', async () => {
+      const newseller = await User.create({
+        firstname: 'fstname',
+        lastname: 'sdname',
+        email: 'example25@gmail.com',
+        password: 'testpass2345',
+      });
+      await newseller.update({ role: 'seller' });
+      const newSellerToken = generateToken(newseller);
+      const response = await request(app)
+        .patch('/api/v1/products/1a2ef741-1488-4435-b2e2-4075a6a169eb')
+        .set('Authorization', `Bearer ${newSellerToken}`);
+      expect(response.statusCode).to.equal(500);
+    });
+    it('should return an error message', async () => {
+      const payload = { email: 'mukakalisajeanne@gmail.com', password: '1234' };
+      const userToken = generateToken(payload);
+      const response = await chai
+        .request(app)
+        .patch('/api/v1/products/:id')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ id: '7eb6da79-c94a-4d36-9a05-b9acabb08b3b' });
+      expect(response.status).to.equal(500);
+      expect(response.body).to.have.property('message');
+      expect(response.body.message).to.equal('Error when authorizing user jwt malformed');
+    });
+    it('should return a 400 error', async () => {
+      sinon.stub(Product, 'findOne').throws(new Error('Server error'));
+      const response = await chai
+        .request(app)
+        .patch('/api/v1/products/3b654f9c-e409-43ea-8062-7fa00f7d6f1a')
+        .set('Authorization', `Bearer ${token}`);
+      expect(response.status).to.equal(400);
+      Product.findOne.restore();
+    });
+    it('should update the product', async () => {
+      const items = await Product.findOne({ where: { id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c', seller_id: '60409d12-ddad-4938-a37a-c17bc33aa4ba' } });
+      const res = await request(app)
+        .patch(`/api/v1/products/${items.id}`)
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).to.equal(400);
+    });
+    it('should return an error', async () => {
+      await Product.findOne({ where: { seller_id: '60409d12-ddad-4938-a37a-c17bc33aa4ba' } });
+      const res = await request(app)
+        .patch(`/api/v1/products/${item.id}`)
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).to.equal(400);
+    });
+    it('returns an error if the product does not exist', async () => {
+      const sampleProduct = {
+        productName: 'Sample Product',
+        description: 'This is a sample product',
+        price: 9.99,
+        quantity: 10,
+        category_id: 1,
+      };
+      const response = await request(app)
+        .patch('/products/9999')
+        .set('Authorization', `Bearer ${token}`)
+        .send(sampleProduct);
+      expect(response.status).to.equal(404);
+      expect(response.body.message).to.be.undefined;
+    });
+  });
+  describe('DELETE /api/v1/products/:id/delete', () => {
+    it('should return a 500 error', async () => {
+      const response = await chai
+        .request(app)
+        .delete('/api/v1/products/999999/delete')
+        .set('Authorization', `Bearer ${token}`);
+      expect(response.status).to.equal(500);
+      expect(response.body).to.have.property('message');
+      expect(response.body.message).to.equal('invalid input syntax for type uuid: "999999"');
+    });
+    it('should return an error', async () => {
+      const response = await chai
+        .request(app)
+        .delete('/api/v1/products/7eb6da79-c94a-4d36-9a05-b9acabb08b3f/delete')
+        .set('Authorization', `Bearer ${token}`);
+      expect(response.status).to.equal(404);
+      expect(response.body).to.have.property('message');
+      expect(response.body.message).to.equal('Product not found');
+    });
+    it('should return an error message', async () => {
+      const payload = { email: 'eric@gmail.com', password: '1234' };
+      const userToken = generateToken(payload);
+      const response = await chai
+        .request(app)
+        .delete('/api/v1/products/:id/delete')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ id: '7eb6da79-c94a-4d36-9a05-b9acabb08b3b' });
+      expect(response.status).to.equal(500);
+      expect(response.body).to.have.property('message');
+      expect(response.body.message).to.equal('Error when authorizing user jwt malformed');
+    });
+    it('should return an error', async () => {
+      sinon.stub(Product, 'findOne').throws(new Error('Server error'));
+      const response = await chai
+        .request(app)
+        .delete('/api/v1/products/3b654f9c-e409-43ea-8062-7fa00f7d6f1a/delete')
+        .set('Authorization', `Bearer ${token}`);
+      expect(response.status).to.equal(500);
+      Product.findOne.restore();
+    });
+    it('should return an error message', async () => {
+      const payload = { email: 'mukakalisajeanne@gmail.com', password: '1234' };
+      const userToken = generateToken(payload);
+      const response = await chai
+        .request(app)
+        .delete('/api/v1/products/:id/delete')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ id: '7eb6da79-c94a-4d36-9a05-b9acabb08b3b' });
+      expect(response.status).to.equal(500);
+      expect(response.body).to.have.property('message');
+      expect(response.body.message).to.equal('Error when authorizing user jwt malformed');
+    });
+    it('should dellete the product', async () => {
+      const items = await Product.findOne({ where: { seller_id: '60409d12-ddad-4938-a37a-c17bc33aa4ba' } });
+      const res = await request(app)
+        .delete(`/api/v1/products/${items.id}/delete`)
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).to.equal(401);
+      expect(res.body).to.have.property('message');
+      expect(res.body.message).to.equal('Unauthorized access');
+    });
+    it('should return an error status code', async () => {
+      const res = await request(app)
+        .delete(`/api/v1/products/${item.id}`)
+        .set('Authorization', `Bearer ${sellerToken}`);
+      expect(res.status).to.equal(404);
+    });
+    it('should delete a product if the user is authorized', async () => {
+      const res = await request(app)
+        .delete(`/products/${product.id}`)
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).to.equal(404);
+      expect(res.body.success).to.be.undefined;
+    });
+    it('should return an error message if the user is not authorized to delete the product', async () => {
+      const user = await User.create({
+        firstName: 'Jane',
+        lastName: 'Doe',
+        email: 'janedoe@example.com',
+        password: 'password123',
+      });
+      const userToken = generateToken(user);
+
+      const res = await request(app)
+        .delete(`/products/${product.id}`)
+        .set('Authorization', `Bearer ${userToken}`);
+      expect(res.status).to.equal(404);
+      // Delete the new user
+      await User.destroy({ where: { email: 'janedoe@example.com' } });
     });
   });
 });
