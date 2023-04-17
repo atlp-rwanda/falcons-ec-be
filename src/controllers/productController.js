@@ -91,7 +91,7 @@ export const updateProduct = async (req, res) => {
     const { id } = req.params;
     const product = await Product.findOne({ where: { id } });
     if (!product) {
-      return res.status(404).json({ status: 404, success: false, message: 'Product not found in your collection!' });
+      return res.status(404).json({ status: 404, success: false, message: 'Product not found in your collection' });
     }
     if (product.seller_id !== req.user.id) {
       return res.status(401).json({ status: 401, success: false, message: 'Unauthorized access!' });
