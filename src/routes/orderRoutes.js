@@ -3,7 +3,7 @@ import express from 'express';
 import validator from '../validations/validation';
 import verifyRole from '../middleware/verifyRole';
 import { checkout } from '../controllers/checkoutController';
-import getOrderItems, { updateOrderItem } from '../controllers/orderController';
+import getOrderItems, { getAllOrders, getAllUserOrders, getOrderStatus, updateOrderItem } from '../controllers/orderController';
 import isLoggedIn from '../middleware/authMiddleware';
 import { orderItemStatus } from '../validations/userSchema';
 
@@ -18,5 +18,11 @@ orderRoutes.patch(
   validator(orderItemStatus),
   updateOrderItem,
 );
+orderRoutes.get('/orders/', verifyRole('buyer'), getAllUserOrders);
+orderRoutes.get('/orders/:order_id', verifyRole('buyer'), getOrderStatus);
 
 export default orderRoutes;
+
+
+
+

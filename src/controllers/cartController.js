@@ -15,6 +15,7 @@ export const AddToCart = async (req, res) => {
     const existingCart = await Cart.findOne({
       where: { buyer_id: decodedData.payload.id },
     });
+    let existingQuantity=0
     // eslint-disable-next-line camelcase
     const { product_id, quantity } = req.body;
     // eslint-disable-next-line camelcase
@@ -23,14 +24,15 @@ export const AddToCart = async (req, res) => {
         // eslint-disable-next-line camelcase
         where: { id: product_id },
       });
-      if (item && quantity < item.quantity) {
+     
+
+      //   check if the product already exists and is  available
+      if (!existingCart) {
+         if (item && quantity<= item.quantity) {
         item.quantity = quantity;
       } else {
         return res.json({ message: 'Stock is not availabble' });
       }
-
-      //   check if the product already exists and is  available
-      if (!existingCart) {
         const cart = await Cart.create({
           items: [item], // create a new array with the item
           buyer_id: decodedData.payload.id,
@@ -38,6 +40,17 @@ export const AddToCart = async (req, res) => {
         });
         res.json({ message: 'Successfully Added to Cart', cart });
       } else {
+         for (let i =0 ; i<existingCart.items.length;i++){
+        if(existingCart && existingCart.items[i].id==product_id){
+          existingQuantity +=existingCart.items[i].quantity
+        }
+        console.log(existingQuantity)
+      }
+       if (item && quantity + existingQuantity <= item.quantity) {
+        item.quantity = quantity;
+      } else {
+        return res.json({ message: 'Stock is not availabble' });
+      }
         const updatedCart = await existingCart.update({
           items: [...existingCart.items, item],
           cartTotal: existingCart.cartTotal + item.price * quantity, // append the item to the existing array
@@ -141,7 +154,7 @@ export const updateCartItems = async (req, res) => {
           buyer_id: decodedData.payload.id,
           cartTotal: item.price * quantity,
         });
-        res.json({ message: 'Successfully Updated to Cart', cart });
+        res.json({ message: 'Successfully Updated Cart', cart });
       } else {
         const updatedCart = await existingCart.update({
           items: [item],
