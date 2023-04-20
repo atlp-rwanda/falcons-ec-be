@@ -489,13 +489,6 @@
             "type": "number"
           },
           {
-            "name": "category",
-            "in": "formData",
-            "description": "The category of the product.",
-            "required": false,
-            "type": "string"
-          },
-          {
             "name": "category_id",
             "in": "formData",
             "description": "The category of the product.",
@@ -2165,7 +2158,7 @@
         }
       }
     },
-     "/api/v1/orders/": {
+   "/api/v1/orders/": {
       "get": {
         "security": [
           {
@@ -2250,7 +2243,279 @@
           }
         }
       }
-    }
+    },
+ "/api/v1/products/{product_id}/reviews": {
+      "get": {
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["Reviews"],
+        "summary": "Get Product Reviews ",
+        "description": "This is an api that gets  Product Reviews ",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "product_id",
+            "required": true,
+            "type": "string",
+            "description": "The product id."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "default": "Review Displayed"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "definitions": {
+              "error": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "default": "error message"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "default": ""
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Reviews"],
+        "summary": "Add a Review",
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": [],
+            "google_Oauth2": []
+          }
+        ],
+        "description": "This is an api that adds a Review",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "product_id",
+            "required": true,
+            "type": "string",
+            "description": "The product id."
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ratings": {
+                  "type": "integer",
+                  "default": 1
+                },
+                "feedback": {
+                  "type": "string",
+                  "default": "Average Product"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Added to cart successfully",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "Added to cart successfully"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Reviews"],
+        "summary": "Update A review",
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": [],
+            "google_Oauth2": []
+          }
+        ],
+        "description": "This is an api that updates a review",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "product_id",
+            "required": true,
+            "type": "string",
+            "description": "The product id."
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ratings": {
+                  "type": "integer",
+                  "default": 5
+                },
+                "feedback": {
+                  "type": "string",
+                  "default": "Updated Review"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Added the review successfully",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "Added the review successfully"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Reviews"],
+        "summary": "delete a review",
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": [],
+            "google_Oauth2": []
+          }
+        ],
+        "description": "This removes a review",
+        "produces": ["application/json"],
+         "parameters": [
+          {
+            "in": "path",
+            "name": "product_id",
+            "required": true,
+            "type": "string",
+            "description": "The product id."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cleared the review successfully",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "Cleared the review successfully"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    } 
   },
   "securityDefinitions": {
     "bearerAuth": {
