@@ -12,6 +12,7 @@ import categoryRoute from './routes/categoryRoutes';
 import cartRoute from './routes/cartRoutes';
 import orderRoutes from './routes/orderRoutes';
 import { webhookProcessor } from './controllers/checkoutController';
+import productWishRoute from './routes/productWishRoutes';
 
 const stripe = new Stripe(process.env.STRIPE_API_KEY);
 
@@ -27,6 +28,7 @@ app.use(
   })
 );
 app.use('/api/v1', productRoute);
+app.use('/api/v1', productWishRoute);
 app.use('/api/v1', categoryRoute);
 app.use('/api/v1', cartRoute);
 app.use('/api/v1', orderRoutes);
