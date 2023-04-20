@@ -78,6 +78,7 @@ export const getCart = async (req, res) => {
     });
 
     const existingItems = {};
+    if(existingCart){
     existingCart.items.forEach((item) => {
       if (existingItems[item.id]) {
         existingItems[item.id].quantity += item.quantity;
@@ -95,7 +96,10 @@ export const getCart = async (req, res) => {
       existingItems,
       cartTotal: existingCart.cartTotal,
       Buyer: existingCart.buyer_id,
-    });
+    });}
+    else{
+      res.json({message:'Cart is Empty'})
+    }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
