@@ -2,6 +2,7 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth2';
 import dotenv from 'dotenv';
 import db from '../database/models';
+import generateToken from '../helpers/token_generator';
 
 const { User } = db;
 
@@ -19,7 +20,15 @@ passport.use(
         where: { email: [profile.email] },
       });
       if (googleUser) {
-        done(null, profile);
+        console.log(googleUser)
+        const user = {
+          id:googleUser.id,
+          email: profile.email,
+          token: token, // include the token in the user object
+        };
+        done(null, user,{ status: 200});
+      } else {
+        return done(null, false, { status: 401, message: 'User not found.' });
       }
     },
   ),

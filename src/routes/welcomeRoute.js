@@ -1,8 +1,8 @@
-import express from 'express';
-import welcome from '../controllers/welcomeController';
+// import express from 'express';
+// import welcome from '../controllers/welcomeController';
 
-const welcomeRoute = express.Router();
+// const welcomeRoute = express.Router();
 
-welcomeRoute.route('/').get(welcome);
+// welcomeRoute.route('/').get(welcome);
 
-export default welcomeRoute;
+// export default welcomeRoute;

@@ -2654,8 +2654,10 @@
       "scheme": "bearer"
     },
     "google_Oauth2": {
-      "authorizationUrl": "https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A5000%2Fgoogle%2Fcallback&scope=email%20profile&client_id=111607106086-6e882nl4dni651j6hspjrqg3dsscfdrs.apps.googleusercontent.com",
-      "tokenUrl": [],
+      "authorizationUrl": "https://accounts.google.com/o/oauth2/auth",
+      "scopes": {
+        "read": "Read access to API"
+      },
       "description": "Google authorization",
       "flow": "accessCode",
       "type": "oauth2",

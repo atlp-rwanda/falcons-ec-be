@@ -6,7 +6,7 @@ import orderRoutes from './orderRoutes';
 
 const router = Router();
 
-router.use('/welcome', welcomeRoutes);
+// router.use('/welcome', welcomeRoutes);
 router.use('/api/v1/users', userRoutes);
 
 export default router;
