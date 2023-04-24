@@ -551,6 +551,27 @@
             }
           }
         }
+      },
+      "get": {
+        "tags": ["Products"],
+        "summary": "Get all products",
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": [],
+            "google_Oauth2": []
+          }
+        ],
+        "consumes": ["multipart/form-data"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Products retrieved successfully.",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
       }
     },
     "/api/v1/products/{id}/availability": {
@@ -591,6 +612,33 @@
       }
     },
     "/api/v1/products/{id}": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "Update aproduct",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "consumes": ["multipart/form-data"],
+        "produces": ["application/json"],
+         "parameters": [
+          {
+          "name": "id",
+          "in": "path",
+          "description": "The product id",
+          "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product updated successfully.",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      },
       "patch": {
         "tags": ["Products"],
         "summary": "Update aproduct",

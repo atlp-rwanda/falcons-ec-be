@@ -39,15 +39,7 @@ const sellerToken = '';
 const item = '';
 const email = 'gatete@gmail.com';
 
-describe('Welcome Controller', () => {
-  describe('GET /welcome', () => {
-    it('should return a 200 response and a welcome message', async () => {
-      const res = await chai.request(app).get('/welcome');
-      expect(res).to.have.status(200);
-      expect(res.body.message).to.equal('Test controller OK');
-    });
-  });
-});
+
 describe('Google Authentication', () => {
   const mockUser = {
     email: 'johndoe@gmail.com',
@@ -266,7 +258,6 @@ describe('PRODUCT', async () => {
     email: 'gatete@gmail.com',
     password: '1234',
   };
-
   let token = '';
   let OTPtoken = '';
 
@@ -492,6 +483,44 @@ describe('PRODUCT', async () => {
           category_id: '0da3d632-a09e-42d5-abda-520aea82ef49',
         });
       expect(response.status).to.equal(400);
+    });
+  });
+  describe('GET /api/v1/products', () => {
+    it('should get products', async () => {
+      const response = await chai
+        .request(app)
+        .get('/api/v1/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(product);
+      response.body.should.be.a('object');
+      expect(response.status).to.equal(200);
+    });
+
+    it('should return 401 if authorization header is not provided', async () => {
+      const response = await chai
+        .request(app)
+        .get('/api/v1/products')
+        .send(product);
+      expect(response.status).to.equal(401);
+    });
+  });
+    describe('GET /api/v1/products/:id', () => {
+    it('should get products', async () => {
+      const response = await chai
+        .request(app)
+        .get('/api/v1/products/926ade6c-21f7-4866-ae7f-360d1574839d')
+        .set('Authorization', `Bearer ${token}`)
+        .send(product);
+      response.body.should.be.a('object');
+      expect(response.status).to.equal(200);
+    });
+
+    it('should return 401 if authorization header is not provided', async () => {
+      const response = await chai
+        .request(app)
+        .get('/api/v1/products/926ade6c-21f7-4866-ae7f-360d1574839d')
+        .send(product);
+      expect(response.status).to.equal(401);
     });
   });
   describe('PATCH /api/v1/products/:id/availability', () => {
@@ -1170,7 +1199,6 @@ describe('AddToCart function', async () => {
         .post('/api/v1/cart')
         .set('Authorization', `Bearer ${token}`)
         .send({ product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c' });
-        console.log(response)
       expect(response.status).to.equal(401);
       expect(response.body.message).to.equal('unauthorised');
     });

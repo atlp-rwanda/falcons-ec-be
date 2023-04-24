@@ -5,7 +5,7 @@ import express from 'express';
 import path from 'path';
 import isLoggedIn, { checkPassword } from '../middleware/authMiddleware';
 import verifyRole from '../middleware/verifyRole';
-import CreateProduct, { deleteProduct, updateProduct, updateProductAvailability } from '../controllers/productController';
+import CreateProduct, { deleteProduct, getAllProducts, getProductById, updateProduct, updateProductAvailability } from '../controllers/productController';
 import validator, { validateSearch } from '../validations/validation';
 import productSchema, { searchSchema } from '../validations/Product';
 import searchProduct from '../controllers/productSearchController';
@@ -40,6 +40,14 @@ productRoute.post(
   validator(productSchema),
 
   CreateProduct,
+);
+productRoute.get(
+  '/products',
+  getAllProducts
+);
+productRoute.get(
+  '/products/:id',
+  getProductById
 );
 productRoute.patch(
   '/products/:id/availability',
@@ -95,4 +103,5 @@ productRoute.put(
   validator(reviewSchema),
   updateReview
 );
+
 export default productRoute;

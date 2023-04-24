@@ -3,9 +3,12 @@ import * as dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import db from '../database/models/index';
 import cloudinary from '../uploads';
+import tokenDecode from '../helpers/token_decode';
 
 dotenv.config();
 const { Product } = db;
+const { User } = db;
+
 
 const CreateProduct = async (req, res) => {
   try {
@@ -154,5 +157,77 @@ export const deleteProduct = async (req, res) => {
     res.status(500).json({ status: 500, success: false, message: error.message });
   }
 };
+export const getAllProducts= async (req,res)=>{
+ try { 
+  
+  if(req.headers.authorization){
+    
+    const token= req.headers.authorization.split(' ')[1]
+    const decodedData= await tokenDecode(token)
+  const user=await User.findOne({
+    where:{
+      id:decodedData.payload.id
+    }
+  })
+    if(user&& user.role=='seller'){
+        
+    const Products= await Product.findAll({
+      where:{
+        seller_id:decodedData.payload.id,
+      }
+    })
+res.status(200).json({message:'Products Retrieved Successfully',Products})
+    }
+  
+  }
+else{
+  const Products= await Product.findAll({
+      where:{
+        availability:true,
+      }
+    })
+res.status(200).json({message:'Products Retrieved Successfully',Products})
+  }
+  
+ } catch (error) {
+  res.json({ status:500,message:error.message})
+ }
 
+}
+export const getProductById= async (req,res)=>{
+ try {
+  const {id}=req.params
+  if(req.headers.authorization){
+  const token= req.headers.authorization.split(' ')[1]
+  const decodedData= await tokenDecode(token)
+  const user=await User.findOne({
+    where:{
+      id:decodedData.payload.id
+    }
+  })
+  if(user&& user.role=='seller'){
+    const Products= await Product.findAll({
+      where:{
+        id:id,
+        seller_id:decodedData.payload.id,
+      }
+    })
+  res.status(200).json({message:'Product Retrieved Successfully',Products})
+  }
+}
+else{
+  const Products= await Product.findAll({
+      where:{
+        id:id,
+        availability:true,
+      }
+    })
+  res.status(200).json({message:'Product Retrieved Successfully',Products})
+  }
+  
+ } catch (error) {
+  res.json({ status:500,message:error.message})
+ }
+
+}
 export default CreateProduct;

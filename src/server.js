@@ -3,7 +3,7 @@ import express from 'express';
 import session from 'express-session';
 import swaggerUI from 'swagger-ui-express';
 import Stripe from 'stripe';
-import swagger from './swagger.json';
+import swagger from '../src/swagger.json';
 import './config/passport';
 import passportRouter from './routes/passport';
 import router from './routes';
