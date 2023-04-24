@@ -16,7 +16,7 @@ const markProductExpired = async (expiredProducts) => {
         const seller = await findOneUserService(sellerId);
         const sellerEmail = seller.dataValues.email;
         const html = `
-         <a href="${process.env.clientURL}/api/v1/products/${productId}" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">This products has reached its expiration date \n View the product</a> `;
+         <a href="${process.env.clientURL}/api/v1/products/${productId}" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">This product has reached its expiration date \n View the product</a> `;
 
         await sendMessage(
           sellerEmail,
