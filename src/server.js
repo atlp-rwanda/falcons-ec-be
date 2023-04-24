@@ -23,8 +23,8 @@ app.use(
   session({
     secret: process.env.EXPRESS_SESSION,
     resave: false,
-    saveUninitialized: false
-  })
+    saveUninitialized: false,
+  }),
 );
 app.use('/api/v1', productRoute);
 app.use('/api/v1', categoryRoute);

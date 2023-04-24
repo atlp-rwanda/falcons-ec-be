@@ -1,8 +1,8 @@
-import * as dotenv from 'dotenv'
-import db from '../database/models/index';
+import * as dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
+import db from '../database/models/index';
 
-dotenv.config()
+dotenv.config();
 const { Order } = db;
 const { OrderItem } = db;
 
@@ -62,13 +62,13 @@ export const updateOrderItem = async (req, res) => {
   }
 };
 export const getAllUserOrders = async (req, res) => {
-      const token = req.headers.authorization.split(' ')[1];
-    const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
+  const token = req.headers.authorization.split(' ')[1];
+  const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
   const orders = await Order.findAll({
-      where: {
-        buyer_id: decodedData.payload.id,
-      },
-    });
+    where: {
+      buyer_id: decodedData.payload.id,
+    },
+  });
 
   return res.json({ message: 'Orders', orders });
 };
@@ -82,12 +82,12 @@ export const getOrderStatus = async (req, res) => {
     const order = await Order.findOne({
       where: {
         buyer_id: decodedData.payload.id,
-        id:order_id
+        id: order_id,
       },
     });
 
     if (order) {
-      return res.json({ status:order.status });
+      return res.json({ status: order.status });
     } else {
       return res.json({ message: ' Order not found' });
     }
