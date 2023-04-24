@@ -4,6 +4,7 @@ import EventEmitter from 'events';
 import { Op } from 'sequelize';
 import db from '../database/models/index';
 import markProductExpired from '../events/markProductExpired';
+import productEventsEmitter from '../events/productEvents';
 
 const emitter = new EventEmitter();
 const { Product } = db;
@@ -16,11 +17,12 @@ const checkProduct = () => {
       const expiredProducts = await Product.findAll({
         where: {
           expiryDate: {
-            [Op.lt]: currentDate,
-          },
-        },
+            [Op.lt]: currentDate
+          }
+        }
       });
-      markProductExpired(expiredProducts);
+      // markProductExpired(expiredProducts);
+      productEventsEmitter.emit('product expired', expiredProducts);
     });
   })();
 };

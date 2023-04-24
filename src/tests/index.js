@@ -51,7 +51,7 @@ describe('Welcome Controller', () => {
 describe('Google Authentication', () => {
   const mockUser = {
     email: 'johndoe@gmail.com',
-    password: '12345678',
+    password: '12345678'
   };
 
   describe('GET /auth/google', () => {
@@ -71,11 +71,7 @@ describe('Google Authentication', () => {
         .expect(302) // expect a redirect
         .end((err, res) => {
           if (err) return done(err);
-          assert(
-            res.headers.location.startsWith(
-              'https://accounts.google.com/o/oauth2/v2/auth',
-            ),
-          );
+          assert(res.headers.location.startsWith('https://accounts.google.com/o/oauth2/v2/auth'));
           done();
         });
     });
@@ -141,13 +137,13 @@ describe('generateToken', () => {
 describe('Set user role', () => {
   const fakeUser = {
     email: 'admin@gmail.com',
-    password: 'password',
+    password: 'password'
   };
 
   const unauthorisedUser = {
     // user with just seller role
     email: 'umuntu@gmail.com',
-    password: '1234',
+    password: '1234'
   };
 
   describe('POST /api/v1/users/signup', () => {
@@ -160,10 +156,7 @@ describe('Set user role', () => {
     });
 
     it('should create a fake admin', async () => {
-      const response = await chai
-        .request(app)
-        .post('/api/v1/users/signup')
-        .send(fakeUser);
+      const response = await chai.request(app).post('/api/v1/users/signup').send(fakeUser);
       expect(response.status).to.equal(201);
     });
   });
@@ -189,10 +182,7 @@ describe('Set user role', () => {
     });
 
     it('should authorise the fake admin', async () => {
-      const loginResponse = await chai
-        .request(app)
-        .post('/api/v1/users/signin')
-        .send(fakeUser);
+      const loginResponse = await chai.request(app).post('/api/v1/users/signin').send(fakeUser);
       _TOKEN = loginResponse.body.token;
       expect(loginResponse.status).to.equal(200);
     });
@@ -211,19 +201,16 @@ describe('Set user role', () => {
 describe('login', () => {
   const user = {
     email: 'johndoe@gmail.com',
-    password: '12345678',
+    password: '12345678'
   };
   const realUser = {
     email: 'boris@gmail.com',
-    password: '1234',
+    password: '1234'
   };
 
   describe('POST /api/v1/users/signin', () => {
     it('should respond login a user', async () => {
-      const response = await chai
-        .request(app)
-        .post('/api/v1/users/signin')
-        .send(realUser);
+      const response = await chai.request(app).post('/api/v1/users/signin').send(realUser);
       expect(response.status).to.equal(200);
     });
     it('should throw an error if invalid credentials', async () => {
@@ -234,17 +221,11 @@ describe('login', () => {
       expect(response.status).to.equal(401);
     });
     it('should throw error if user does not exist ', async () => {
-      const response = await chai
-        .request(app)
-        .post('/api/v1/users/signin')
-        .send(user);
+      const response = await chai.request(app).post('/api/v1/users/signin').send(user);
       expect(response.status).to.equal(401);
     });
     it('should respond with an array of users', async () => {
-      const loginResponse = await chai
-        .request(app)
-        .post('/api/v1/users/signin')
-        .send(realUser);
+      const loginResponse = await chai.request(app).post('/api/v1/users/signin').send(realUser);
       const { token } = loginResponse.body;
       const response = await chai
         .request(app)
@@ -264,7 +245,7 @@ describe('verifyRole middleware', () => {
 describe('PRODUCT', async () => {
   const realUser = {
     email: 'gatete@gmail.com',
-    password: '1234',
+    password: '1234'
   };
 
   let token = '';
@@ -276,29 +257,23 @@ describe('PRODUCT', async () => {
     price: 100,
     quantity: 10,
     expiryDate: '12/12/30',
-    category_id: '0da3d632-a09e-42d5-abda-520aea82ef49',
+    category_id: '0da3d632-a09e-42d5-abda-520aea82ef49'
   };
 
   const invalidproduct = {
     productName: 'test',
     price: 100,
     quantity: 10,
-    expiryDate: '12/12/12',
+    expiryDate: '12/12/12'
   };
-  const loginResponse = await chai
-    .request(app)
-    .post('/api/v1/users/signin')
-    .send(realUser);
+  const loginResponse = await chai.request(app).post('/api/v1/users/signin').send(realUser);
 
   OTPtoken = loginResponse.body.OTPtoken;
   const decoded = await tokenDecode(OTPtoken);
   const otpSent = decoded.payload.otpCode;
-  const resp = await chai
-    .request(app)
-    .post(`/api/v1/users/otp/verify/${OTPtoken}`)
-    .send({
-      otp: otpSent,
-    });
+  const resp = await chai.request(app).post(`/api/v1/users/otp/verify/${OTPtoken}`).send({
+    otp: otpSent
+  });
   token = resp.body.loginToken;
 
   describe('POST /api/v1/products', () => {
@@ -337,10 +312,7 @@ describe('PRODUCT', async () => {
     });
 
     it('should return 401 if authorization header is not provided', async () => {
-      const response = await chai
-        .request(app)
-        .post('/api/v1/products')
-        .send(product);
+      const response = await chai.request(app).post('/api/v1/products').send(product);
       expect(response.status).to.equal(401);
     });
     it('should return 400 if product name is not provided', async () => {
@@ -353,7 +325,7 @@ describe('PRODUCT', async () => {
           price: 100,
           quantity: 10,
           expiryDate: '12/12/30',
-          category_id: '0da3d632-a09e-42d5-abda-520aea82ef49',
+          category_id: '0da3d632-a09e-42d5-abda-520aea82ef49'
         });
       expect(response.status).to.equal(400);
     });
@@ -367,7 +339,7 @@ describe('PRODUCT', async () => {
           description: 'test',
           price: 100,
           quantity: 10,
-          expiryDate: '12/12/30',
+          expiryDate: '12/12/30'
         });
       expect(response.status).to.equal(400);
     });
@@ -382,7 +354,7 @@ describe('PRODUCT', async () => {
           price: 100,
           quantity: 10,
           expiryDate: '12/12/30',
-          category_id: 'invalid-uuid',
+          category_id: 'invalid-uuid'
         });
       expect(response.status).to.equal(409);
     });
@@ -396,7 +368,7 @@ describe('PRODUCT', async () => {
           description: 'test',
           quantity: 10,
           expiryDate: '12/12/30',
-          category_id: '0da3d632-a09e-42d5-abda-520aea82ef49',
+          category_id: '0da3d632-a09e-42d5-abda-520aea82ef49'
         });
       expect(response.status).to.equal(400);
     });
@@ -410,16 +382,13 @@ describe('PRODUCT', async () => {
           description: 'test',
           price: 100,
           quantity: 10,
-          expiryDate: '12/12/30',
+          expiryDate: '12/12/30'
         });
       expect(response.status).to.equal(400);
     });
 
     it('should return 401 if user is not logged in', async () => {
-      const response = await chai
-        .request(app)
-        .post('/api/v1/products')
-        .send(invalidproduct);
+      const response = await chai.request(app).post('/api/v1/products').send(invalidproduct);
       expect(response.status).to.equal(401);
     });
     it('should return 401 if user is not an admin ', async () => {
@@ -448,10 +417,7 @@ describe('PRODUCT', async () => {
       expect(res.body).to.be.an('object');
     });
     it('should return 401 if authorization header is not provided', async () => {
-      const res = await chai
-        .request(app)
-        .post('/api/v1/products')
-        .send(product);
+      const res = await chai.request(app).post('/api/v1/products').send(product);
       expect(res).to.have.status(401);
       expect(res).to.be.json;
       expect(res.body).to.be.an('object');
@@ -474,7 +440,7 @@ describe('PRODUCT', async () => {
           price: 100,
           quantity: 10,
           expiryDate: '12/12/30',
-          category_id: '0da3d632-a09e-42d5-abda-520aea82ef49',
+          category_id: '0da3d632-a09e-42d5-abda-520aea82ef49'
         });
       expect(res.status).to.equal(400);
     });
@@ -489,7 +455,7 @@ describe('PRODUCT', async () => {
           price: 100,
           quantity: 10,
           expiryDate: 'not a valid date',
-          category_id: '0da3d632-a09e-42d5-abda-520aea82ef49',
+          category_id: '0da3d632-a09e-42d5-abda-520aea82ef49'
         });
       expect(response.status).to.equal(400);
     });
@@ -557,7 +523,7 @@ describe('PRODUCT', async () => {
         productName: 'Updated Product Name',
         price: 19.99,
         quantity: 5,
-        category_id: 2,
+        category_id: 2
       };
 
       const response = await request(app)
@@ -612,7 +578,7 @@ describe('PRODUCT', async () => {
         firstname: 'fstname',
         lastname: 'sdname',
         email: 'example23@gmail.com',
-        password: 'testpass2345',
+        password: 'testpass2345'
       });
       const newSellerToken = generateToken(newseller);
       const response = await request(app)
@@ -625,7 +591,7 @@ describe('PRODUCT', async () => {
         firstname: 'fstname',
         lastname: 'sdname',
         email: 'example2@gmail.com',
-        password: 'testpass2345',
+        password: 'testpass2345'
       });
       await newseller.update({ role: 'seller' });
       const newSellerToken = generateToken(newseller);
@@ -639,7 +605,7 @@ describe('PRODUCT', async () => {
         firstname: 'fstname',
         lastname: 'sdname',
         email: 'example25@gmail.com',
-        password: 'testpass2345',
+        password: 'testpass2345'
       });
       await newseller.update({ role: 'seller' });
       const newSellerToken = generateToken(newseller);
@@ -670,7 +636,12 @@ describe('PRODUCT', async () => {
       Product.findOne.restore();
     });
     it('should update the product', async () => {
-      const items = await Product.findOne({ where: { id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c', seller_id: '60409d12-ddad-4938-a37a-c17bc33aa4ba' } });
+      const items = await Product.findOne({
+        where: {
+          id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c',
+          seller_id: '60409d12-ddad-4938-a37a-c17bc33aa4ba'
+        }
+      });
       const res = await request(app)
         .patch(`/api/v1/products/${items.id}`)
         .set('Authorization', `Bearer ${token}`);
@@ -689,7 +660,7 @@ describe('PRODUCT', async () => {
         description: 'This is a sample product',
         price: 9.99,
         quantity: 10,
-        category_id: 1,
+        category_id: 1
       };
       const response = await request(app)
         .patch('/products/9999')
@@ -752,7 +723,9 @@ describe('PRODUCT', async () => {
       expect(response.body.message).to.equal('Error when authorizing user jwt malformed');
     });
     it('should dellete the product', async () => {
-      const items = await Product.findOne({ where: { seller_id: '60409d12-ddad-4938-a37a-c17bc33aa4ba' } });
+      const items = await Product.findOne({
+        where: { seller_id: '60409d12-ddad-4938-a37a-c17bc33aa4ba' }
+      });
       const res = await request(app)
         .delete(`/api/v1/products/${items.id}/delete`)
         .set('Authorization', `Bearer ${token}`);
@@ -778,7 +751,7 @@ describe('PRODUCT', async () => {
         firstName: 'Jane',
         lastName: 'Doe',
         email: 'janedoe@example.com',
-        password: 'password123',
+        password: 'password123'
       });
       const userToken = generateToken(user);
 
@@ -790,7 +763,7 @@ describe('PRODUCT', async () => {
       await User.destroy({ where: { email: 'janedoe@example.com' } });
     });
   });
-describe('GET /api/v1/products', () => {
+  describe('GET /api/v1/products', () => {
     it('should get products', async () => {
       const response = await chai
         .request(app)
@@ -802,14 +775,11 @@ describe('GET /api/v1/products', () => {
     });
 
     it('should return 200 if authorization header is not provided', async () => {
-      const response = await chai
-        .request(app)
-        .get('/api/v1/products')
-        .send(product);
+      const response = await chai.request(app).get('/api/v1/products').send(product);
       expect(response.status).to.equal(200);
     });
   });
-    describe('GET /api/v1/products/:id', () => {
+  describe('GET /api/v1/products/:id', () => {
     it('should get products', async () => {
       const response = await chai
         .request(app)
@@ -840,24 +810,18 @@ describe('Disable account', () => {
   });
 
   it('should return 403 to avoid login of a disabled account', async () => {
-    const loginResponse = await chai
-      .request(app)
-      .post('/api/v1/users/signin')
-      .send({
-        email: 'eric@gmail.com',
-        password: '1234',
-      });
+    const loginResponse = await chai.request(app).post('/api/v1/users/signin').send({
+      email: 'eric@gmail.com',
+      password: '1234'
+    });
     expect(loginResponse.status).to.equal(403);
   });
 
   it('should return 403 to avoid login of a disabled account', async () => {
-    const loginResponse = await chai
-      .request(app)
-      .post('/api/v1/users/signin')
-      .send({
-        email: 'eric@gmail.com',
-        password: '1234',
-      });
+    const loginResponse = await chai.request(app).post('/api/v1/users/signin').send({
+      email: 'eric@gmail.com',
+      password: '1234'
+    });
 
     expect(loginResponse.status).to.equal(403);
   });
@@ -875,13 +839,10 @@ describe('Register User', () => {
     firstname: 'Jackson',
     lastname: 'KANAMUGIRE',
     email: 'jackson@gmail.com',
-    password: 'MyPassword2020!',
+    password: 'MyPassword2020!'
   };
   it('User should be registered when fields match requirements', async () => {
-    const response = await chai
-      .request(app)
-      .post('/api/v1/users/register')
-      .send(userRegister);
+    const response = await chai.request(app).post('/api/v1/users/register').send(userRegister);
     expect(response.status).to.equal(201);
     expect(response.body).to.have.property('user');
     token = response.body.token;
@@ -891,25 +852,18 @@ describe('Register User', () => {
       firstname: 'Jackson',
       lastname: 'Gakwandi',
       email: 'sbdhfdhf',
-      password: '34534',
+      password: '34534'
     };
-    const response = await chai
-      .request(app)
-      .post('/api/v1/users/register')
-      .send(userData);
+    const response = await chai.request(app).post('/api/v1/users/register').send(userData);
     expect(response.status).to.equal(400);
   });
   it('should verify user account when given a valid token', async () => {
-    const response = await chai
-      .request(app)
-      .patch(`/api/v1/users/verify-account/${token}`);
+    const response = await chai.request(app).patch(`/api/v1/users/verify-account/${token}`);
     expect(response.status).to.equal(200);
   });
 
   it('should not verify user account when given an invalid token', async () => {
-    const response = await chai
-      .request(app)
-      .patch('/api/v1/users/verify-account/invalid-token');
+    const response = await chai.request(app).patch('/api/v1/users/verify-account/invalid-token');
     expect(response.status).to.equal(400);
   });
 });
@@ -921,8 +875,8 @@ describe('POST /api/v1/users/logout', () => {
       status: (status) => ({
         json: (data) => {
           expect(status).to.equal(404);
-        },
-      }),
+        }
+      })
     };
   });
   it('should return a 404 response', async () => {
@@ -958,21 +912,18 @@ describe('POST /api/v1/users/logout', () => {
 describe('CATEGORY', async () => {
   const realUser = {
     email: 'eric@gmail.com',
-    password: '1234',
+    password: '1234'
   };
-  const response = await chai
-    .request(app)
-    .post('/api/v1/users/signin')
-    .send(realUser);
+  const response = await chai.request(app).post('/api/v1/users/signin').send(realUser);
   const { token } = response.body;
   const category = {
-    categoryName: 'test',
+    categoryName: 'test'
   };
   const invalidcategory = {
     productName: 'test',
     description: 'test',
     price: 100,
-    quantity: 10,
+    quantity: 10
   };
   expect(response.status).to.equal(200);
   describe('POST /api/v1/categories', () => {
@@ -1005,10 +956,7 @@ describe('CATEGORY', async () => {
     });
 
     it('should return 401 if user is not logged in', async () => {
-      const response = await chai
-        .request(app)
-        .post('/api/v1/categories')
-        .send(invalidcategory);
+      const response = await chai.request(app).post('/api/v1/categories').send(invalidcategory);
       expect(response.status).to.equal(401);
     });
     it('should return 400 if user is not an admin ', async () => {
@@ -1022,7 +970,7 @@ describe('CATEGORY', async () => {
     describe('api/v1/categories/:userId PATCH', () => {
       it('it should update user category', async () => {
         const category = {
-          categoryName: 'test 101',
+          categoryName: 'test 101'
         };
         const res = await chai
           .request(app)
@@ -1035,7 +983,7 @@ describe('CATEGORY', async () => {
       });
       it('it should not update  categories with the same name', async () => {
         const category = {
-          categoryName: 'Category1',
+          categoryName: 'Category1'
         };
         const res = await chai
           .request(app)
@@ -1073,7 +1021,7 @@ describe('checkPassword', () => {
     const expiredUsers = await User.findAll({
       where: sequelize.literal(`
     NOW() - "lastPasswordUpdate" > INTERVAL '${process.env.PASSWORD_EXPIRY}'
-  `),
+  `)
     });
 
     assert.isArray(expiredUsers);
@@ -1082,7 +1030,7 @@ describe('checkPassword', () => {
     const expiredUsers = await User.findAll({
       where: sequelize.literal(`
     NOW() - "lastPasswordUpdate" < INTERVAL '${process.env.PASSWORD_EXPIRY}'
-  `),
+  `)
     });
 
     assert.isArray(expiredUsers);
@@ -1109,12 +1057,12 @@ describe('markPasswordExpired', () => {
     const testUser1 = await User.create({
       email: 'test1@test.com',
       password: 'password',
-      lastPasswordUpdate: new Date(Date.now() - 31 * 24 * 60 * 60 * 1000),
+      lastPasswordUpdate: new Date(Date.now() - 31 * 24 * 60 * 60 * 1000)
     });
     const testUser2 = await User.create({
       email: 'test2@test.com',
       password: 'password',
-      lastPasswordUpdate: new Date(Date.now() - 31 * 24 * 60 * 60 * 1000),
+      lastPasswordUpdate: new Date(Date.now() - 31 * 24 * 60 * 60 * 1000)
     });
     const expiredUsers = [testUser1, testUser2];
     await markPasswordExpired(expiredUsers);
@@ -1129,12 +1077,12 @@ describe('markPasswordExpired', () => {
     const testUser = await User.create({
       email: 'test4@test.com',
       password: 'password',
-      lastPasswordUpdate: null,
+      lastPasswordUpdate: null
     });
     const expiredUsers = await User.findAll({
       where: sequelize.literal(`
     NOW() - "lastPasswordUpdate" > INTERVAL '${process.env.PASSWORD_EXPIRY}'
-  `),
+  `)
     });
     const usersWithNoLastPasswordUpdate = [expiredUsers];
     await markPasswordExpired(usersWithNoLastPasswordUpdate);
@@ -1148,16 +1096,13 @@ describe('AddToCart function', async () => {
   // create a seller and a product
   const realUser = {
     email: 'eric@gmail.com',
-    password: '1234',
+    password: '1234'
   };
   const buyer = {
     email: 'dean@gmail.com',
-    password: '1234',
+    password: '1234'
   };
-  const loginResponse = await chai
-    .request(app)
-    .post('/api/v1/users/signin')
-    .send(realUser);
+  const loginResponse = await chai.request(app).post('/api/v1/users/signin').send(realUser);
   token = loginResponse.body.token;
   const res = await chai.request(app).post('/api/v1/users/signin').send(buyer);
   const buyerToken = res.body.token;
@@ -1171,7 +1116,7 @@ describe('AddToCart function', async () => {
         .set('Authorization', `Bearer ${buyerToken}`)
         .send({
           product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c',
-          quantity: 1,
+          quantity: 1
         });
       expect(response.status).to.equal(200);
       // assert that the response message is 'Successfully Added to Cart'
@@ -1185,7 +1130,7 @@ describe('AddToCart function', async () => {
         .set('Authorization', `Bearer ${buyerToken}`)
         .send({
           product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c',
-          quantity: 100,
+          quantity: 100
         });
       expect(response.status).to.equal(200);
       expect(response.body.message).to.equal('Stock is not availabble');
@@ -1207,7 +1152,6 @@ describe('AddToCart function', async () => {
         .post('/api/v1/cart')
         .set('Authorization', `Bearer ${token}`)
         .send({ product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c' });
-      // console.log(response);
       expect(response.status).to.equal(401);
       expect(response.body.message).to.equal('unauthorised');
     });
@@ -1287,7 +1231,7 @@ describe('AddToCart function', async () => {
         .set('Authorization', `Bearer ${buyerToken}`)
         .send({
           product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c',
-          quantity: 1,
+          quantity: 1
         });
       // assert that the response has a status code of 200
       expect(response.status).to.equal(200);
@@ -1320,12 +1264,9 @@ describe('AddToCart function', async () => {
 describe('Order', async () => {
   const buyer = {
     email: 'dean@gmail.com',
-    password: '1234',
+    password: '1234'
   };
-  const buyerLogin = await chai
-    .request(app)
-    .post('/api/v1/users/signin')
-    .send(buyer);
+  const buyerLogin = await chai.request(app).post('/api/v1/users/signin').send(buyer);
   const { token } = buyerLogin.body;
 
   describe('GET /api/v1/orders/:order_id', () => {
@@ -1344,9 +1285,7 @@ describe('Order', async () => {
       expect(response.status).to.equal(401);
     });
     it('should not grant access to a user that is logged in ', async () => {
-      const response = await chai
-        .request(app)
-        .get('/api/v1/orders');
+      const response = await chai.request(app).get('/api/v1/orders');
       expect(response.status).to.equal(401);
     });
     it('should return an array of orders', async () => {
@@ -1372,13 +1311,15 @@ describe('Order', async () => {
 describe('POST logout ', () => {
   let t;
   it('should login as a user', async () => {
-    const login = await chai.request(app)
+    const login = await chai
+      .request(app)
       .post('/api/v1/users/signin')
       .send({ email: 'dean@gmail.com', password: '1234' });
     t = login.body.token;
   });
   it('should logout a user', async () => {
-    const logOut = await chai.request(app)
+    const logOut = await chai
+      .request(app)
       .post('/api/v1/users/logout')
       .set('Authorization', `Bearer ${t}`);
     expect(logOut.status).to.be.equal(200);

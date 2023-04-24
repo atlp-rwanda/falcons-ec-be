@@ -14,8 +14,8 @@ const CreateProduct = async (req, res) => {
     const existingProduct = await Product.findOne({
       where: {
         productName: req.body.productName,
-        seller_id: decodedData.payload.id,
-      },
+        seller_id: decodedData.payload.id
+      }
     });
 
     if (existingProduct) {
@@ -28,20 +28,25 @@ const CreateProduct = async (req, res) => {
       quantity: req.body.quantity,
       price: req.body.price,
       seller_id: decodedData.payload.id,
-      expiryDate:req.body.expiryDate,
-      category_id: req.body.category_id,
+      expiryDate: req.body.expiryDate,
+      category_id: req.body.category_id
     });
     if (req.files) {
-      const promises = req.files.map((file) => cloudinary.uploader.upload(file.path, {
-        folder: 'Falcons_E-comm_App/ProductImages',
-        public_id: `${product.productName}_image`,
-      }),);
+      const promises = req.files.map((file) =>
+        cloudinary.uploader.upload(file.path, {
+          folder: 'Falcons_E-comm_App/ProductImages',
+          public_id: `${product.productName}_image`
+        })
+      );
 
       const results = await Promise.all(promises);
       product.images = results.map((result) => result.url).filter((url) => url);
       await product.save();
     }
-
+    const user = {
+      id: decodedData.payload.id,
+      email: decodedData.payload.email
+    };
     return res.status(201).json(product);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -83,22 +88,26 @@ export const updateProduct = async (req, res) => {
       return res.status(400).json({
         status: 404,
         success: false,
-        message: 'No data provided',
+        message: 'No data provided'
       });
     }
     const { id } = req.params;
     const product = await Product.findOne({ where: { id } });
     if (!product) {
-      return res.status(404).json({ status: 404, success: false, message: 'Product not found in your collection' });
+      return res
+        .status(404)
+        .json({ status: 404, success: false, message: 'Product not found in your collection' });
     }
     if (product.seller_id !== req.user.id) {
       return res.status(401).json({ status: 401, success: false, message: 'Unauthorized access!' });
     }
     if (req.files) {
-      const promises = req.files.map((file) => cloudinary.uploader.upload(file.path, {
-        folder: 'Falcons_E-comm_App/ProductImages',
-        public_id: `${product.id}_image`,
-      }),);
+      const promises = req.files.map((file) =>
+        cloudinary.uploader.upload(file.path, {
+          folder: 'Falcons_E-comm_App/ProductImages',
+          public_id: `${product.id}_image`
+        })
+      );
 
       const results = await Promise.all(promises);
       updateData.images = results.map((result) => result.url).filter((url) => url);
@@ -112,20 +121,20 @@ export const updateProduct = async (req, res) => {
       quantity: updatedProduct.quantity,
       category_id: updatedProduct.category_id,
       images: updatedProduct.images,
-      expiryDate: updatedProduct.expiryDate,
+      expiryDate: updatedProduct.expiryDate
     };
 
     res.status(200).json({
       status: 200,
       success: true,
       message: 'Product updated successfully',
-      data: returnedProfile,
+      data: returnedProfile
     });
   } catch (error) {
     res.status(500).json({
       status: 500,
       success: false,
-      message: `Internal Server Error ${error.message}`,
+      message: `Internal Server Error ${error.message}`
     });
   }
 };
