@@ -753,6 +753,134 @@
         }
       }
     },
+    "/api/v1/productWish": {
+      "post": {
+        "tags": ["Products-Wishes"],
+        "summary": "create a aproduct wish",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "body",
+            "description": "The id of the product ",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "default": "product_id"
+                }
+              }
+            }
+          }
+        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Product wished successfully!",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "productId": {
+                  "type": "integer",
+                  "description": "The ID of the wished product.",
+                  "user_id": "user_id",
+                  "product_id": "product_id"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/productWishes": {
+      "get": {
+        "tags": ["Products-Wishes"],
+        "summary": "create a aproduct wish",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "default": "Product wishes displayed"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/{product_id}/productWishes": {
+      "get": {
+        "tags": ["Products-Wishes"],
+        "summary": "create a aproduct wish",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "description": "The id of the product ",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "default": "product_id"
+                }
+              }
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/users/{email}/roles": {
       "put": {
         "security": [
