@@ -12,4 +12,15 @@ export const validateSearch = (Schema) => (req, res, next) => {
   }
   next();
 };
+
+export const validation = (Schema) => (res, req, next) => {
+  const { err } = Schema.validate(req.body, {
+    abortEarly: false,
+  });
+  if (err) {
+    return res.status(400).json({ error: err.details[0].message.replace(/[^a-zA-Z0-9]/g, '') });
+  }
+  next();
+};
+
 export default validator;

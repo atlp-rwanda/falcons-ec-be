@@ -9,6 +9,8 @@ import CreateProduct, { deleteProduct, updateProduct, updateProductAvailability 
 import validator, { validateSearch } from '../validations/validation';
 import productSchema, { searchSchema } from '../validations/Product';
 import searchProduct from '../controllers/productSearchController';
+import { AddReview, deleteReview, getReviews, updateReview } from '../controllers/reviewController';
+import reviewSchema from '../validations/review';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -67,4 +69,30 @@ productRoute.delete(
 );
 productRoute.get('/products/search', isLoggedIn, validateSearch(searchSchema), searchProduct,);
 
+productRoute.post(
+  '/products/:id/reviews',
+  isLoggedIn,
+  verifyRole('buyer'),
+  validator(reviewSchema),
+  AddReview
+);
+productRoute.get(
+  '/products/:id/reviews',
+  isLoggedIn,
+  verifyRole('buyer'),
+  getReviews
+);
+productRoute.delete(
+  '/products/:id/reviews',
+  isLoggedIn,
+  verifyRole('buyer'),
+  deleteReview
+);
+productRoute.put(
+  '/products/:id/reviews',
+  isLoggedIn,
+  verifyRole('buyer'),
+  validator(reviewSchema),
+  updateReview
+);
 export default productRoute;

@@ -28,7 +28,7 @@ const CreateProduct = async (req, res) => {
       quantity: req.body.quantity,
       price: req.body.price,
       seller_id: decodedData.payload.id,
-      expiryDate: new Date(),
+      expiryDate:req.body.expiryDate,
       category_id: req.body.category_id,
     });
     if (req.files) {

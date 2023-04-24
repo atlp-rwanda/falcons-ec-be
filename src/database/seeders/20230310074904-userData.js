@@ -25,6 +25,7 @@ module.exports = {
             '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', // 1234
           isVerified: true,
           status: true,
+          
           createdAt: new Date(),
           updatedAt: new Date(),
         },

@@ -23,6 +23,16 @@ module.exports = {
           quantity: 1, // unit price=1400
           createdAt: new Date(),
           updatedAt: new Date()
+        },
+        {
+          id: '8dc2f332-d05e-42e5-abdc-220fcd82ef58',
+          order_id: 'e918e9eb-4c12-417f-8e12-4ec6a0e5ae89',
+          seller_id: '60409d12-ddad-4938-a37a-c17bc33aa4ba', // gatete
+          product_id: '926ade6c-21f7-4866-ae7f-360d1574839e', // product 3
+          status: 'approved',
+          quantity: 1, // unit price=1400
+          createdAt: new Date(),
+          updatedAt: new Date()
         }
       ],
       {}
