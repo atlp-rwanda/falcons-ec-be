@@ -790,6 +790,44 @@ describe('PRODUCT', async () => {
       await User.destroy({ where: { email: 'janedoe@example.com' } });
     });
   });
+describe('GET /api/v1/products', () => {
+    it('should get products', async () => {
+      const response = await chai
+        .request(app)
+        .get('/api/v1/products')
+        .set('Authorization', `Bearer ${token}`)
+        .send(product);
+      response.body.should.be.a('object');
+      expect(response.status).to.equal(200);
+    });
+
+    it('should return 200 if authorization header is not provided', async () => {
+      const response = await chai
+        .request(app)
+        .get('/api/v1/products')
+        .send(product);
+      expect(response.status).to.equal(200);
+    });
+  });
+    describe('GET /api/v1/products/:id', () => {
+    it('should get products', async () => {
+      const response = await chai
+        .request(app)
+        .get('/api/v1/products/926ade6c-21f7-4866-ae7f-360d1574839d')
+        .set('Authorization', `Bearer ${token}`)
+        .send(product);
+      response.body.should.be.a('object');
+      expect(response.status).to.equal(200);
+    });
+
+    it('should return 200 if authorization header is not provided', async () => {
+      const response = await chai
+        .request(app)
+        .get('/api/v1/products/926ade6c-21f7-4866-ae7f-360d1574839d')
+        .send(product);
+      expect(response.status).to.equal(200);
+    });
+  });
 });
 
 describe('Disable account', () => {
