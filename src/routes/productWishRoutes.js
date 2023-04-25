@@ -22,9 +22,8 @@ productWishRoute.get(
   getAllProductWishes
 );
 
-
 productWishRoute.get(
-  '/:product_id/productWishes',
+  '/products/:product_id/productWishes',
   isLoggedIn,
   verifyRole('seller'),
   getSingleProductWish

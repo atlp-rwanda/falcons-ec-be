@@ -51,7 +51,7 @@ export const addProductToWishlist = async (req, res) => {
         status: 201,
         success: true,
         message: 'Product wished sucessfully!',
-        wishedProductCreate: wishedProduct,
+        productWish: wishedProduct,
       });
     }
     return res.status(400).json({
@@ -149,4 +149,3 @@ export const getSingleProductWish = async (req, res) => {
     });
   }
 };
-

@@ -837,7 +837,7 @@
         }
       }
     },
-    "/api/v1/{product_id}/productWishes": {
+    "/api/v1/products/{product_id}/productWishes": {
       "get": {
         "tags": ["Products-Wishes"],
         "summary": "create a aproduct wish",
