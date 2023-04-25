@@ -437,7 +437,7 @@
         }
       }
     },
-    "/api/v1/products": {
+ "/api/v1/products": {
       "post": {
         "tags": ["Products"],
         "summary": "Add a new product",
@@ -551,6 +551,27 @@
             }
           }
         }
+      },
+      "get": {
+        "tags": ["Products"],
+        "summary": "Get all products",
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": [],
+            "google_Oauth2": []
+          }
+        ],
+        "consumes": ["multipart/form-data"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Products retrieved successfully.",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
       }
     },
     "/api/v1/products/{id}/availability": {
@@ -590,6 +611,7 @@
         }
       }
     },
+
     "/api/v1/products/{id}": {
       "patch": {
         "tags": ["Products"],
