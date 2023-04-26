@@ -26,9 +26,15 @@ const productsExpiration = (id) => {
   return message;
 };
 
+const orderItemStatusChange = (product, status) => {
+  const message = `Hello, the status of item ${product.productName} on your order has been updated to "${status}" by the seller`;
+  return message;
+};
+
 export {
   messageResetPassword,
   sendVerifyEmail,
   sendOTPEmail,
   productsExpiration,
+  orderItemStatusChange
 };

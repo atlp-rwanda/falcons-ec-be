@@ -2,7 +2,6 @@ import * as dotenv from 'dotenv';
 import express from 'express';
 import session from 'express-session';
 import swaggerUI from 'swagger-ui-express';
-import Stripe from 'stripe';
 import swagger from './swagger.json';
 import './config/passport';
 import passportRouter from './routes/passport';
@@ -14,10 +13,8 @@ import orderRoutes from './routes/orderRoutes';
 import { webhookProcessor } from './controllers/checkoutController';
 import productWishRoute from './routes/productWishRoutes';
 
-const stripe = new Stripe(process.env.STRIPE_API_KEY);
-
-export const app = express();
 dotenv.config();
+export const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(

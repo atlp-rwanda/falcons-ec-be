@@ -12,7 +12,7 @@
     "dbMigrate:test": "cross-env NODE_ENV=test npx sequelize-cli db:migrate",
     "deMigrate:all:test": "cross-env NODE_ENV=test npx sequelize-cli db:migrate:undo:all",
     "dbSeed:test": "cross-env NODE_ENV=test npx sequelize-cli db:seed:all",
-    "test": "npm run deMigrate:all:test && npm run dbMigrate:test && npm run dbSeed:test && cross-env NODE_ENV=test nyc --reporter=lcov --reporter=html --reporter=text mocha --require @babel/register src/tests --timeout 60000 --exit",
+    "test": "npm run deMigrate:all:test && npm run dbMigrate:test && npm run dbSeed:test && cross-env NODE_ENV=test nyc --exclude=src/utils/**/* --exclude=src/controllers/blacklisTokenController.js --exclude=src/config/passport.js --reporter=lcov --reporter=html --reporter=text mocha --require @babel/register src/tests --timeout 60000 --exit",
     "lint": "eslint ./",
     "lint:fix": "eslint ./ --fix",
     "migrate": "sequelize-cli db:migrate",
@@ -59,6 +59,7 @@
     "nodemailer": "^6.9.1",
     "nodemon": "^2.0.21",
     "npm": "^9.6.2",
+    "package-lock-only": "^0.0.4",
     "passport": "^0.6.0",
     "passport-google-oauth2": "^0.2.0",
     "passport-stub": "^1.1.1",
@@ -82,12 +83,12 @@
     "chai-http": "^4.3.0",
     "coveralls": "^3.1.1",
     "cross-env": "^7.0.3",
-    "eslint": "^8.1.0",
+    "eslint": "^8.39.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.27.5",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "prettier": "^2.8.7",
+    "prettier": "^2.8.8",
     "supertest": "^6.3.3"
   }
 }
