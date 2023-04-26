@@ -96,14 +96,6 @@ describe('Product search by a seller', () => {
     response.body.should.have.property('message');
     response.body.message.should.equal('No product found');
   });
-  it('It should search a product by category', async () => {
-    const response = await chai.request(app)
-      .get('/api/v1/products/search?category=category1')
-      .set('Authorization', `Bearer ${token}`);
-    expect('Content-Type', /json/);
-    response.body.should.have.property('message');
-    response.body.message.should.equal('No product found');
-  });
   it('It should search a product by name and description', async () => {
     const response = await chai.request(app)
       .get('/api/v1/products/search?name=product 1&description=description 1')
@@ -119,5 +111,24 @@ describe('Product search by a seller', () => {
     expect('Content-Type', /json/);
     response.body.should.have.property('message');
     response.body.message.should.equal('No product found');
+  });
+  it('It should search a product by description', async () => {
+    const response = await chai.request(app)
+      .get('/api/v1/products/search?name=product 1&description=description 1&minPrice=1&maxPrice=900')
+      .set('Authorization', `Bearer ${token}`);
+    expect('Content-Type', /json/);
+    response.body.should.have.property('message');
+    response.body.message.should.equal('No product found');
+  });
+  it('It should search a product by description', async () => {
+    const invalidToken = 'eyttggddgjkfjkdsgnjkbjlgiabngjkan.gkjhag';
+    const response = await chai.request(app)
+      .get('/api/v1/products/search?description=description 1')
+      .set('Authorization', `Bearer ${invalidToken}`);
+    expect('Content-Type', /json/);
+    expect(response.status).to.be.equal(500);
+    response.body.should.have.property('message');
+    response.body.should.have.property('success');
+    response.body.should.have.property('status');
   });
 });

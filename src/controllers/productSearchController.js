@@ -1,37 +1,121 @@
-import {
-  searchProductByName, searchProductByPrice,
-  searchProductByCategory, searchProductByNameAndDescritption, searchProductByDescription
-} from '../services/productSearchService';
-import getUserRoles from '../services/user.service';
+import { Op } from 'sequelize';
+import findOneUserService from '../services/authService';
+import { searchInProduct, searchInCategory } from '../services/searchProductService';
 
 const searchProduct = async (req, res) => {
   try {
+    const user = await findOneUserService(req.user.id);
+    const userRole = user.role;
     const {
-      name, minPrice, maxPrice, description, category
+      name, description, category, minPrice, maxPrice
     } = req.query;
-    const { id } = req.user;
-    const userRole = await getUserRoles(id);
-    if (name && description) {
-      const product = await searchProductByNameAndDescritption(name, description, userRole, id);
-      return res.status(200).json(product);
-    }
 
-    if (name) {
-      const product = await searchProductByName(name, userRole, id);
-      return res.status(200).json(product);
-    }
+    // Remove the trailing spaces from the filters
 
-    if (minPrice && maxPrice) {
-      const product = await searchProductByPrice(minPrice, maxPrice, userRole, id);
-      return res.status(200).json(product);
-    }
+    const Productname = name ? name.trim() : '';
+    const TrimDescription = description ? description.trim() : '';
+    const MinTrimed = minPrice ? minPrice.trim() : '';
+    const MaxTrimed = maxPrice ? maxPrice.trim() : '';
 
-    if (category) {
-      const product = await searchProductByCategory(category, userRole);
-      return res.status(200).json(product);
-    } if (description) {
-      const product = await searchProductByDescription(description, userRole, id);
-      return res.status(200).json(product);
+    // queries to search a product
+
+    const ByNameQuery = {
+      productName: {
+        [Op.iLike]: `%${Productname}%`
+      }
+    };
+    const ByDescriptionQuery = {
+      description: {
+        [Op.iLike]: `%${TrimDescription}%`
+      }
+    };
+    const ByPriceQuery = {
+      price: {
+        [Op.between]: [MinTrimed, MaxTrimed]
+      }
+    };
+    const ByCategoryQuery = {
+      categoryName: {
+        [Op.iLike]: `%${category}%`
+      }
+    };
+    const ByNameAndDescription = {
+      [Op.and]: [ByNameQuery, ByDescriptionQuery]
+    };
+    const CombinedQuery = {
+      [Op.and]: [ByNameQuery, ByDescriptionQuery, ByPriceQuery]
+    };
+    if (userRole === 'buyer' || userRole === 'admin') {
+      if (name && description && minPrice && maxPrice) {
+        const product = await searchInProduct(CombinedQuery);
+        return res.status(200).json(product);
+      }
+      if (name && description) {
+        const product = await searchInProduct(ByNameAndDescription);
+        return res.status(200).json(product);
+      }
+      if (name) {
+        const product = await searchInProduct(ByNameQuery);
+        return res.status(200).json(product);
+      }
+      if (description) {
+        const product = await searchInProduct(ByDescriptionQuery);
+        return res.status(200).json(product);
+      }
+      if (minPrice && maxPrice) {
+        const product = await searchInProduct(ByPriceQuery);
+        return res.status(200).json(product);
+      }
+      if (category) {
+        const product = await searchInCategory(ByCategoryQuery);
+        return res.status(200).json(product);
+      }
+    }
+    if (userRole === 'seller') {
+      const ByName = {
+        [Op.and]: [
+          { productName: { [Op.iLike]: `%${Productname}%` } },
+          { seller_id: req.user.id }
+        ]
+      };
+      const ByDescription = {
+        [Op.and]: [
+          { description: { [Op.iLike]: `%${TrimDescription}%` } },
+          { seller_id: req.user.id }
+        ]
+      };
+      const ByPrice = {
+        [Op.and]: [
+          { price: { [Op.between]: [MinTrimed, MaxTrimed] } },
+          { seller_id: req.user.id }
+        ]
+      };
+      const ByNameAndDescriptionQuery = {
+        [Op.and]: [ByName, ByDescription]
+      };
+      const QueryCombined = {
+        [Op.and]: [ByName, ByDescription, ByName]
+      };
+      if (name && description && minPrice && maxPrice) {
+        const product = await searchInProduct(QueryCombined);
+        return res.status(200).json(product);
+      }
+      if (name && description) {
+        const product = await searchInProduct(ByNameAndDescriptionQuery);
+        return res.status(200).json(product);
+      }
+      if (name) {
+        const product = await searchInProduct(ByName);
+        return res.status(200).json(product);
+      }
+      if (description) {
+        const product = await searchInProduct(ByDescription);
+        return res.status(200).json(product);
+      }
+      if (minPrice && maxPrice) {
+        const product = await searchInProduct(ByPrice);
+        return res.status(200).json(product);
+      }
     }
   } catch (error) {
     return res.status(500).json({ error: error.message });

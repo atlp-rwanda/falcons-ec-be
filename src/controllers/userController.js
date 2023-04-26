@@ -1,6 +1,6 @@
 /* eslint-disable linebreak-style */
 // eslint-disable-next-line import/no-extraneous-dependencies
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import sgMail from '@sendgrid/mail';
 import * as dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';

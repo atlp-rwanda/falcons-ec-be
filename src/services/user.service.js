@@ -8,14 +8,3 @@ export class UserService {
     return User.create(user);
   }
 }
-
-const getUserRoles = async (userId) => {
-  const user = await User.findOne({
-    where: {
-      id: userId
-    }
-  });
-  const userRole = user.role;
-  return userRole;
-};
-export default getUserRoles;
