@@ -1,0 +1,35 @@
+version: "3"
+services:
+    postgres:
+      image: postgres
+      environment:
+        - POSTGRESS_USER=${DATABASE_USER}
+        - POSTGRESS_PASSWORD=${DATABASE_PASSWORD}
+        - POSTGRESS_DB=${DATABASE_DB}
+      ports:
+       - ${DB_PORT}:${DB_PORT}
+      networks: 
+       - our-net
+      volumes: 
+       - postgres-db:/data/db
+    node-app:
+      build: .
+      volumes:
+       - .:/app
+      ports:
+       - ${PORT}:${PORT}
+      depends_on:
+       - postgres
+      environment:
+        env_file: .env
+        DATABASE_HOST: postgres
+        TEST_DATABASE_HOST: postgres
+        
+      networks:
+       - our-net
+
+networks:
+  our-net:
+    driver: bridge
+volumes:
+  postgres-db:

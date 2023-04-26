@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 
 const { Model } = require('sequelize');
@@ -8,7 +8,6 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Review.belongsTo(models.User, { foreignKey: 'buyer_id' });
       Review.belongsTo(models.Product, { foreignKey: 'product_id' });
-
     }
   }
   Review.init(

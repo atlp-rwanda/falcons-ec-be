@@ -11,6 +11,7 @@ import passportStub from 'passport-stub';
 import passport from 'passport';
 import sinon from 'sinon';
 import cron from 'node-cron';
+import { async } from 'regenerator-runtime';
 import app from '../server';
 import db, { sequelize } from '../database/models/index';
 import verifyRole from '../middleware/verifyRole';
@@ -19,7 +20,6 @@ import generateToken from '../helpers/token_generator';
 import tokenDecode from '../helpers/token_decode';
 import { checkPassword } from '../jobs/checkExpiredPasswords';
 import { markPasswordExpired } from '../events/markPasswordExpired';
-import { async } from 'regenerator-runtime';
 
 const { blacklisToken } = db;
 const { User, Product } = db;
@@ -913,7 +913,6 @@ describe('Register User', () => {
     expect(response.status).to.equal(400);
   });
 });
-
 describe('POST /api/v1/users/logout', () => {
   it('should respond with a 404 status code', async () => {
     const token = await generateToken();
@@ -1027,7 +1026,7 @@ describe('CATEGORY', async () => {
         };
         const res = await chai
           .request(app)
-          .patch(`/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49`)
+          .patch('/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49')
           .set('Authorization', `Bearer ${token}`)
           .send(category);
         res.should.have.status(200);
@@ -1040,7 +1039,7 @@ describe('CATEGORY', async () => {
         };
         const res = await chai
           .request(app)
-          .patch(`/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49`)
+          .patch('/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49')
           .set('Authorization', `Bearer ${token}`)
           .send(category);
         res.should.have.status(200);
@@ -1070,7 +1069,7 @@ describe('checkPassword', () => {
     expect(scheduleSpy.calledOnce).to.be.true;
     expect(scheduleSpy.args[0][0]).to.equal(process.env.CRON_SCHEDULE);
   });
-  it('should return an array of expired users', async function () {
+  it('should return an array of expired users', async () => {
     const expiredUsers = await User.findAll({
       where: sequelize.literal(`
     NOW() - "lastPasswordUpdate" > INTERVAL '${process.env.PASSWORD_EXPIRY}'
@@ -1079,7 +1078,7 @@ describe('checkPassword', () => {
 
     assert.isArray(expiredUsers);
   });
-  it('should return an array of expired users', async function () {
+  it('should return an array of expired users', async () => {
     const expiredUsers = await User.findAll({
       where: sequelize.literal(`
     NOW() - "lastPasswordUpdate" < INTERVAL '${process.env.PASSWORD_EXPIRY}'
@@ -1105,7 +1104,7 @@ describe('markPasswordExpired', () => {
     await markPasswordExpired(expiredUsers);
     expect(consoleStub.calledOnceWithExactly('No expired password')).to.be.true;
   });
-  it('should update the status of expired users to true', async function () {
+  it('should update the status of expired users to true', async () => {
     // Create test users with expired passwords
     const testUser1 = await User.create({
       email: 'test1@test.com',
@@ -1125,7 +1124,7 @@ describe('markPasswordExpired', () => {
     await testUser1.destroy();
     await testUser2.destroy();
   });
-  it('should not update the status of users with no last password update date', async function () {
+  it('should not update the status of users with no last password update date', async () => {
     // Create test user with no last password update date
     const testUser = await User.create({
       email: 'test4@test.com',
@@ -1178,7 +1177,7 @@ describe('AddToCart function', async () => {
       // assert that the response message is 'Successfully Added to Cart'
       expect(response.body.message).to.equal('Successfully Added to Cart');
     });
-        it('should return stock not Available in case there is not enoughs stock', async () => {
+    it('should return stock not Available in case there is not enoughs stock', async () => {
       // send a POST request to /api/cart with the product ID in the body
       const response = await chai
         .request(app)
@@ -1208,7 +1207,7 @@ describe('AddToCart function', async () => {
         .post('/api/v1/cart')
         .set('Authorization', `Bearer ${token}`)
         .send({ product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c' });
-        console.log(response)
+      // console.log(response);
       expect(response.status).to.equal(401);
       expect(response.body.message).to.equal('unauthorised');
     });
@@ -1290,7 +1289,7 @@ describe('AddToCart function', async () => {
           product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c',
           quantity: 1,
         });
-      //assert that the response has a status code of 200
+      // assert that the response has a status code of 200
       expect(response.status).to.equal(200);
       // assert that the response message is 'Successfully Added to Cart'
     });
@@ -1327,36 +1326,34 @@ describe('Order', async () => {
     .request(app)
     .post('/api/v1/users/signin')
     .send(buyer);
-  const token = buyerLogin.body.token;
+  const { token } = buyerLogin.body;
 
   describe('GET /api/v1/orders/:order_id', () => {
     it('should get the order status ', async () => {
       const response = await chai
         .request(app)
         .get('/api/v1/orders/e918e9eb-4c12-417f-8e12-4ec6a0e5ae89')
-        .set('Authorization', `Bearer ${token}`)
-        
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).to.equal(200);
     });
-     it('should not work if user is not logged in ', async () => {
+    it('should not work if user is not logged in ', async () => {
       const response = await chai
         .request(app)
-        .get('/api/v1/orders/e918e9eb-4c12-417f-8e12-4ec6a0e5ae89')
+        .get('/api/v1/orders/e918e9eb-4c12-417f-8e12-4ec6a0e5ae89');
       expect(response.status).to.equal(401);
     });
-     it('should not grant access to a user that is logged in ', async () => {
+    it('should not grant access to a user that is logged in ', async () => {
       const response = await chai
         .request(app)
-        .get('/api/v1/orders')
+        .get('/api/v1/orders');
       expect(response.status).to.equal(401);
     });
     it('should return an array of orders', async () => {
       const response = await chai
         .request(app)
         .get('/api/v1/orders')
-        .set('Authorization', `Bearer ${token}`)
-        
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).to.equal(200);
     });
@@ -1365,12 +1362,27 @@ describe('Order', async () => {
       const response = await chai
         .request(app)
         .get('/api/v1/orders/0ec3d632-a09e-42e5-abda-520fed82ef57')
-        .set('Authorization', `Bearer ${token}`)
-        
+        .set('Authorization', `Bearer ${token}`);
+
       expect(response.body.message).to.equal(' Order not found');
     });
-  
-    
   });
 });
 
+describe('POST logout ', () => {
+  let t;
+  it('should login as a user', async () => {
+    const login = await chai.request(app)
+      .post('/api/v1/users/signin')
+      .send({ email: 'dean@gmail.com', password: '1234' });
+    t = login.body.token;
+  });
+  it('should logout a user', async () => {
+    const logOut = await chai.request(app)
+      .post('/api/v1/users/logout')
+      .set('Authorization', `Bearer ${t}`);
+    expect(logOut.status).to.be.equal(200);
+    logOut.body.should.have.property('message');
+    logOut.body.message.should.equal('Logout successful');
+  });
+});
