@@ -8,7 +8,7 @@ const userObj = new Map();
 
 const userExists = async (socket, next) => {
   try {
-    const token = socket.handshake.headers.token;
+    const { token } = socket.handshake.headers;
     const { payload } = await tokenDecode(token);
     User.findOne({
       where: {
@@ -66,13 +66,11 @@ const ioConnect = (http) => {
     })
       .then((res) => {
         if (res.length > 0) {
-          const messages = res.map((message) => {
-            return {
-              message: message.message,
-              createdAt: message.createdAt,
-              name: message.User.dataValues.firstname,
-            };
-          });
+          const messages = res.map((message) => ({
+            message: message.message,
+            createdAt: message.createdAt,
+            name: message.User.dataValues.firstname,
+          }));
           socket.emit('all-messages', messages);
         }
       })
