@@ -22,7 +22,9 @@ passport.use(
       if (googleUser) {
         const user = {
           id: googleUser.id,
-          email: profile.email
+          email: profile.email,
+          role: googleUser.role,
+          status: googleUser.status
         };
         done(null, user, { status: 200 });
       } else {

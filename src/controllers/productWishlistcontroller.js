@@ -6,9 +6,7 @@ import db from '../database/models/index';
 import verifyToken from '../utils/jwt.util';
 import createProductWishes from '../services/productWish';
 
-const {
-  ProductWishlist, Product, sequelize
-} = db;
+const { ProductWishlist, Product, sequelize } = db;
 
 export const addProductToWishlist = async (req, res) => {
   try {
@@ -32,7 +30,9 @@ export const addProductToWishlist = async (req, res) => {
       });
     }
 
-    const productWishes = await ProductWishlist.findOne({ where: { product_id, user_id: verifyUser.payload.id } });
+    const productWishes = await ProductWishlist.findOne({
+      where: { product_id, user_id: verifyUser.payload.id }
+    });
     if (productWishes) {
       await productWishes.destroy();
       return res.status(201).json({
@@ -50,8 +50,8 @@ export const addProductToWishlist = async (req, res) => {
       return res.status(201).json({
         status: 201,
         success: true,
-        message: 'Product wished sucessfully!',
-        productWish: wishedProduct,
+        message: 'Product added to wishlist successfully!',
+        productWish: wishedProduct
       });
     }
     return res.status(400).json({
@@ -80,9 +80,9 @@ export const getAllProductWishes = async (req, res) => {
     }
     let productWishlist;
     if (verifyUsers.payload.role === 'buyer') {
-      productWishlist = await ProductWishlist.findAll(
-        { where: { user_id: verifyUsers.payload.id } }
-      );
+      productWishlist = await ProductWishlist.findAll({
+        where: { user_id: verifyUsers.payload.id }
+      });
     } else if (verifyUsers.payload.role === 'seller') {
       const seller_id = verifyUsers.payload.id;
       productWishlist = await ProductWishlist.findAll({
@@ -91,11 +91,13 @@ export const getAllProductWishes = async (req, res) => {
           [sequelize.fn('count', sequelize.col('product_id')), 'NumberOfWishes']
         ],
 
-        include: [{
-          model: Product,
-          where: { seller_id },
-          attributes: []
-        }],
+        include: [
+          {
+            model: Product,
+            where: { seller_id },
+            attributes: []
+          }
+        ],
         group: ['product_id']
       });
     } else {
@@ -120,6 +122,7 @@ export const getSingleProductWish = async (req, res) => {
     const token = req.header('Authorization').split(' ')[1];
     const verifyUser = verifyToken(token, process.env.JWT_SECRET);
 
+    const seller_id = verifyUser.payload.id;
     if (!verifyUser.payload.id || verifyUser.payload.role !== 'seller') {
       return res.status(401).json({
         status: 401,
@@ -128,13 +131,30 @@ export const getSingleProductWish = async (req, res) => {
       });
     }
     const { product_id } = req.params;
+
+    const product = await Product.findOne({ where: { id: product_id } });
+    if (!product) {
+      return res
+        .status(404)
+        .json({ status: 404, success: false, message: 'Product not found in your collection' });
+    }
+    if (product.seller_id !== req.user.id) {
+      return res.status(401).json({ status: 401, success: false, message: 'Unauthorized access!' });
+    }
+
     const productWishlist = await ProductWishlist.findAll({
       attributes: [
         'product_id',
-        [sequelize.fn('count', sequelize.col('product_id')), 'NumberOfWishes'],
+        [sequelize.fn('count', sequelize.col('product_id')), 'NumberOfWishes']
       ],
-      where: { product_id },
-      group: ['product_id'],
+      include: [
+        {
+          model: Product,
+          where: { seller_id, id: product_id },
+          attributes: []
+        }
+      ],
+      group: ['product_id']
     });
     return res.status(200).json({
       status: 200,

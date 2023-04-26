@@ -12,11 +12,7 @@ import tokenDecode from '../helpers/token_decode';
 import { BcryptUtility } from '../utils/bcrypt.util';
 import { UserService } from '../services/user.service';
 import verifyToken from '../utils/jwt.util';
-import {
-  messageResetPassword,
-  sendOTPEmail,
-  sendVerifyEmail,
-} from '../helpers/sendMessage';
+import { messageResetPassword, sendOTPEmail, sendVerifyEmail } from '../helpers/sendMessage';
 import findOneUserService from '../services/authService';
 import cloudinary from '../uploads';
 import sendMessage from '../utils/sendgrid.util';
@@ -90,7 +86,7 @@ const loginUser = async (req, res) => {
         status: 200,
         success: true,
         message: 'Login successful',
-        token,
+        token
       });
     } else {
       res.status(401).json({
@@ -256,7 +252,7 @@ const forgotPassword = async (req, res) => {
     if (!user) {
       return res.status(400).json({ error: 'User not found' });
     }
-    const token = await generateToken(user.email, { expiresIn: '10m' });
+    const token = await generateToken(user.email, '10m');
     const html = `<h1> Hello</h1>
     <p><b>A request has been recieved to reset your password for your E-commerce account</b></p>
     <a href="${process.env.clientURL}/api/v1/users/${token}/password-reset" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">Reset password</a>
@@ -282,19 +278,14 @@ const passwordReset = async (req, res) => {
     }
     const { password, confirmPassword } = req.body;
     if (!password || !confirmPassword) {
-      res
-        .status(400)
-        .json({ error: 'Password and confirm password are required' });
+      res.status(400).json({ error: 'Password and confirm password are required' });
     } else {
       // hash the password and update its fields in the database
       const salt = await bcrypt.genSalt(10);
       const hashPassword = await bcrypt.hash(password, salt);
       const Email = verify.payload;
 
-      await User.update(
-        { password: hashPassword },
-        { where: { email: Email } },
-      );
+      await User.update({ password: hashPassword }, { where: { email: Email } });
       return res.status(200).json({ message: 'Password reset successfully' });
     }
   } catch (error) {
@@ -309,7 +300,6 @@ const disableAccount = async (req, res) => {
 
   const foundUser = await User.findOne({ where: { email: req.params.id } });
 
-  if (!foundUser) return res.status(404).json({ message: 'User not found' });
   if (!foundUser) return res.status(404).json({ message: 'User not found' });
 
   let message = '';

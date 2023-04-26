@@ -437,7 +437,7 @@
         }
       }
     },
- "/api/v1/products": {
+    "/api/v1/products": {
       "post": {
         "tags": ["Products"],
         "summary": "Add a new product",
@@ -613,9 +613,36 @@
     },
 
     "/api/v1/products/{id}": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "Get product by id",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "consumes": ["multipart/form-data"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The product id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product updated successfully.",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      },
       "patch": {
         "tags": ["Products"],
-        "summary": "Update aproduct",
+        "summary": "Update a product",
         "security": [
           {
             "bearerAuth": []
@@ -623,10 +650,10 @@
         ],
         "parameters": [
           {
-          "name": "id",
-          "in": "path",
-          "description": "The product id",
-          "required": true
+            "name": "id",
+            "in": "path",
+            "description": "The product id",
+            "required": true
           },
           {
             "name": "productName",
@@ -751,10 +778,10 @@
         ],
         "parameters": [
           {
-          "name": "id",
-          "in": "path",
-          "description": "The product id",
-          "required": true
+            "name": "id",
+            "in": "path",
+            "description": "The product id",
+            "required": true
           }
         ],
         "consumes": ["multipart/form-data"],
@@ -778,7 +805,7 @@
     "/api/v1/productWish": {
       "post": {
         "tags": ["Products-Wishes"],
-        "summary": "create a aproduct wish",
+        "summary": "Add a product to wishlist",
         "security": [
           {
             "bearerAuth": []
@@ -805,7 +832,7 @@
         "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "Product wished successfully!",
+            "description": "Product added to wishlist successfully!",
             "schema": {
               "type": "object",
               "properties": {
@@ -824,7 +851,7 @@
     "/api/v1/productWishes": {
       "get": {
         "tags": ["Products-Wishes"],
-        "summary": "create a aproduct wish",
+        "summary": "Get all products on wishlist",
         "security": [
           {
             "bearerAuth": []
@@ -862,7 +889,7 @@
     "/api/v1/products/{product_id}/productWishes": {
       "get": {
         "tags": ["Products-Wishes"],
-        "summary": "create a aproduct wish",
+        "summary": "Get wishes on product",
         "security": [
           {
             "bearerAuth": []
@@ -2101,119 +2128,118 @@
             "jwt": [],
             "bearerAuth": [],
             "google_Oauth2": []
-    }],
-  "description": "This is an api for checkout",
-  "produces": ["application/json"],
-  "responses": {
-    "200": {
-      "description": "Order created, use the url to complete payment",
-      "definitions": {
-        "message": {
-          "type": "object",
-          "properties": {
-            "message": {
-              "type": "string"
+          }
+        ],
+        "description": "This is an api for checkout",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Order created, use the url to complete payment",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  },
+                  "order_id": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
+                }
+              }
             },
-            "order_id": {
-              "type": "string"
-            },
-            "url": {
-              "type": "string"
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "Order created, use the url to complete payment"
+                  },
+                  "order_id": { "default": "" },
+                  "url": { "default": "" }
+                }
+              }
             }
           }
         }
-      },
-      "schema": {
-        "items": {
-          "type": "object",
-          "properties": {
-            "message": {
-              "default": "Order created, use the url to complete payment"
-            },
-            "order_id": { "default": "" },
-            "url": { "default": "" }
-          }
-        }
       }
-    }
-  }
-}
-},
-  "/api/v1/products/search": {
-    "parameters": [
-      {
-        "name": "name",
-        "in": "query",
-        "type": "string"
-      },
-      {
-        "name":"description",
-        "in":"query",
-        "type":"string"
-      },
-      {
-        "name":"category",
-        "in":"query",
-        "type":"string"
-      },
-      {
-        "name": "minPrice",
-        "in": "query",
-        "type": "string"
-      },
-      {
-        "name":"maxPrice",
-        "in":"query",
-        "type":"string"
-      }
-    ],
-    "get": {
-      "security": [
+    },
+    "/api/v1/products/search": {
+      "parameters": [
         {
-          "jwt": [],
-          "bearerAuth": []
+          "name": "name",
+          "in": "query",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "in": "query",
+          "type": "string"
+        },
+        {
+          "name": "category",
+          "in": "query",
+          "type": "string"
+        },
+        {
+          "name": "minPrice",
+          "in": "query",
+          "type": "string"
+        },
+        {
+          "name": "maxPrice",
+          "in": "query",
+          "type": "string"
         }
       ],
-      "tags": ["Products"],
-      "summary": "Search product",
-      "description": "Users should be able to search products by name, price range and category or combination of filters.",
-      "produces": ["application/json"],
-      "responses": {
-        "200": {
-          "description": "OK",
-          "definitions": {
+      "get": {
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": []
           }
-        },
-        "404": {
-          "description": "Not found",
-          "definitions": {
-            "error": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "description": "Product not found"
+        ],
+        "tags": ["Products"],
+        "summary": "Search product",
+        "description": "Users should be able to search products by name, price range and category or combination of filters.",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "definitions": {}
+          },
+          "404": {
+            "description": "Not found",
+            "definitions": {
+              "error": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "type": "string",
+                    "description": "Product not found"
+                  }
                 }
               }
-            }
-          },
-          "schema": {
-            "items": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string",
-                  "default": "Product not found"
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "type": "string",
+                    "default": "Product not found"
+                  }
                 }
               }
             }
           }
         }
       }
-    }
-       
-   },
-      "/api/v1/orders/{order_id}": {
+    },
+    "/api/v1/orders/{order_id}": {
       "get": {
         "security": [
           {
@@ -2308,7 +2334,7 @@
         }
       }
     },
-   "/api/v1/orders/": {
+    "/api/v1/orders/": {
       "get": {
         "security": [
           {
@@ -2394,7 +2420,7 @@
         }
       }
     },
- "/api/v1/products/{product_id}/reviews": {
+    "/api/v1/products/{product_id}/reviews": {
       "get": {
         "security": [
           {
@@ -2552,7 +2578,9 @@
             }
           }
         }
-      },
+      }
+    },
+    "/api/v1/products/{review_id}/reviews": {
       "put": {
         "tags": ["Reviews"],
         "summary": "Update A review",
@@ -2568,10 +2596,10 @@
         "parameters": [
           {
             "in": "path",
-            "name": "product_id",
+            "name": "review_id",
             "required": true,
             "type": "string",
-            "description": "The product id."
+            "description": "The review id."
           },
           {
             "name": "body",
@@ -2630,13 +2658,13 @@
         ],
         "description": "This removes a review",
         "produces": ["application/json"],
-         "parameters": [
+        "parameters": [
           {
             "in": "path",
-            "name": "product_id",
+            "name": "review_id",
             "required": true,
             "type": "string",
-            "description": "The product id."
+            "description": "The review id."
           }
         ],
         "responses": {
@@ -2665,7 +2693,7 @@
           }
         }
       }
-    } 
+    }
   },
   "securityDefinitions": {
     "bearerAuth": {
