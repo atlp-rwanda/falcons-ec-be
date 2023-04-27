@@ -12,6 +12,7 @@ import passport from 'passport';
 import sinon from 'sinon';
 import cron from 'node-cron';
 import { async } from 'regenerator-runtime';
+import { async } from 'regenerator-runtime';
 import app from '../server';
 import db, { sequelize } from '../database/models/index';
 import verifyRole from '../middleware/verifyRole';
@@ -975,6 +976,7 @@ describe('CATEGORY', async () => {
         const res = await chai
           .request(app)
           .patch('/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49')
+          .patch('/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49')
           .set('Authorization', `Bearer ${token}`)
           .send(category);
         res.should.have.status(200);
@@ -987,6 +989,7 @@ describe('CATEGORY', async () => {
         };
         const res = await chai
           .request(app)
+          .patch('/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49')
           .patch('/api/v1/categories/0da3d632-a09e-42d5-abda-520aea82ef49')
           .set('Authorization', `Bearer ${token}`)
           .send(category);
@@ -1018,6 +1021,7 @@ describe('checkPassword', () => {
     expect(scheduleSpy.args[0][0]).to.equal(process.env.CRON_SCHEDULE);
   });
   it('should return an array of expired users', async () => {
+  it('should return an array of expired users', async () => {
     const expiredUsers = await User.findAll({
       where: sequelize.literal(`
     NOW() - "lastPasswordUpdate" > INTERVAL '${process.env.PASSWORD_EXPIRY}'
@@ -1026,6 +1030,7 @@ describe('checkPassword', () => {
 
     assert.isArray(expiredUsers);
   });
+  it('should return an array of expired users', async () => {
   it('should return an array of expired users', async () => {
     const expiredUsers = await User.findAll({
       where: sequelize.literal(`
@@ -1053,6 +1058,7 @@ describe('markPasswordExpired', () => {
     expect(consoleStub.calledOnceWithExactly('No expired password')).to.be.true;
   });
   it('should update the status of expired users to true', async () => {
+  it('should update the status of expired users to true', async () => {
     // Create test users with expired passwords
     const testUser1 = await User.create({
       email: 'test1@test.com',
@@ -1072,6 +1078,7 @@ describe('markPasswordExpired', () => {
     await testUser1.destroy();
     await testUser2.destroy();
   });
+  it('should not update the status of users with no last password update date', async () => {
   it('should not update the status of users with no last password update date', async () => {
     // Create test user with no last password update date
     const testUser = await User.create({
@@ -1122,6 +1129,7 @@ describe('AddToCart function', async () => {
       // assert that the response message is 'Successfully Added to Cart'
       expect(response.body.message).to.equal('Successfully Added to Cart');
     });
+    it('should return stock not Available in case there is not enoughs stock', async () => {
     it('should return stock not Available in case there is not enoughs stock', async () => {
       // send a POST request to /api/cart with the product ID in the body
       const response = await chai
@@ -1234,6 +1242,7 @@ describe('AddToCart function', async () => {
           quantity: 1
         });
       // assert that the response has a status code of 200
+      // assert that the response has a status code of 200
       expect(response.status).to.equal(200);
       // assert that the response message is 'Successfully Added to Cart'
     });
@@ -1276,11 +1285,15 @@ describe('Order', async () => {
         .get('/api/v1/orders/e918e9eb-4c12-417f-8e12-4ec6a0e5ae89')
         .set('Authorization', `Bearer ${token}`);
 
+        .set('Authorization', `Bearer ${token}`);
+
       expect(response.status).to.equal(200);
     });
     it('should not work if user is not logged in ', async () => {
+    it('should not work if user is not logged in ', async () => {
       const response = await chai
         .request(app)
+        .get('/api/v1/orders/e918e9eb-4c12-417f-8e12-4ec6a0e5ae89');
         .get('/api/v1/orders/e918e9eb-4c12-417f-8e12-4ec6a0e5ae89');
       expect(response.status).to.equal(401);
     });
@@ -1294,6 +1307,8 @@ describe('Order', async () => {
         .get('/api/v1/orders')
         .set('Authorization', `Bearer ${token}`);
 
+        .set('Authorization', `Bearer ${token}`);
+
       expect(response.status).to.equal(200);
     });
 
@@ -1301,6 +1316,8 @@ describe('Order', async () => {
       const response = await chai
         .request(app)
         .get('/api/v1/orders/0ec3d632-a09e-42e5-abda-520fed82ef57')
+        .set('Authorization', `Bearer ${token}`);
+
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.body.message).to.equal(' Order not found');

@@ -8,7 +8,7 @@
     "dev": "nodemon --exec babel-node ./src/index",
     "build-babel": "babel -d ./build src/ -s",
     "clean": "rimraf build && mkdir build",
-    "build": "npm run clean && npm run build-babel",
+    "build": "npm run clean && npm run build-babel && npm run migrate && npm run seed:undo && npm run seed",
     "dbMigrate:test": "cross-env NODE_ENV=test npx sequelize-cli db:migrate",
     "deMigrate:all:test": "cross-env NODE_ENV=test npx sequelize-cli db:migrate:undo:all",
     "dbSeed:test": "cross-env NODE_ENV=test npx sequelize-cli db:seed:all",
