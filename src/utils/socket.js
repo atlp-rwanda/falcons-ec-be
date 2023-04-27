@@ -9,16 +9,17 @@ const userObj = new Map();
 const userExists = async (socket, next) => {
   try {
     const { token } = socket.handshake.headers;
+    const { token } = socket.handshake.headers;
     const { payload } = await tokenDecode(token);
     User.findOne({
       where: {
-        id: payload.id,
-      },
+        id: payload.id
+      }
     }).then((res) => {
       if (res) {
         userObj.set(socket.id, {
           id: res.dataValues.id,
-          name: res.dataValues.firstname,
+          name: res.dataValues.firstname
         });
 
         next();
@@ -60,9 +61,9 @@ const ioConnect = (http) => {
       include: [
         {
           model: User,
-          attributes: ['avatar', 'firstname', 'role'],
-        },
-      ],
+          attributes: ['avatar', 'firstname', 'role']
+        }
+      ]
     })
       .then((res) => {
         if (res.length > 0) {
@@ -81,14 +82,14 @@ const ioConnect = (http) => {
     socket.on('send-chat-message', (message) => {
       Message.create({
         sender_id: id,
-        message: message.message,
+        message: message.message
       }).catch((error) => {
         console.error(error);
       });
       socket.broadcast.emit('chat-message', {
         message: message.message,
         name: message.username,
-        date: message.date,
+        date: message.date
       });
     });
 
@@ -99,4 +100,13 @@ const ioConnect = (http) => {
   });
 };
 
-export { ioConnect, userExists, io };
+const ioConnectNotifications = (http) => {
+  io = socketio(http, { cors: { origin: '*' } });
+  io.on('connection', (socket) => {
+    socket.on('join', (data) => {
+      socket.join(data.id);
+    });
+  });
+};
+
+export { ioConnect, ioConnectNotifications, userExists, io };
