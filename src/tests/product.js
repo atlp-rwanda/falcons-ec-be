@@ -131,4 +131,39 @@ describe('Product search by a seller', () => {
     response.body.should.have.property('success');
     response.body.should.have.property('status');
   });
+  it('It should update product availability', async () => {
+    const id = '926ade6c-21f7-4866-ae7f-360d1574839e';
+    const product = await chai.request(app)
+      .patch(`/api/v1/products/${id}/availability`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(product.status).to.equal(401);
+    product.body.should.have.property('message');
+    product.body.message.should.equal('Unauthorized access!');
+  });
+});
+describe('update product availability', () => {
+  it('should login a seller', async () => {
+    const login = await chai.request(app)
+      .post('/api/v1/users/signin')
+      .send({ email: 'kirengaboris5@gmail.com', password: '1234' });
+    OTPtoken = login.body.OTPtoken;
+    const decoded = await tokenDecode(OTPtoken);
+    const otpSent = decoded.payload.otpCode;
+    const resp = await chai
+      .request(app)
+      .post(`/api/v1/users/otp/verify/${OTPtoken}`)
+      .send({
+        otp: otpSent,
+      });
+    token = resp.body.loginToken;
+  });
+  it('should update product', async () => {
+    const id = '926ade6c-21f7-4866-ae7f-360d1574839e';
+    const product = await chai.request(app)
+      .patch(`/api/v1/products/${id}/availability`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(product.status).to.equal(200);
+    product.body.should.have.property('message');
+    product.body.message.should.equal('Product availability updated');
+  });
 });
