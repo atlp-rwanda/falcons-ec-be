@@ -1,14 +1,15 @@
 import { Op } from 'sequelize';
 import findOneUserService from '../services/authService';
-import { searchInProduct, searchInCategory } from '../services/searchProductService';
+import {
+  searchInProduct,
+  searchInCategory,
+} from '../services/searchProductService';
 
 const searchProduct = async (req, res) => {
   try {
     const user = await findOneUserService(req.user.id);
     const userRole = user.role;
-    const {
-      name, description, category, minPrice, maxPrice
-    } = req.query;
+    const { name, description, category, minPrice, maxPrice } = req.query;
 
     // Remove the trailing spaces from the filters
 
@@ -21,30 +22,43 @@ const searchProduct = async (req, res) => {
 
     const ByNameQuery = {
       productName: {
-        [Op.iLike]: `%${Productname}%`
-      }
+        [Op.iLike]: `%${Productname}%`,
+      },
     };
     const ByDescriptionQuery = {
       description: {
-        [Op.iLike]: `%${TrimDescription}%`
-      }
+        [Op.iLike]: `%${TrimDescription}%`,
+      },
     };
     const ByPriceQuery = {
       price: {
-        [Op.between]: [MinTrimed, MaxTrimed]
-      }
+        [Op.between]: [MinTrimed, MaxTrimed],
+      },
     };
     const ByCategoryQuery = {
       categoryName: {
-        [Op.iLike]: `%${category}%`
-      }
+        [Op.iLike]: `%${category}%`,
+      },
     };
     const ByNameAndDescription = {
-      [Op.and]: [ByNameQuery, ByDescriptionQuery]
+      [Op.and]: [ByNameQuery, ByDescriptionQuery],
+    };
+    const ByNameAndPrice = {
+      [Op.and]: [ByNameQuery, ByPriceQuery],
     };
     const CombinedQuery = {
-      [Op.and]: [ByNameQuery, ByDescriptionQuery, ByPriceQuery]
+      [Op.and]: [ByNameQuery, ByDescriptionQuery, ByPriceQuery],
     };
+    if (MinTrimed > MaxTrimed) {
+      return res
+        .status(400)
+        .json({ error: 'minimum price can not be greater than maximum price' });
+    }
+    if (!name && !description && !minPrice && !maxPrice && !category) {
+      return res
+        .status(400)
+        .json({ error: 'All fields are not allowed to be empty' });
+    }
     if (userRole === 'buyer' || userRole === 'admin') {
       if (name && description && minPrice && maxPrice) {
         const product = await searchInProduct(CombinedQuery);
@@ -52,6 +66,10 @@ const searchProduct = async (req, res) => {
       }
       if (name && description) {
         const product = await searchInProduct(ByNameAndDescription);
+        return res.status(200).json(product);
+      }
+      if (name && minPrice && maxPrice) {
+        const product = await searchInProduct(ByNameAndPrice);
         return res.status(200).json(product);
       }
       if (name) {
@@ -75,26 +93,29 @@ const searchProduct = async (req, res) => {
       const ByName = {
         [Op.and]: [
           { productName: { [Op.iLike]: `%${Productname}%` } },
-          { seller_id: req.user.id }
-        ]
+          { seller_id: req.user.id },
+        ],
       };
       const ByDescription = {
         [Op.and]: [
           { description: { [Op.iLike]: `%${TrimDescription}%` } },
-          { seller_id: req.user.id }
-        ]
+          { seller_id: req.user.id },
+        ],
       };
       const ByPrice = {
         [Op.and]: [
           { price: { [Op.between]: [MinTrimed, MaxTrimed] } },
-          { seller_id: req.user.id }
-        ]
+          { seller_id: req.user.id },
+        ],
+      };
+      const ByNameAndPrices = {
+        [Op.and]: [ByName, ByPrice],
       };
       const ByNameAndDescriptionQuery = {
-        [Op.and]: [ByName, ByDescription]
+        [Op.and]: [ByName, ByDescription],
       };
       const QueryCombined = {
-        [Op.and]: [ByName, ByDescription, ByName]
+        [Op.and]: [ByName, ByDescription, ByName],
       };
       if (name && description && minPrice && maxPrice) {
         const product = await searchInProduct(QueryCombined);
@@ -102,6 +123,10 @@ const searchProduct = async (req, res) => {
       }
       if (name && description) {
         const product = await searchInProduct(ByNameAndDescriptionQuery);
+        return res.status(200).json(product);
+      }
+      if (name && minPrice && maxPrice) {
+        const product = await searchInProduct(ByNameAndPrices);
         return res.status(200).json(product);
       }
       if (name) {
