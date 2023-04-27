@@ -16,8 +16,8 @@ const Password = Joi.object({
 const profileSchema = Joi.object({
   firstname: Joi.string().min(3),
   lastname: Joi.string().min(3),
-  gender: Joi.string().valid('male', 'female', 'other'),
-  birthDate: Joi.date().max('now'),
+  gender: Joi.string().valid('male', 'female', 'other').insensitive(),
+  birthDate: Joi.date().max('now').iso(),
   preferredLanguage: Joi.string().min(3),
   preferredCurrency: Joi.string().min(3),
   billingAddress: Joi.object({

@@ -25,6 +25,7 @@ describe('update profile', () => {
   before(async () => {
     await chai.request(app).post('/api/v1/users/signup').send(user);
   });
+
   describe('login user', () => {
     it('it should login user', async () => {
       const login = await chai

@@ -179,7 +179,10 @@
       });
       messageForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const message = messageInput.value;
+        const message = messageInput.value.trim();
+        if (!message) {
+          return;
+        }
         const date = formatDate(new Date());
         console.log(date);
         appendMessage(`You: ${message} `, date);

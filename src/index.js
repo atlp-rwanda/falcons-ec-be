@@ -21,4 +21,3 @@ const server = app.listen(process.env.PORT, () => {
 })();
 
 ioConnect(server);
-ioConnectNotifications(server);
