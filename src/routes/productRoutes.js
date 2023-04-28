@@ -67,15 +67,6 @@ productRoute.patch(
   isLoggedIn,
   verifyRole('seller'),
   upload.array('images', 8),
-  (req, res, next) => {
-    if (req.files && req.files.length < 4) {
-      return res.status(400).send('At least 4 images are required');
-    }
-    if (req.files && req.files.length > 8) {
-      return res.status(400).send('Maximum images reached');
-    }
-    next();
-  },
   updateProduct
 );
 productRoute.delete('/products/:id/delete', isLoggedIn, verifyRole('seller'), deleteProduct);

@@ -11,157 +11,144 @@ chai.use(chaiHttp);
 describe('Review', async () => {
   const buyer = {
     email: 'dean@gmail.com',
-    password: '1234',
+    password: '1234'
   };
-   const seller = {
+  const seller = {
     email: 'boris@gmail.com',
-    password: '1234',
+    password: '1234'
   };
-  const review={
-    ratings:5,
-    feedback:'Test feedback'
-  }
-  const incomplete_review={
-    feedback:'Test feedback'
-  }
-  const buyerLogin = await chai
-    .request(app)
-    .post('/api/v1/users/signin')
-    .send(buyer);
-  const token = buyerLogin.body.token;
-  const sellerLogin = await chai
-    .request(app)
-    .post('/api/v1/users/signin')
-    .send(seller);
+  const review = {
+    ratings: 5,
+    feedback: 'Test feedback'
+  };
+  const incomplete_review = {
+    feedback: 'Test feedback'
+  };
+  const buyerLogin = await chai.request(app).post('/api/v1/users/signin').send(buyer);
+  const { token } = buyerLogin.body;
+  const sellerLogin = await chai.request(app).post('/api/v1/users/signin').send(seller);
   const seller_token = sellerLogin.body.token;
+  let review_added = '';
 
   describe('GET /api/v1/products/:id/reviews', () => {
     it('should get the review ', async () => {
       const response = await chai
         .request(app)
         .get('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews')
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', `Bearer ${token}`);
       expect(response.status).to.equal(200);
-      expect(response.body).to.be.an('object')
+      expect(response.body).to.be.an('object');
     });
     it('should not work if user is not logged in ', async () => {
       const response = await chai
         .request(app)
-        .get('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews')
+        .get('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews');
       expect(response.status).to.equal(401);
     });
-     it('should not work if user is not a buyer ', async () => {
+    it('should not work if user is not a buyer ', async () => {
       const response = await chai
         .request(app)
         .get('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews')
-        .set('Authorization', `Bearer ${seller_token}`)
+        .set('Authorization', `Bearer ${seller_token}`);
       expect(response.status).to.equal(401);
     });
   });
- describe('POST /api/v1/products/:id/reviews', () => {
-     it('should not  Add the review on a product due to failure of validation ', async () => {
+  describe('POST /api/v1/products/:id/reviews', () => {
+    it('should not  Add the review on a product due to failure of validation ', async () => {
       const response = await chai
         .request(app)
         .post('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews')
         .set('Authorization', `Bearer ${token}`)
-        .send(incomplete_review)
+        .send(incomplete_review);
       expect(response.status).to.equal(400);
-      expect(response.text).to.equal('"ratings" is required')
-
-
+      expect(response.text).to.equal('"ratings" is required');
     });
     it('should Add the review on a product  ', async () => {
       const response = await chai
         .request(app)
         .post('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews')
         .set('Authorization', `Bearer ${token}`)
-        .send(review)
+        .send(review);
+      review_added = response.body.review;
+
       expect(response.status).to.equal(200);
       expect(response.body.message).to.equal('Successfully Added Review');
-
     });
-     it('should not work if user is not logged in ', async () => {
+    it('should not work if user is not logged in ', async () => {
       const response = await chai
         .request(app)
-        .post('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews')
+        .post('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews');
       expect(response.status).to.equal(401);
     });
-        it('should not work if user is not a buyer ', async () => {
+    it('should not work if user is not a buyer ', async () => {
       const response = await chai
         .request(app)
         .post('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews')
-        .set('Authorization', `Bearer ${seller_token}`)
+        .set('Authorization', `Bearer ${seller_token}`);
 
       expect(response.status).to.equal(401);
     });
   });
- describe('PUT /api/v1/products/:id/reviews', () => {
+  describe('PUT /api/v1/products/:id/reviews', () => {
     it('should not  Add the review on a product due to failure of validation ', async () => {
       const response = await chai
         .request(app)
-        .put('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews')
+        .put(`/api/v1/products/${review_added.id}/reviews`)
         .set('Authorization', `Bearer ${token}`)
-        .send(incomplete_review)
+        .send(incomplete_review);
       expect(response.status).to.equal(400);
-      expect(response.text).to.equal('"ratings" is required') 
-      
+      expect(response.text).to.equal('"ratings" is required');
     });
     it('should update the review on a product  ', async () => {
       const response = await chai
         .request(app)
-        .put('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews')
+        .put(`/api/v1/products/${review_added.id}/reviews`)
         .set('Authorization', `Bearer ${token}`)
-        .send(review)
+        .send(review);
       expect(response.status).to.equal(200);
       expect(response.body.message).to.equal('Review updated successfully');
-
     });
-     it('should not work if user is not logged in ', async () => {
-      const response = await chai
-        .request(app)
-        .put('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews')
+    it('should not work if user is not logged in ', async () => {
+      const response = await chai.request(app).put(`/api/v1/products/${review_added.id}/reviews`);
       expect(response.status).to.equal(401);
     });
-        it('should not work if user is not a buyer ', async () => {
+    it('should not work if user is not a buyer ', async () => {
       const response = await chai
         .request(app)
-        .put('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews')
-        .set('Authorization', `Bearer ${seller_token}`)
+        .put(`/api/v1/products/${review_added.id}/reviews`)
+        .set('Authorization', `Bearer ${seller_token}`);
       expect(response.status).to.equal(401);
     });
-  }); 
-describe('DELETE /api/v1/products/:id/reviews', () => {
+  });
+  describe('DELETE /api/v1/products/:id/reviews', () => {
     it('should delete the review on a product  ', async () => {
       const response = await chai
         .request(app)
-        .delete('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews')
-        .set('Authorization', `Bearer ${token}`)
+        .delete(`/api/v1/products/${review_added.id}/reviews`)
+        .set('Authorization', `Bearer ${token}`);
       expect(response.status).to.equal(200);
       expect(response.body.message).to.equal('Review deleted successfully');
-
     });
     it('should not delete the review on a product  ', async () => {
       const response = await chai
         .request(app)
-        .delete('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews')
-        .set('Authorization', `Bearer ${token}`)
+        .delete(`/api/v1/products/${review_added.id}/reviews`)
+        .set('Authorization', `Bearer ${token}`);
       expect(response.status).to.equal(404);
       expect(response.body.message).to.equal('Review not found');
-
     });
-     it('should not work if user is not logged in ', async () => {
+    it('should not work if user is not logged in ', async () => {
       const response = await chai
         .request(app)
-        .post('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews')
+        .post('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews');
       expect(response.status).to.equal(401);
     });
-        it('should not work if user is not a buyer ', async () => {
+    it('should not work if user is not a buyer ', async () => {
       const response = await chai
         .request(app)
         .delete('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews')
-        .set('Authorization', `Bearer ${seller_token}`)
+        .set('Authorization', `Bearer ${seller_token}`);
       expect(response.status).to.equal(401);
-    
     });
   });
 });

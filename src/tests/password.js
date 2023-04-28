@@ -1,8 +1,8 @@
 /* eslint-disable linebreak-style */
 /* eslint-disable import/no-extraneous-dependencies */
+import * as dotenv from 'dotenv';
 import chai from 'chai';
 import chaiHttp from 'chai-http';
-import dotenv from 'dotenv';
 import { app } from '../server';
 
 dotenv.config();
@@ -13,7 +13,7 @@ chai.use(chaiHttp);
 const invalidPassword = {
   oldPassword: 'Japhet12345678',
   newPassword: 'Japhet12345678',
-  confirmPassword: 'Japhet12345678',
+  confirmPassword: 'Japhet12345678'
 };
 
 const user = { email: 'boris@gmail.com', password: '1234' };
@@ -26,10 +26,7 @@ describe('create user', () => {
   });
   describe('login user', () => {
     it('it should login user', async () => {
-      const login = await chai
-        .request(app)
-        .post('/api/v1/users/signin')
-        .send(user);
+      const login = await chai.request(app).post('/api/v1/users/signin').send(user);
       token = login.body.token;
     });
   });
@@ -51,7 +48,7 @@ describe('create user', () => {
       const Password = {
         oldPassword: '1234',
         newPassword: 'Japhet12345678',
-        confirmPassword: 'Japhet12345678',
+        confirmPassword: 'Japhet12345678'
       };
       const res = await chai
         .request(app)
@@ -67,7 +64,7 @@ describe('create user', () => {
     it('it should return error', async () => {
       const passWord = {
         oldPassword: '123456',
-        confirmPassword: '123456',
+        confirmPassword: '123456'
       };
       const res = await chai
         .request(app)
@@ -106,7 +103,7 @@ describe('create user', () => {
       it('it should reset user password', async () => {
         const p = {
           password: 'Japhet12345678',
-          confirmPassword: 'Japhet12345678',
+          confirmPassword: 'Japhet12345678'
         };
 
         const reset = await chai
@@ -122,7 +119,7 @@ describe('create user', () => {
         const errorToken = 'password';
         const pwd = {
           password: 'Japhet12345678',
-          confirmPassword: 'Japhet12345678',
+          confirmPassword: 'Japhet12345678'
         };
         const err = await chai
           .request(app)

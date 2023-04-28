@@ -244,7 +244,7 @@ describe('verifyRole middleware', () => {
 
 describe('PRODUCT', async () => {
   const realUser = {
-    email: 'gatete@gmail.com',
+    email: 'kirengaboris5@gmail.com',
     password: '1234'
   };
 
@@ -267,7 +267,7 @@ describe('PRODUCT', async () => {
     expiryDate: '12/12/12'
   };
   const loginResponse = await chai.request(app).post('/api/v1/users/signin').send(realUser);
-
+  let newProduct = '';
   OTPtoken = loginResponse.body.OTPtoken;
   const decoded = await tokenDecode(OTPtoken);
   const otpSent = decoded.payload.otpCode;
@@ -283,6 +283,7 @@ describe('PRODUCT', async () => {
         .post('/api/v1/products')
         .set('Authorization', `Bearer ${token}`)
         .send(product);
+      newProduct = response.body;
       response.body.should.be.a('object');
       expect(response.status).to.equal(201);
       expect(response.body).to.have.property('productName');
@@ -466,7 +467,7 @@ describe('PRODUCT', async () => {
         .request(app)
         .patch('/api/v1/products/9974076f-e16a-486f-a923-362ec1747a12/availability')
         .set('Authorization', `Bearer ${token}`);
-      expect(response.status).to.equal(400);
+      expect(response.status).to.equal(404);
     });
     it('should return a 500 error', async () => {
       const response = await chai
@@ -477,12 +478,12 @@ describe('PRODUCT', async () => {
       expect(response.body).to.have.property('message');
       expect(response.body.message).to.equal('invalid input syntax for type uuid: "999999"');
     });
-    it('should return a 400 error', async () => {
+    it('should return a 404 error', async () => {
       const response = await chai
         .request(app)
         .patch('/api/v1/products/7eb6da79-c94a-4d36-9a05-b9acabb08b3f/availability')
         .set('Authorization', `Bearer ${token}`);
-      expect(response.status).to.equal(400);
+      expect(response.status).to.equal(404);
       expect(response.body).to.have.property('message');
       expect(response.body.message).to.equal('Product not found');
     });
@@ -727,11 +728,10 @@ describe('PRODUCT', async () => {
         where: { seller_id: '60409d12-ddad-4938-a37a-c17bc33aa4ba' }
       });
       const res = await request(app)
-        .delete(`/api/v1/products/${items.id}/delete`)
+        .delete(`/api/v1/products/${newProduct.id}/delete`)
         .set('Authorization', `Bearer ${token}`);
-      expect(res.status).to.equal(401);
+      expect(res.status).to.equal(200);
       expect(res.body).to.have.property('message');
-      expect(res.body.message).to.equal('Unauthorized access');
     });
     it('should return an error status code', async () => {
       const res = await request(app)
@@ -776,6 +776,7 @@ describe('PRODUCT', async () => {
 
     it('should return 200 if authorization header is not provided', async () => {
       const response = await chai.request(app).get('/api/v1/products').send(product);
+
       expect(response.status).to.equal(200);
     });
   });

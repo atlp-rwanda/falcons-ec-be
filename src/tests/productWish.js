@@ -14,14 +14,11 @@ let token, OTPtoken;
 
 const buyer = { email: 'dean@gmail.com', password: '1234' };
 const seller = { email: 'mukakalisajeanne@gmail.com', password: '1234' };
-const sellerUser = { email: 'gatete@gmail.com', password: '1234' };
+const sellerUser = { email: 'kirengaboris5@gmail.com', password: '1234' };
 
 describe('Product wish list for the buyers', () => {
   it('It should login a user POST', async () => {
-    const login = await chai
-      .request(app)
-      .post('/api/v1/users/signin')
-      .send(buyer);
+    const login = await chai.request(app).post('/api/v1/users/signin').send(buyer);
     token = login.body.token;
   });
   it('it should add product to a wishlist', async () => {
@@ -34,7 +31,7 @@ describe('Product wish list for the buyers', () => {
     response.body.should.have.property('success');
     response.body.should.have.property('message');
     response.body.should.have.property('productWish');
-    expect(response.body.message).to.equal('Product wished sucessfully!');
+    expect(response.body.message).to.equal('Product added to wishlist successfully!');
     response.body.productWish.should.have.property('user_id');
     response.body.productWish.should.have.property('product_id');
   });
@@ -56,7 +53,9 @@ describe('Product wish list for the buyers', () => {
       .send({ product_id: '926ade6c-21f7-4866-ae7f-360d157483d' });
     expect(response.status).to.equal(500);
     response.body.should.have.property('message');
-    expect(response.body.message).to.equal('invalid input syntax for type uuid: "926ade6c-21f7-4866-ae7f-360d157483d"');
+    expect(response.body.message).to.equal(
+      'invalid input syntax for type uuid: "926ade6c-21f7-4866-ae7f-360d157483d"'
+    );
   });
   it('It should get a list of product wished for a buyer', async () => {
     const response = await chai
@@ -72,18 +71,13 @@ describe('Product wish list for the buyers', () => {
 
 describe('Product wish list for per seller collection', () => {
   it('should login a seller', async () => {
-    const login = await chai.request(app)
-      .post('/api/v1/users/signin')
-      .send(seller);
+    const login = await chai.request(app).post('/api/v1/users/signin').send(seller);
     OTPtoken = login.body.OTPtoken;
     const decoded = await tokenDecode(OTPtoken);
     const otpSent = decoded.payload.otpCode;
-    const resp = await chai
-      .request(app)
-      .post(`/api/v1/users/otp/verify/${OTPtoken}`)
-      .send({
-        otp: otpSent,
-      });
+    const resp = await chai.request(app).post(`/api/v1/users/otp/verify/${OTPtoken}`).send({
+      otp: otpSent
+    });
     token = resp.body.loginToken;
   });
   it('It should get a list of product wished in seller collection', async () => {
@@ -100,18 +94,13 @@ describe('Product wish list for per seller collection', () => {
 
 describe('Wished products per product_id', () => {
   it('should login a seller', async () => {
-    const login = await chai.request(app)
-      .post('/api/v1/users/signin')
-      .send(sellerUser);
+    const login = await chai.request(app).post('/api/v1/users/signin').send(sellerUser);
     OTPtoken = login.body.OTPtoken;
     const decoded = await tokenDecode(OTPtoken);
     const otpSent = decoded.payload.otpCode;
-    const resp = await chai
-      .request(app)
-      .post(`/api/v1/users/otp/verify/${OTPtoken}`)
-      .send({
-        otp: otpSent,
-      });
+    const resp = await chai.request(app).post(`/api/v1/users/otp/verify/${OTPtoken}`).send({
+      otp: otpSent
+    });
     token = resp.body.loginToken;
   });
   it('it should return a number of productWishes per product id', async () => {

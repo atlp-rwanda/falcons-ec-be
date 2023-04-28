@@ -16,7 +16,7 @@ import {
   verifyEmail,
   getSingleProfile,
   updateProfile,
-  verifyOTP,
+  verifyOTP
 } from '../controllers/userController';
 import isLoggedIn, { checkPassword, checkUserExists } from '../middleware/authMiddleware';
 import {
@@ -57,7 +57,7 @@ userRoutes.post('/register', validateRegister, checkUserExists, registerUser);
 userRoutes.post('/logout', isLoggedIn, logout);
 userRoutes.patch(
   '/profile',
-  [checkPassword, isLoggedIn, uploads.single('avatar'), validator(profileSchema)],
+  [isLoggedIn, checkPassword, uploads.single('avatar'), validator(profileSchema)],
   updateProfile
 );
 userRoutes.post('/password-reset-request', forgotPassword);

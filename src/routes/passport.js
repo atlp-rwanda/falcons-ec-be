@@ -19,8 +19,12 @@ passportRouter.get(
 passportRouter.get('/google/callback', passport.authenticate('google'), async (req, res) => {
   // Access the authenticated user object from the req.user object and generate a token
   const { user } = req;
-  console.log(user);
-  const payload = { id: user.id };
+  const payload = {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    status: user.status
+  };
   const token = await generateToken(payload);
 
   // Send the token in the response

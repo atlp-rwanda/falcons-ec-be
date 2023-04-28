@@ -18,7 +18,7 @@ productEventsEmitter.on('product expired', (products) => {
   if (products.length > 0) {
     for (const product of products) {
       const message = `Hello, product "${product.productName}" has expired`;
-      io.sockets.in(product.seller_id).emit('notification', message);
+      io.sockets.in(`user-${product.seller_id}`).emit('notification', message);
     }
   }
 });
@@ -31,7 +31,7 @@ productEventsEmitter.on('order item status updated', async (userId, productId, s
   const subject = 'Order item status changed';
   await sendMessage(user.email, message, subject);
 
-  io.sockets.in(userId).emit('notification', message);
+  io.sockets.in(`user-${userId}`).emit('notification', message);
 });
 
 export default productEventsEmitter;

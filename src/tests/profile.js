@@ -28,10 +28,7 @@ describe('update profile', () => {
 
   describe('login user', () => {
     it('it should login user', async () => {
-      const login = await chai
-        .request(app)
-        .post('/api/v1/users/signin')
-        .send(user);
+      const login = await chai.request(app).post('/api/v1/users/signin').send(user);
       token = login.body.token;
     });
   });
@@ -41,7 +38,7 @@ describe('update profile', () => {
         .request(app)
         .patch('/api/v1/users/profile')
         .send({ firstName: 'Eric' });
-      res.should.have.status(500);
+      res.should.have.status(401);
       res.body.should.be.a('object');
     });
 
@@ -78,10 +75,7 @@ describe('get profile', () => {
   });
   describe('login user', () => {
     it('it should login user', async () => {
-      const login = await chai
-        .request(app)
-        .post('/api/v1/users/signin')
-        .send(user);
+      const login = await chai.request(app).post('/api/v1/users/signin').send(user);
       token = login.body.token;
     });
   });
@@ -126,7 +120,7 @@ describe('markProductExpired', () => {
       price: 100,
       expired: false,
       seller_id: '60409d12-ddad-4938-a37a-c17bc33aa4ba',
-      expiryDate: new Date(Date.now() - 31 * 24 * 60 * 60 * 1000),
+      expiryDate: new Date(Date.now() - 31 * 24 * 60 * 60 * 1000)
     });
     const expiredProducts = [testProduct1];
     await markProductExpired(expiredProducts);
@@ -141,17 +135,14 @@ describe('markProductExpired', () => {
 describe('order items', async () => {
   const realSeller = {
     email: 'kirengaboris5@gmail.com',
-    password: '1234',
+    password: '1234'
   };
   const unauthorizedSeller = {
     email: 'gatete@gmail.com',
-    password: '1234',
+    password: '1234'
   };
 
-  const realSellerLogin = await chai
-    .request(app)
-    .post('/api/v1/users/signin')
-    .send(realSeller);
+  const realSellerLogin = await chai.request(app).post('/api/v1/users/signin').send(realSeller);
 
   const unauthorizedSellerLogin = await chai
     .request(app)
@@ -161,23 +152,17 @@ describe('order items', async () => {
   OTPtoken = realSellerLogin.body.OTPtoken;
   const decoded = await tokenDecode(OTPtoken);
   const otpSent = decoded.payload.otpCode;
-  const resp = await chai
-    .request(app)
-    .post(`/api/v1/users/otp/verify/${OTPtoken}`)
-    .send({
-      otp: otpSent,
-    });
+  const resp = await chai.request(app).post(`/api/v1/users/otp/verify/${OTPtoken}`).send({
+    otp: otpSent
+  });
   const realSellerToken = resp.body.loginToken;
 
   OTPtoken = unauthorizedSellerLogin.body.OTPtoken;
   const decoded1 = await tokenDecode(OTPtoken);
   const otpSent1 = decoded1.payload.otpCode;
-  const resp1 = await chai
-    .request(app)
-    .post(`/api/v1/users/otp/verify/${OTPtoken}`)
-    .send({
-      otp: otpSent1,
-    });
+  const resp1 = await chai.request(app).post(`/api/v1/users/otp/verify/${OTPtoken}`).send({
+    otp: otpSent1
+  });
   const unauthorizedSellerToken = resp1.body.loginToken;
 
   describe('PATCH /api/v1/orderItems/:id/status', () => {

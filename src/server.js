@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv';
 import express from 'express';
 import session from 'express-session';
 import swaggerUI from 'swagger-ui-express';
+import cors from 'cors';
 import swagger from './swagger.json';
 import './config/passport';
 import passportRouter from './routes/passport';
@@ -15,6 +16,13 @@ import productWishRoute from './routes/productWishRoutes';
 
 dotenv.config();
 export const app = express();
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  next();
+});
+
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(

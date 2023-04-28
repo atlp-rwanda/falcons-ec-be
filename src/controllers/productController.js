@@ -3,9 +3,11 @@ import * as dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import db from '../database/models/index';
 import cloudinary from '../uploads';
+import tokenDecode from '../helpers/token_decode';
 
 dotenv.config();
 const { Product } = db;
+const { User } = db;
 
 const CreateProduct = async (req, res) => {
   try {
@@ -23,8 +25,14 @@ const CreateProduct = async (req, res) => {
     }
 
     const product = await Product.create({
-      productName: req.body.productName,
-      description: req.body.description,
+      productName: req.body.productName
+        .trim()
+        .replace(/[^\w\s:-]/g, '')
+        .toLowerCase(),
+      description: req.body.description
+        .trim()
+        .replace(/[^\w\s:-]/g, '')
+        .toLowerCase(),
       quantity: req.body.quantity,
       price: req.body.price,
       seller_id: decodedData.payload.id,
@@ -43,10 +51,7 @@ const CreateProduct = async (req, res) => {
       product.images = results.map((result) => result.url).filter((url) => url);
       await product.save();
     }
-    const user = {
-      id: decodedData.payload.id,
-      email: decodedData.payload.email
-    };
+
     return res.status(201).json(product);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -58,7 +63,7 @@ export const updateProductAvailability = async (req, res) => {
     const { id } = req.params;
     const product = await Product.findOne({ where: { id } });
     if (!product) {
-      return res.status(400).json({ status: 400, success: false, message: 'Product not found' });
+      return res.status(404).json({ status: 404, success: false, message: 'Product not found' });
     }
 
     if (product.seller_id !== req.user.id) {
@@ -101,7 +106,7 @@ export const updateProduct = async (req, res) => {
     if (product.seller_id !== req.user.id) {
       return res.status(401).json({ status: 401, success: false, message: 'Unauthorized access!' });
     }
-    if (req.files) {
+    if (req.files.length > 0) {
       const promises = req.files.map((file) =>
         cloudinary.uploader.upload(file.path, {
           folder: 'Falcons_E-comm_App/ProductImages',
@@ -111,10 +116,12 @@ export const updateProduct = async (req, res) => {
 
       const results = await Promise.all(promises);
       updateData.images = results.map((result) => result.url).filter((url) => url);
+    } else {
+      updateData.images = product.images;
     }
 
     const updatedProduct = await product.update(updateData, { returning: true });
-    const returnedProfile = {
+    const returnedProduct = {
       productName: updatedProduct.productName,
       description: updatedProduct.description,
       price: updatedProduct.price,
@@ -128,7 +135,7 @@ export const updateProduct = async (req, res) => {
       status: 200,
       success: true,
       message: 'Product updated successfully',
-      data: returnedProfile
+      data: returnedProduct
     });
   } catch (error) {
     res.status(500).json({
@@ -163,77 +170,91 @@ export const deleteProduct = async (req, res) => {
     res.status(500).json({ status: 500, success: false, message: error.message });
   }
 };
-export const getAllProducts= async (req,res)=>{
- try { 
-  
-  if(req.headers.authorization){
-    
-    const token= req.headers.authorization.split(' ')[1]
-    const decodedData= await tokenDecode(token)
-  const user=await User.findOne({
-    where:{
-      id:decodedData.payload.id
-    }
-  })
-    if(user&& user.role=='seller'){
-        
-    const Products= await Product.findAll({
-      where:{
-        seller_id:decodedData.payload.id,
+export const getAllProducts = async (req, res) => {
+  try {
+    if (req.headers.authorization) {
+      const token = req.headers.authorization.split(' ')[1];
+      const decodedData = await tokenDecode(token);
+      const user = await User.findOne({
+        where: {
+          id: decodedData.payload.id
+        }
+      });
+      if (user && user.role == 'seller') {
+        const Products = await Product.findAll({
+          where: {
+            seller_id: decodedData.payload.id
+          }
+        });
+        if (Products.length < 1) return res.status(200).json({ message: 'No products found' });
+        res.status(200).json({ message: 'Products Retrieved Successfully', Products });
+      } else {
+        const Products = await Product.findAll({
+          where: {
+            availability: true
+          }
+        });
+        res.status(200).json({ message: 'Products Retrieved Successfully', Products });
       }
-    })
-res.status(200).json({message:'Products Retrieved Successfully',Products})
-    }
-  
-  }
-else{
-  const Products= await Product.findAll({
-      where:{
-        availability:true,
-      }
-    })
-res.status(200).json({message:'Products Retrieved Successfully',Products})
-  }
-  
- } catch (error) {
-  res.json({ status:500,message:error.message})
- }
+    } else {
+      const Products = await Product.findAll({
+        where: {
+          availability: true
+        }
+      });
+      if (Products.length < 1) return res.status(200).json({ message: 'No products found' });
 
-}
-export const getProductById= async (req,res)=>{
- try {
-  const {id}=req.params
-  if(req.headers.authorization){
-  const token= req.headers.authorization.split(' ')[1]
-  const decodedData= await tokenDecode(token)
-  const user=await User.findOne({
-    where:{
-      id:decodedData.payload.id
+      res.status(200).json({ message: 'Products Retrieved Successfully', Products });
     }
-  })
-  if(user&& user.role=='seller'){
-    const Products= await Product.findAll({
-      where:{
-        id:id,
-        seller_id:decodedData.payload.id,
-      }
-    })
-  res.status(200).json({message:'Product Retrieved Successfully',Products})
+  } catch (error) {
+    res.json({ status: 500, message: error.message });
   }
-}
-else{
-  const Products= await Product.findAll({
-      where:{
-        id:id,
-        availability:true,
-      }
-    })
-  res.status(200).json({message:'Product Retrieved Successfully',Products})
-  }
-  
- } catch (error) {
-  res.json({ status:500,message:error.message})
- }
+};
+export const getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (req.headers.authorization) {
+      const token = req.headers.authorization.split(' ')[1];
+      const decodedData = await tokenDecode(token);
+      const user = await User.findOne({
+        where: {
+          id: decodedData.payload.id
+        }
+      });
+      if (user && user.role == 'seller') {
+        const Products = await Product.findAll({
+          where: {
+            id,
+            seller_id: decodedData.payload.id
+          }
+        });
+        if (Products.length < 1) return res.status(200).json({ message: 'No products found' });
 
-}
+        res.status(200).json({ message: 'Product Retrieved Successfully', Products });
+      } else {
+        const Products = await Product.findAll({
+          where: {
+            id,
+            availability: true
+          }
+        });
+        if (Products.length < 1) return res.status(200).json({ message: 'No products found' });
+
+        res.status(200).json({ message: 'Products Retrieved Successfully', Products });
+      }
+    } else {
+      const Products = await Product.findAll({
+        where: {
+          id,
+          availability: true
+        }
+      });
+      if (Products.length < 1) return res.status(200).json({ message: 'No products found' });
+
+      res.status(200).json({ message: 'Product Retrieved Successfully', Products });
+    }
+  } catch (error) {
+    res.json({ status: 500, message: error.message });
+  }
+};
 export default CreateProduct;
