@@ -60,7 +60,7 @@ To get a local copy up and running follow these simple steps.
 
 ### Render
 
-- [Swagger](https://e-commerce-falcons.onrender.com)
+- [Swagger](https://e-commerce-falcons.onrender.com/api-docs/)
 
 ## Acknowledgements
 
