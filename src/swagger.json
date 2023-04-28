@@ -7,38 +7,6 @@
   },
   "schemes": ["http", "https"],
   "paths": {
-    "/api/v1/welcome": {
-      "get": {
-        "summary": "Welcome message",
-        "description": "This is an api that returns a welcome message",
-        "produces": ["application/json"],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "definitions": {
-              "message": {
-                "type": "object",
-                "properties": {
-                  "message": {
-                    "type": "string"
-                  }
-                }
-              }
-            },
-            "schema": {
-              "items": {
-                "type": "object",
-                "properties": {
-                  "message": {
-                    "default": "Test controller OK!"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/users/signin": {
       "post": {
         "tags": ["Users"],
@@ -2702,14 +2670,6 @@
       "in": "header",
       "bearerFormat": "jwt",
       "scheme": "bearer"
-    },
-    "google_Oauth2": {
-      "authorizationUrl": "https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A5000%2Fgoogle%2Fcallback&scope=email%20profile&client_id=111607106086-6e882nl4dni651j6hspjrqg3dsscfdrs.apps.googleusercontent.com",
-      "tokenUrl": [],
-      "description": "Google authorization",
-      "flow": "accessCode",
-      "type": "oauth2",
-      "appName": "E-commerce app"
     }
   }
 }
