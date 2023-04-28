@@ -18,23 +18,15 @@ import searchProduct from '../controllers/productSearchController';
 import { AddReview, deleteReview, getReviews, updateReview } from '../controllers/reviewController';
 import reviewSchema from '../validations/review';
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png|gif/;
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = filetypes.test(file.mimetype);
-    if (extname && mimetype) {
-      cb(null, file.originalname);
-    } else {
-      cb(new Error('Invalid file type. Only JPEG, JPG, PNG and GIF files are allowed.'));
-    }
+const storage = multer.diskStorage({});
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) {
+    cb(null, true);
+  } else {
+    cb(null, false);
   }
-});
-
-const upload = multer({ storage });
+};
+const upload = multer({ storage, fileFilter });
 
 const productRoute = express.Router();
 

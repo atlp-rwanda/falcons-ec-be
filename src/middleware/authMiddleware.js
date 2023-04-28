@@ -19,7 +19,7 @@ const isLoggedIn = async (req, res, next) => {
         return res.status(401).json({
           status: 401,
           success: false,
-          message: 'You need to login again',
+          message: 'Not Logged In'  ,
         });
       }
 

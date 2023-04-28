@@ -412,8 +412,7 @@
         "security": [
           {
             "jwt": [],
-            "bearerAuth": [],
-            "google_Oauth2": []
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -428,7 +427,7 @@
             "name": "description",
             "in": "formData",
             "description": "A description of the product.",
-            "required": false,
+            "required": true,
             "type": "string"
           },
           {
@@ -453,7 +452,7 @@
             "name": "quantity",
             "in": "formData",
             "description": "The quantity of the product.",
-            "required": false,
+            "required": true,
             "type": "number"
           },
           {
@@ -466,7 +465,7 @@
             "name": "expiryDate",
             "in": "formData",
             "description": "The expiry date of the product.",
-            "required": false,
+            "required": true,
             "type": "string",
             "format": "date-time"
           }
@@ -526,8 +525,7 @@
         "security": [
           {
             "jwt": [],
-            "bearerAuth": [],
-            "google_Oauth2": []
+            "bearerAuth": []
           }
         ],
         "consumes": ["multipart/form-data"],
@@ -1496,8 +1494,7 @@
         "security": [
           {
             "jwt": [],
-            "bearerAuth": [],
-            "google_Oauth2": []
+            "bearerAuth": []
           }
         ],
         "description": "This is an api that creates a category",
@@ -1552,8 +1549,7 @@
         "security": [
           {
             "jwt": [],
-            "bearerAuth": [],
-            "google_Oauth2": []
+            "bearerAuth": []
           }
         ],
         "parameters": [
@@ -1843,8 +1839,7 @@
         "security": [
           {
             "jwt": [],
-            "bearerAuth": [],
-            "google_Oauth2": []
+            "bearerAuth": []
           }
         ],
         "description": "This is an api that adds to cart",
@@ -1901,8 +1896,7 @@
         "security": [
           {
             "jwt": [],
-            "bearerAuth": [],
-            "google_Oauth2": []
+            "bearerAuth": []
           }
         ],
         "description": "This is an api that adds to cart",
@@ -1959,8 +1953,7 @@
         "security": [
           {
             "jwt": [],
-            "bearerAuth": [],
-            "google_Oauth2": []
+            "bearerAuth": []
           }
         ],
         "description": "This is an api that clears the cart",
@@ -2094,8 +2087,7 @@
         "security": [
           {
             "jwt": [],
-            "bearerAuth": [],
-            "google_Oauth2": []
+            "bearerAuth": []
           }
         ],
         "description": "This is an api for checkout",
@@ -2488,8 +2480,7 @@
         "security": [
           {
             "jwt": [],
-            "bearerAuth": [],
-            "google_Oauth2": []
+            "bearerAuth": []
           }
         ],
         "description": "This is an api that adds a Review",
@@ -2555,8 +2546,7 @@
         "security": [
           {
             "jwt": [],
-            "bearerAuth": [],
-            "google_Oauth2": []
+            "bearerAuth": []
           }
         ],
         "description": "This is an api that updates a review",
@@ -2620,8 +2610,7 @@
         "security": [
           {
             "jwt": [],
-            "bearerAuth": [],
-            "google_Oauth2": []
+            "bearerAuth": []
           }
         ],
         "description": "This removes a review",
