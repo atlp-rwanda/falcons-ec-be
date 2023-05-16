@@ -2,30 +2,35 @@
 /* eslint-disable import/no-named-as-default-member */
 /* eslint-disable linebreak-style */
 /* eslint-disable import/no-named-as-default */
-import express from 'express';
-import isLoggedIn from '../middleware/authMiddleware';
+import express from "express";
+import isLoggedIn from "../middleware/authMiddleware";
 import CreateCategory, {
+  getAllCategories,
+  getSingleCategory,
   updateCategory,
-} from '../controllers/categoryController';
-import validator from '../validations/validation';
-import categorySchema from '../validations/Category';
-import verifyRole from '../middleware/verifyRole';
+} from "../controllers/categoryController";
+import validator from "../validations/validation";
+import categorySchema from "../validations/Category";
+import verifyRole from "../middleware/verifyRole";
 
 const categoryRoute = express.Router();
 
 categoryRoute.post(
-  '/categories',
+  "/categories",
   isLoggedIn,
-  verifyRole('admin'),
+  verifyRole("admin"),
   validator(categorySchema),
-  CreateCategory,
+  CreateCategory
 );
+categoryRoute.get("/categories", isLoggedIn, getAllCategories);
+categoryRoute.get("/categories/:categoryId", isLoggedIn, getSingleCategory);
+
 categoryRoute.patch(
-  '/categories/:categoryId',
+  "/categories/:categoryId",
   isLoggedIn,
-  verifyRole('admin'),
+  verifyRole("admin"),
   validator(categorySchema),
-  updateCategory,
+  updateCategory
 );
 
 export default categoryRoute;
