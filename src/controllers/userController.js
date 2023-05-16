@@ -2,20 +2,24 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable linebreak-style */
 // eslint-disable-next-line import/no-extraneous-dependencies
-import bcrypt from 'bcryptjs';
-import sgMail from '@sendgrid/mail';
-import * as dotenv from 'dotenv';
-import jwt from 'jsonwebtoken';
-import db from '../database/models/index';
-import generateToken from '../helpers/token_generator';
-import tokenDecode from '../helpers/token_decode';
-import { BcryptUtility } from '../utils/bcrypt.util';
-import { UserService } from '../services/user.service';
-import verifyToken from '../utils/jwt.util';
-import { messageResetPassword, sendOTPEmail, sendVerifyEmail } from '../helpers/sendMessage';
-import findOneUserService from '../services/authService';
-import cloudinary from '../uploads';
-import sendMessage from '../utils/sendgrid.util';
+import bcrypt from "bcryptjs";
+import sgMail from "@sendgrid/mail";
+import * as dotenv from "dotenv";
+import jwt from "jsonwebtoken";
+import db from "../database/models/index";
+import generateToken from "../helpers/token_generator";
+import tokenDecode from "../helpers/token_decode";
+import { BcryptUtility } from "../utils/bcrypt.util";
+import { UserService } from "../services/user.service";
+import verifyToken from "../utils/jwt.util";
+import {
+  messageResetPassword,
+  sendOTPEmail,
+  sendVerifyEmail,
+} from "../helpers/sendMessage";
+import findOneUserService from "../services/authService";
+import cloudinary from "../uploads";
+import sendMessage from "../utils/sendgrid.util";
 
 dotenv.config();
 
@@ -26,7 +30,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const getAllUsers = async (req, res) => {
   const allUsers = await User.findAll();
 
-  if (!allUsers) res.status(400).json({ message: 'No users found' });
+  if (!allUsers) res.status(400).json({ message: "No users found" });
 
   res.json(allUsers);
 };
@@ -45,10 +49,10 @@ const loginUser = async (req, res) => {
       };
 
       if (user.status == false) {
-        return res.status(403).json({ message: 'Account locked!' });
+        return res.status(403).json({ message: "Account locked!" });
       }
 
-      if (user.role === 'seller') {
+      if (user.role === "seller") {
         const otp = Math.floor(100000 + Math.random() * 900000);
 
         const OTPcontents = {
@@ -58,7 +62,7 @@ const loginUser = async (req, res) => {
 
         const OTPtoken = await generateToken(
           OTPcontents,
-          process.env.OTP_EXPIRY,
+          process.env.OTP_EXPIRY
         );
         // expires in 5 minutes
 
@@ -70,8 +74,8 @@ const loginUser = async (req, res) => {
         await sendMessage(
           email,
           sendOTPEmail(otp),
-          'Two factor authentication',
-          html,
+          "Two factor authentication",
+          html
         ); // I have made this html parameter optional to prevent breaking the function
         return res.status(200).json({
           status: 200,
@@ -85,21 +89,21 @@ const loginUser = async (req, res) => {
       res.status(200).json({
         status: 200,
         success: true,
-        message: 'Login successful',
-        token
+        message: "Login successful",
+        token,
       });
     } else {
       res.status(401).json({
         status: 401,
         success: false,
-        message: 'Invalid credentials',
+        message: "Invalid credentials",
       });
     }
   } catch (error) {
     res.status(500).send({
       status: 500,
       success: false,
-      message: 'Failed to Login',
+      message: "Failed to Login",
       error: error.message,
     });
   }
@@ -107,14 +111,14 @@ const loginUser = async (req, res) => {
 
 export const verifyOTP = async (req, res) => {
   if (!req.params.token)
-    return res.status(400).json({ message: 'No token provided!' });
+    return res.status(400).json({ message: "No token provided!" });
   try {
     const { otp } = req.body;
     const { token } = req.params;
     const decoded = await tokenDecode(token);
 
     if (decoded.payload.otpCode != otp) {
-      return res.status(401).json({ message: 'The OTP code is invalid' });
+      return res.status(401).json({ message: "The OTP code is invalid" });
     }
 
     const user = await User.findOne({ where: { id: decoded.payload.userId } });
@@ -122,7 +126,7 @@ export const verifyOTP = async (req, res) => {
     if (!user) {
       return res
         .status(401)
-        .json({ message: 'User not found, please restart the process' });
+        .json({ message: "User not found, please restart the process" });
     }
 
     const payload = {
@@ -136,14 +140,14 @@ export const verifyOTP = async (req, res) => {
     return res.status(200).json({
       status: 200,
       success: true,
-      message: 'Login successful',
+      message: "Login successful",
       loginToken,
     });
   } catch (error) {
     return res.status(500).send({
       status: 500,
       success: false,
-      message: 'Something went wrong',
+      message: "Something went wrong",
       error: error.message,
     });
   }
@@ -152,36 +156,49 @@ export const verifyOTP = async (req, res) => {
 export const registerUser = async (req, res) => {
   try {
     const user = { ...req.body };
+    const { clientURL } = process.env;
+
     user.password = await BcryptUtility.hashPassword(req.body.password);
     user.lastPasswordUpdate = new Date();
     const { id, email } = await UserService.register(user);
     const userData = { id, email };
     const userToken = await generateToken(userData);
-    await sendMessage(email, sendVerifyEmail(userToken), 'Email verification');
-    await sendMessage(email, sendVerifyEmail(userToken), 'Email verification');
+
+    const html = `<h1>Hello</h1>
+        <p>Use the below link to verify your account. Do not share it with anyone!</p>
+        <a href="http://${clientURL}/verify-account?token=${userToken}" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">Verify account</a>
+        <p>If you did not signup with our e-commerce, please ignore this email.</p>`;
+
+    await sendMessage(
+      email,
+      sendVerifyEmail(userToken),
+      "Email verification",
+      html
+    );
+
     return res.status(201).json({ user: userData, token: userToken });
   } catch (err) {
     return res.status(500).json({
       error: err.message,
-      message: 'Failed to register a new user',
+      message: "Failed to register a new user",
     });
   }
 };
 
 const setRoles = async (req, res) => {
   if (!req.params.id) {
-    return res.status(400).json({ message: 'User email not provided' });
+    return res.status(400).json({ message: "User email not provided" });
   }
 
   const foundUser = await User.findOne({ where: { email: req.params.id } });
 
-  if (!foundUser) return res.status(404).json({ message: 'User not found' });
+  if (!foundUser) return res.status(404).json({ message: "User not found" });
 
   foundUser.role = req.body.role;
   // eslint-disable-next-line no-unused-vars
   const result = await foundUser.save();
 
-  return res.json({ message: 'User role updated' });
+  return res.json({ message: "User role updated" });
 };
 
 // user registration for testing purposes
@@ -195,20 +212,20 @@ const createNewUser = async (req, res) => {
     const instance = await User.create({
       email: req.body.email,
       password: pwd,
-      role: 'admin',
+      role: "admin",
       status: true,
       lastPasswordUpdate: new Date().getTime(),
     });
     res.status(201);
 
-    res.json({ message: 'User created' });
+    res.json({ message: "User created" });
   } catch (err) {
     res.status(400).json(err);
   }
 };
 const updatePassword = async (req, res) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
+    const token = req.headers.authorization.split(" ")[1];
     const decoded = verifyToken(token);
     // find a user requesting yo update the password
     // compare his/her oldpassword to
@@ -220,13 +237,13 @@ const updatePassword = async (req, res) => {
     const { oldPassword, newPassword } = req.body;
     const match = bcrypt.compareSync(oldPassword, user.password);
     if (!match) {
-      return res.status(403).json({ error: 'Incorrect password' });
+      return res.status(403).json({ error: "Incorrect password" });
     }
     // hash and update the new password in the db
     if (newPassword === oldPassword) {
       return res
         .status(406)
-        .json({ error: 'Password must differ from old password' });
+        .json({ error: "Password must differ from old password" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -237,7 +254,7 @@ const updatePassword = async (req, res) => {
       status: true,
     });
     await user.save();
-    return res.status(200).json({ message: 'password updated successfully' });
+    return res.status(200).json({ message: "password updated successfully" });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -250,9 +267,9 @@ const forgotPassword = async (req, res) => {
     const user = await User.findOne({ where: { email: userEmail } });
 
     if (!user) {
-      return res.status(400).json({ error: 'User not found' });
+      return res.status(400).json({ error: "User not found" });
     }
-    const token = await generateToken(user.email, '10m');
+    const token = await generateToken(user.email, "10m");
     const html = `<h1> Hello</h1>
     <p><b>A request has been recieved to reset your password for your E-commerce account</b></p>
     <a href="${process.env.clientURL}/api/v1/users/${token}/password-reset" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">Reset password</a>
@@ -260,10 +277,10 @@ const forgotPassword = async (req, res) => {
     await sendMessage(
       userEmail,
       messageResetPassword(token),
-      'Reset Password',
-      html,
+      "Reset Password",
+      html
     );
-    return res.status(200).json({ token, message: 'email sent to the user' });
+    return res.status(200).json({ token, message: "email sent to the user" });
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
@@ -274,19 +291,24 @@ const passwordReset = async (req, res) => {
     const { token } = req.params;
     const verify = verifyToken(token);
     if (!verify) {
-      return res.status(401).json({ error: 'Invalid token' });
+      return res.status(401).json({ error: "Invalid token" });
     }
     const { password, confirmPassword } = req.body;
     if (!password || !confirmPassword) {
-      res.status(400).json({ error: 'Password and confirm password are required' });
+      res
+        .status(400)
+        .json({ error: "Password and confirm password are required" });
     } else {
       // hash the password and update its fields in the database
       const salt = await bcrypt.genSalt(10);
       const hashPassword = await bcrypt.hash(password, salt);
       const Email = verify.payload;
 
-      await User.update({ password: hashPassword }, { where: { email: Email } });
-      return res.status(200).json({ message: 'Password reset successfully' });
+      await User.update(
+        { password: hashPassword },
+        { where: { email: Email } }
+      );
+      return res.status(200).json({ message: "Password reset successfully" });
     }
   } catch (error) {
     res.send(400).json({ message: error.message });
@@ -295,20 +317,20 @@ const passwordReset = async (req, res) => {
 
 const disableAccount = async (req, res) => {
   if (!req.params.id) {
-    return res.status(400).json({ message: 'User email not provided' });
+    return res.status(400).json({ message: "User email not provided" });
   }
 
   const foundUser = await User.findOne({ where: { email: req.params.id } });
 
-  if (!foundUser) return res.status(404).json({ message: 'User not found' });
+  if (!foundUser) return res.status(404).json({ message: "User not found" });
 
-  let message = '';
+  let message = "";
   if (foundUser.status === true) {
     foundUser.status = false;
-    message = 'Account disabled';
+    message = "Account disabled";
   } else {
     foundUser.status = true;
-    message = 'Account Enabled';
+    message = "Account Enabled";
   }
 
   // eslint-disable-next-line no-unused-vars
@@ -329,7 +351,7 @@ const verifyEmail = async (req, res) => {
       res.status(200).json({
         status: 200,
         success: true,
-        message: 'Account successfully verified!',
+        message: "Account successfully verified!",
       });
     }
     if (!verify) {
@@ -347,11 +369,11 @@ const updateProfile = async (req, res) => {
     const updateData = req.body;
     const trimmedData = {};
     for (const key in updateData) {
-      if (key === 'avatar' || typeof updateData[key] === 'object') {
+      if (key === "avatar" || typeof updateData[key] === "object") {
         trimmedData[key] = updateData[key];
       } else {
         trimmedData[key] = updateData[key]
-          .replace(/[^\w\s:-]/g, '')
+          .replace(/[^\w\s:-]/g, "")
           .trim()
           .toLowerCase();
       }
@@ -360,7 +382,7 @@ const updateProfile = async (req, res) => {
       return res.status(400).json({
         status: 400,
         success: false,
-        message: 'No data provided',
+        message: "No data provided",
       });
     }
 
@@ -368,7 +390,7 @@ const updateProfile = async (req, res) => {
 
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'Falcons_E-comm_App/ProductImages',
+        folder: "Falcons_E-comm_App/ProductImages",
         public_id: `${user.firstname}_image`,
       });
       trimmedData.avatar = result.url;
@@ -395,7 +417,7 @@ const updateProfile = async (req, res) => {
     res.status(200).json({
       status: 200,
       success: true,
-      message: 'Profile updated successfully',
+      message: "Profile updated successfully",
       data: returnedProfile,
     });
   } catch (error) {
@@ -430,7 +452,7 @@ const getSingleProfile = async (req, res) => {
     res.status(500).send({
       status: 500,
       success: false,
-      message: 'Failed to get the profile',
+      message: "Failed to get the profile",
       error: error.message,
     });
   }

@@ -1431,9 +1431,84 @@
         }
       }
     },
+    "/api/v1/categories": {
+      "post": {
+        "tags": ["Categories"],
+        "summary": "Create a category",
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": []
+          }
+        ],
+        "description": "This is an api that creates a category",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "categoryName": {
+                  "type": "string",
+                  "default": "Name Of Category"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category created successfully",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "Category created successfully"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["Categories"],
+        "summary": "Get all categories",
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": []
+          }
+        ],
+        "description": "This is an api that retrieves all categories",
+        "produces": ["application/json"],        
+        "responses": {
+          "200": {
+            "description": "Categories retrieved successfully",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }     
+    },
     "/api/v1/categories/{categoryId}": {
       "patch": {
-        "tags": ["Products"],
+        "tags": ["Categories"],
         "summary": "Update a category",
         "description": "This is an api that updates a category",
         "produces": ["application/json"],
@@ -1485,62 +1560,35 @@
             }
           }
         }
-      }
-    },
-    "/api/v1/categories": {
-      "post": {
-        "tags": ["Products"],
-        "summary": "Create a category",
+      },
+      "get": {
+        "tags": ["Categories"],
+        "summary": "Get a single category",
         "security": [
           {
             "jwt": [],
             "bearerAuth": []
           }
         ],
-        "description": "This is an api that creates a category",
+        "description": "This is an api that retrieves a category by id",
         "produces": ["application/json"],
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
+            "name": "categoryId",
+            "in": "path",
             "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "categoryName": {
-                  "type": "string",
-                  "default": "Name Of Category"
-                }
-              }
-            }
-          }
-        ],
+            "description": "UUID of the category to update"
+          }          
+        ],        
         "responses": {
           "200": {
-            "description": "Category created successfully",
-            "definitions": {
-              "message": {
-                "type": "object",
-                "properties": {
-                  "message": {
-                    "type": "string"
-                  }
-                }
-              }
-            },
+            "description": "Category retrieved successfully",
             "schema": {
-              "items": {
-                "type": "object",
-                "properties": {
-                  "message": {
-                    "default": "Category created successfully"
-                  }
-                }
-              }
+              "type": "object"
             }
           }
         }
-      }
+      }     
     },
     "/api/v1/users/profile": {
       "patch": {
