@@ -43,7 +43,7 @@ const CreateProduct = async (req, res) => {
       const promises = req.files.map((file) =>
         cloudinary.uploader.upload(file.path, {
           folder: 'Falcons_E-comm_App/ProductImages',
-          public_id: `${product.productName}_image`
+          public_id: `${product.productName}image${Date.now()}`
         })
       );
 
