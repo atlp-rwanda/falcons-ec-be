@@ -1377,8 +1377,8 @@
         "description": "Users should verify their account when they are provided with a verification link",
         "produces": ["application/json"],
         "responses": {
-          "200": {
-            "description": "OK",
+          "302": {
+            "description": "redirect",
             "definitions": {
               "message": {
                 "type": "object",

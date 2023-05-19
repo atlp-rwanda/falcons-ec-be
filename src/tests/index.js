@@ -396,8 +396,8 @@ describe('PRODUCT', async () => {
       const response = await chai
         .request(app)
         .post('/api/v1/categories')
-        .set('Authorization', `Bearer ${_TOKEN}`)
-        .send(invalidproduct);
+        .set('Authorization', `Bearer ${token}`)
+        .send({categoryName:'category1'});
       expect(response.status).to.equal(401);
     });
     it('should return 401 if user is not an admin ', async () => {
@@ -859,12 +859,12 @@ describe('Register User', () => {
     expect(response.status).to.equal(400);
   });
   it('should verify user account when given a valid token', async () => {
-    const response = await chai.request(app).patch(`/api/v1/users/verify-account/${token}`);
+    const response = await chai.request(app).get(`/api/v1/users/verify-account/${token}`);
     expect(response.status).to.equal(200);
   });
 
   it('should not verify user account when given an invalid token', async () => {
-    const response = await chai.request(app).patch('/api/v1/users/verify-account/invalid-token');
+    const response = await chai.request(app).get('/api/v1/users/verify-account/invalid-token');
     expect(response.status).to.equal(400);
   });
 });
@@ -960,13 +960,14 @@ describe('CATEGORY', async () => {
       const response = await chai.request(app).post('/api/v1/categories').send(invalidcategory);
       expect(response.status).to.equal(401);
     });
-    it('should return 400 if user is not an admin ', async () => {
+    it('should return 400 if category is invalid ', async () => {
       const response = await chai
         .request(app)
         .post('/api/v1/categories')
         .set('Authorization', `Bearer ${_TOKEN}`)
         .send(invalidcategory);
-      expect(response.status).to.equal(401);
+
+      expect(response.status).to.equal(400);
     });
     describe('api/v1/categories/:userId PATCH', () => {
       it('it should update user category', async () => {

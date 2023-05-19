@@ -173,6 +173,10 @@ export const deleteProduct = async (req, res) => {
 };
 export const getAllProducts = async (req, res) => {
   try {
+    const page = req.query.page || 1;
+    const limit = req.query.limit ||10; 
+
+    let whereClause = { availability: true }; 
     if (req.headers.authorization) {
       const token = req.headers.authorization.split(' ')[1];
       const decodedData = await tokenDecode(token);
@@ -182,35 +186,35 @@ export const getAllProducts = async (req, res) => {
         }
       });
       if (user && user.role == 'seller') {
-        const Products = await Product.findAll({
-          where: {
-            seller_id: decodedData.payload.id
-          }
-        });
-        if (Products.length < 1) return res.status(200).json({ message: 'No products found' });
-        res.status(200).json({ message: 'Products Retrieved Successfully', Products });
-      } else {
-        const Products = await Product.findAll({
-          where: {
-            availability: true
-          }
-        });
-        res.status(200).json({ message: 'Products Retrieved Successfully', Products });
+        whereClause = { seller_id: decodedData.payload.id }; 
       }
-    } else {
-      const Products = await Product.findAll({
-        where: {
-          availability: true
-        }
-      });
-      if (Products.length < 1) return res.status(200).json({ message: 'No products found' });
-
-      res.status(200).json({ message: 'Products Retrieved Successfully', Products });
     }
+
+    const totalCount = await Product.count({ where: whereClause }); 
+    const totalPages = Math.ceil(totalCount / limit);   
+
+    const offset = (page - 1) * limit; 
+    const Products = await Product.findAll({
+      where: whereClause,
+      limit,
+      offset
+    });
+
+    if (Products.length < 1) {
+      return res.status(200).json({ message: 'No products found' });
+    }
+
+    res.status(200).json({
+      message: 'Products Retrieved Successfully',
+      Products,
+      totalPages,
+      currentPage: page
+    });
   } catch (error) {
-    res.json({ status: 500, message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
+
 export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
