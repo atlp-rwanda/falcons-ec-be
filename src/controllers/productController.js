@@ -46,6 +46,7 @@ const CreateProduct = async (req, res) => {
           public_id: `${product.productName}image${Date.now()}`
         })
       );
+      
 
       const results = await Promise.all(promises);
       product.images = results.map((result) => result.url).filter((url) => url);
