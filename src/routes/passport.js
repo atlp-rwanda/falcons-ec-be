@@ -3,11 +3,8 @@ import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
 import generateToken from '../helpers/token_generator';
-
 dotenv.config();
-
 const passportRouter = express.Router();
-
 passportRouter.get('/', (req, res) => {
   res.send('<a href="/auth/google">Authenticate with Google</a>');
 });
@@ -15,24 +12,9 @@ passportRouter.get(
   '/auth/google',
   passport.authenticate('google', { scope: ['email', 'profile'] })
 );
-
 passportRouter.get('/google/callback', passport.authenticate('google'), async (req, res) => {
-  // Access the authenticated user object from the req.user object and generate a token
-  const { user } = req;
-  const payload = {
-    id: user.id,
-    email: user.email,
-    role: user.role,
-    status: user.status
-  };
-  const token = await generateToken(payload);
-
-  // Send the token in the response
-  res.json({ status: 200, message: 'successfully logged in', token });
+  const { user, token, redirectURL } = req.user;
+  const response = { status: 200, message: 'successfully logged in', token };
+  res.redirect(`${redirectURL}?response=${encodeURIComponent(JSON.stringify(response))}`);
 });
-// passportRouter.get('/welcome', (req, res) => {
-//   const token = req.query.token;
-//   res.send(`Token: ${token}`);
-// });
-
 export default passportRouter;

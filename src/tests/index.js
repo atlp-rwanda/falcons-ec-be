@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable linebreak-style */
 /* eslint-disable import/no-named-as-default */
@@ -85,9 +86,28 @@ describe('Google Authentication', () => {
 
     it('should return a token when generateToken is called ', async () => {
       const response = await generateToken(mockUser);
+      console.log(response);
       expect(response).to.be.a('string');
     });
+    it('should handle req.user property', async () => {
+      const response = await request(app).get('/google/callback');
+      expect(response.status).to.equal(302);
+    });
   });
+
+  describe('GET /', () => {
+    it('should return HTML with link to authenticate with Google', (done) => {
+      request(app)
+        .get('/')
+        .expect(200)
+        .end((err, res) => {
+          if (err) return done(err);
+          assert.isTrue(res.text.includes('<a href="/auth/google">Authenticate with Google</a>'));
+          done();
+        });
+    });
+  });
+
   describe('serializeUser', () => {
     it('should serialize user object', (done) => {
       const user = { id: 123, name: 'John Doe' };

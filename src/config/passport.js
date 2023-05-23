@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth2';
 import dotenv from 'dotenv';
@@ -5,7 +6,6 @@ import db from '../database/models';
 import generateToken from '../helpers/token_generator';
 
 const { User } = db;
-
 dotenv.config();
 passport.use(
   new GoogleStrategy(
@@ -26,13 +26,14 @@ passport.use(
           role: googleUser.role,
           status: googleUser.status
         };
-        done(null, user, { status: 200 });
-      } else {
-        return done(null, false, { status: 401, message: 'User not found.' });
+        const token = await generateToken(user);
+        return done(null, { user, token, redirectURL: process.env.REDIRECT_URL });
       }
+      return done(null, false, { status: 401, message: 'User not found.' });
     }
   )
 );
+
 passport.serializeUser((user, done) => {
   done(null, user);
 });
