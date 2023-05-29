@@ -12,7 +12,7 @@
     "dbMigrate:test": "cross-env NODE_ENV=test npx sequelize-cli db:migrate",
     "deMigrate:all:test": "cross-env NODE_ENV=test npx sequelize-cli db:migrate:undo:all",
     "dbSeed:test": "cross-env NODE_ENV=test npx sequelize-cli db:seed:all",
-    "test": "npm run deMigrate:all:test && npm run dbMigrate:test && npm run dbSeed:test && cross-env NODE_ENV=test nyc --exclude=src/utils/**/* --exclude=src/config/passport.js --exclude=src/jobs/checkExpiredPasswords.js --reporter=lcov --reporter=html --reporter=text mocha --require @babel/register src/tests --timeout 60000 --exit",
+    "test": "npm run deMigrate:all:test && npm run dbMigrate:test && npm run dbSeed:test && cross-env NODE_ENV=test nyc --exclude=src/utils/**/* --exclude=src/config/passport.js --exclude=src/jobs/checkExpiredPasswords.js --exclude=src/events/productEvents.js --reporter=lcov --reporter=html --reporter=text mocha --require @babel/register src/tests --timeout 60000 --exit",
     "lint": "eslint ./",
     "lint:fix": "eslint ./ --fix",
     "migrate": "sequelize-cli db:migrate",

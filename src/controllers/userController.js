@@ -52,6 +52,9 @@ const loginUser = async (req, res) => {
         return res.status(403).json({ message: "Account locked!" });
       }
 
+      if (!user.isVerified)
+        return res.status(401).json({ message: "Account not verified!" });
+
       if (user.role === "seller") {
         const otp = Math.floor(100000 + Math.random() * 900000);
 
@@ -166,7 +169,7 @@ export const registerUser = async (req, res) => {
 
     const html = `<h1>Hello</h1>
         <p>Use the below link to verify your account. Do not share it with anyone!</p>
-        <a href="http://${clientURL}/verify-account?token=${userToken}" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">Verify account</a>
+        <a href="${clientURL}/api/v1/users/verify-account/${userToken}" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">Verify account</a>
         <p>If you did not signup with our e-commerce, please ignore this email.</p>`;
 
     await sendMessage(
@@ -214,6 +217,7 @@ const createNewUser = async (req, res) => {
       password: pwd,
       role: "admin",
       status: true,
+      isVerified: true,
       lastPasswordUpdate: new Date().getTime(),
     });
     res.status(201);
@@ -348,14 +352,11 @@ const verifyEmail = async (req, res) => {
       });
       verifiedUser.isVerified = true;
       await verifiedUser.save();
-      res.status(200).json({
-        status: 200,
-        success: true,
-        message: "Account successfully verified!",
-      });
+
+      res.redirect(`${process.env.FRONTEND_URL}/verification/success`);
     }
     if (!verify) {
-      return res.status(400).json({ status: 400, success: false });
+      res.redirect(`${process.env.FRONTEND_URL}/verification/failed`);
     }
   } catch (error) {
     res
