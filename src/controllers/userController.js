@@ -276,7 +276,7 @@ const forgotPassword = async (req, res) => {
     const token = await generateToken(user.email, "10m");
     const html = `<h1> Hello</h1>
     <p><b>A request has been recieved to reset your password for your E-commerce account</b></p>
-    <a href="${process.env.clientURL}/api/v1/users/${token}/password-reset" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">Reset password</a>
+    <a href="${process.env.clientURL}/password-reset/${token}/reset" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">Reset password</a>
     <p>If you did not initiate this request, please ignore this email.</p>`;
     await sendMessage(
       userEmail,
