@@ -169,7 +169,7 @@ export const registerUser = async (req, res) => {
 
     const html = `<h1>Hello</h1>
         <p>Use the below link to verify your account. Do not share it with anyone!</p>
-        <a href="${clientURL}/api/v1/users/verify-account/${userToken}" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">Verify account</a>
+        <a href="${process.env.SERVER_URL}/api/v1/users/verify-account/${userToken}" style="background-color:#008CBA;color:#fff;padding:14px 25px;text-align:center;text-decoration:none;display:inline-block;border-radius:4px;font-size:16px;margin-top:20px;">Verify account</a>
         <p>If you did not signup with our e-commerce, please ignore this email.</p>`;
 
     await sendMessage(

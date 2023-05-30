@@ -13,7 +13,7 @@ const messageResetPassword = (token) => {
   return html;
 };
 const sendVerifyEmail = (token) => {
-  const message = `Hello, Thank you for registering on our site. Please click on this link to verify your email address: <a href="${process.env.SERVER_URL}}/api/v1/users/verify-account/${token}">Verify Account</a>. If you did not register for an account with Falcons Project, please ignore this email.`;
+  const message = `Hello, Thank you for registering on our site. Please click on this link to verify your email address: <a href="${process.env.SERVER_URL}/api/v1/users/verify-account/${token}">Verify Account</a>. If you did not register for an account with Falcons Project, please ignore this email.`;
   return message;
 };
 
