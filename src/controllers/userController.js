@@ -28,11 +28,24 @@ const { User } = db;
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const getAllUsers = async (req, res) => {
-  const allUsers = await User.findAll();
+  const page = req.query.page || 1;
+  const limit = req.query.limit || 10;
 
+  const totalCount = await User.count();
+  const totalPages = Math.ceil(totalCount / limit);
+  const offset = (page - 1) * limit;
+  const allUsers = await User.findAll({
+    limit,
+    offset,
+  });
   if (!allUsers) res.status(400).json({ message: 'No users found' });
 
-  res.json(allUsers);
+  res.status(200).json({
+    message: 'Users Retrieved Successfully',
+    allUsers,
+    totalPages,
+    currentPage: page,
+  });
 };
 
 const loginUser = async (req, res) => {
