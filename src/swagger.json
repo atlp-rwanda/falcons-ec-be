@@ -1495,7 +1495,7 @@
           }
         ],
         "description": "This is an api that retrieves all categories",
-        "produces": ["application/json"],        
+        "produces": ["application/json"],
         "responses": {
           "200": {
             "description": "Categories retrieved successfully",
@@ -1504,7 +1504,7 @@
             }
           }
         }
-      }     
+      }
     },
     "/api/v1/categories/{categoryId}": {
       "patch": {
@@ -1578,8 +1578,8 @@
             "in": "path",
             "required": true,
             "description": "UUID of the category to update"
-          }          
-        ],        
+          }
+        ],
         "responses": {
           "200": {
             "description": "Category retrieved successfully",
@@ -1588,7 +1588,7 @@
             }
           }
         }
-      }     
+      }
     },
     "/api/v1/users/profile": {
       "patch": {
@@ -1931,6 +1931,29 @@
                 "properties": {
                   "message": {
                     "default": "Added to cart successfully"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stock is not available",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "Stock is not available"
                   }
                 }
               }

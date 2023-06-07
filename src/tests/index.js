@@ -952,6 +952,7 @@ describe('Register User', () => {
     const response = await chai
       .request(app)
       .get(`/api/v1/users/verify-account/${token}`);
+      console.log(response)
     expect(response.status).to.equal(200);
   });
 
@@ -1237,8 +1238,8 @@ describe('AddToCart function', async () => {
           product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c',
           quantity: 100,
         });
-      expect(response.status).to.equal(200);
-      expect(response.body.message).to.equal('Stock is not availabble');
+      expect(response.status).to.equal(400);
+      expect(response.body.message).to.equal('Stock is not available');
     });
     it('should ask user to login', async () => {
       // send a POST request to /api/cart with the product ID in the body
