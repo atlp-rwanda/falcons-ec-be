@@ -86,7 +86,8 @@ const searchProduct = async (req, res) => {
       }
       if (category) {
         const product = await searchInCategory(ByCategoryQuery);
-        return res.status(200).json(product);
+        const Products = product.map((p) => p.Products).flat();
+        return res.status(200).json(Products);
       }
     }
     if (userRole === 'seller') {
