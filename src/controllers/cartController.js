@@ -1,7 +1,7 @@
 /* eslint-disable linebreak-style */
-import * as dotenv from 'dotenv';
-import jwt from 'jsonwebtoken';
-import db from '../database/models';
+import * as dotenv from "dotenv";
+import jwt from "jsonwebtoken";
+import db from "../database/models";
 
 const { Product } = db;
 const { Cart } = db;
@@ -10,7 +10,7 @@ dotenv.config();
 
 export const AddToCart = async (req, res) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
+    const token = req.headers.authorization.split(" ")[1];
     const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
     const existingCart = await Cart.findOne({
       where: { buyer_id: decodedData.payload.id },
@@ -25,21 +25,23 @@ export const AddToCart = async (req, res) => {
         where: { id: product_id },
       });
 
-      if (!item) return res.status(404).json({ message: 'Product not found' });
+      if (!item) return res.status(404).json({ message: "Product not found" });
 
       //   check if the product already exists and is  available
       if (!existingCart) {
         if (item && quantity <= item.quantity) {
           item.quantity = quantity;
         } else {
-          return res.json({ message: 'Stock is not availabble' });
+          return res
+            .status(400)
+            .json({ status: 400, message: "Stock is not available" });
         }
         const cart = await Cart.create({
           items: [item], // create a new array with the item
           buyer_id: decodedData.payload.id,
           cartTotal: item.price * quantity,
         });
-        res.json({ message: 'Successfully Added to Cart', cart });
+        res.json({ message: "Successfully Added to Cart", cart });
       } else {
         for (let i = 0; i < existingCart.items.length; i++) {
           if (existingCart && existingCart.items[i].id == product_id) {
@@ -49,7 +51,9 @@ export const AddToCart = async (req, res) => {
         if (item && quantity + existingQuantity <= item.quantity) {
           item.quantity = quantity;
         } else {
-          return res.json({ message: 'Stock is not availabble' });
+          return res
+            .status(400)
+            .json({ status: 400, message: "Stock is not available" });
         }
         const updatedCart = await existingCart.update({
           items: [...existingCart.items, item],
@@ -58,7 +62,7 @@ export const AddToCart = async (req, res) => {
         const lastItemIndex = updatedCart.items.length - 1;
         const lastItem = updatedCart.items[lastItemIndex];
         return res.json({
-          message: 'Successfully Added Cart',
+          message: "Successfully Added Cart",
           name: lastItem.productName,
           price: lastItem.price,
           quantity: lastItem.quantity,
@@ -71,7 +75,7 @@ export const AddToCart = async (req, res) => {
 };
 export const getCart = async (req, res) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
+    const token = req.headers.authorization.split(" ")[1];
     const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
     const existingCart = await Cart.findOne({
       where: { buyer_id: decodedData.payload.id },
@@ -99,7 +103,7 @@ export const getCart = async (req, res) => {
         Buyer: existingCart.buyer_id,
       });
     } else {
-      res.json({ message: 'Cart is Empty' });
+      res.json({ message: "Cart is Empty" });
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -107,7 +111,7 @@ export const getCart = async (req, res) => {
 };
 export const clearCart = async (req, res) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
+    const token = req.headers.authorization.split(" ")[1];
     const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
     const existingCart = await Cart.findOne({
       where: { buyer_id: decodedData.payload.id },
@@ -122,11 +126,11 @@ export const clearCart = async (req, res) => {
         },
         {
           where: { buyer_id: decodedData.payload.id },
-        },
+        }
       );
-      res.json({ message: 'Successfully Cleared the Cart', cart });
+      res.json({ message: "Successfully Cleared the Cart", cart });
     } else {
-      return res.json({ message: 'No Cart Found' });
+      return res.json({ message: "No Cart Found" });
     }
   } catch (err) {
     console.log(err.message);
@@ -135,7 +139,7 @@ export const clearCart = async (req, res) => {
 
 export const updateCartItems = async (req, res) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
+    const token = req.headers.authorization.split(" ")[1];
     const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
     const existingCart = await Cart.findOne({
       where: { buyer_id: decodedData.payload.id },
@@ -149,13 +153,13 @@ export const updateCartItems = async (req, res) => {
         where: { id: product_id },
       });
 
-      if (!item) return res.status(404).json({ message: 'Product not found' });
+      if (!item) return res.status(404).json({ message: "Product not found" });
 
       if (item && quantity <= item.quantity) {
         item.quantity = quantity;
         await item.save();
       } else {
-        return res.json({ message: 'Stock is not availabble' });
+        return res.json({ message: "Stock is not availabble" });
       }
       //   check if the product already exists and is  available
       if (!existingCart) {
@@ -164,7 +168,7 @@ export const updateCartItems = async (req, res) => {
           buyer_id: decodedData.payload.id,
           cartTotal: item.price * quantity,
         });
-        res.json({ message: 'Successfully Updated Cart', cart });
+        res.json({ message: "Successfully Updated Cart", cart });
       } else {
         const updatedCart = await existingCart.update({
           items: [item],
@@ -174,7 +178,7 @@ export const updateCartItems = async (req, res) => {
         const lastItem = updatedCart.items[lastItemIndex];
 
         return res.json({
-          message: 'Successfully Updated Cart',
+          message: "Successfully Updated Cart",
           Name: lastItem.productName,
           Description: lastItem.description,
           price: lastItem.price,
@@ -189,7 +193,7 @@ export const updateCartItems = async (req, res) => {
 };
 export const RemoveFromCart = async (req, res) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
+    const token = req.headers.authorization.split(" ")[1];
     const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
     const existingCart = await Cart.findOne({
       where: { buyer_id: decodedData.payload.id },
@@ -198,26 +202,26 @@ export const RemoveFromCart = async (req, res) => {
 
     // check if the cart exists
     if (!existingCart) {
-      return res.json({ message: 'Cart not found' });
+      return res.json({ message: "Cart not found" });
     }
 
     // check if the item is in the cart
     const itemIndex = existingCart.items.findIndex(
-      (item) => item.id === item_id,
+      (item) => item.id === item_id
     );
     if (itemIndex === -1) {
-      return res.status(404).json({ message: 'Item not found in cart' });
+      return res.status(404).json({ message: "Item not found in cart" });
     }
 
     // filter out the item from the cart's items array by its ID
     const filteredItems = existingCart.items.filter(
-      (item) => item.id !== item_id,
+      (item) => item.id !== item_id
     );
 
     // calculate the new cart total after removing the item
     const newCartTotal = filteredItems.reduce(
       (acc, item) => acc + item.price * item.quantity,
-      0,
+      0
     );
 
     // update the cart with the new items array and cart total
@@ -226,7 +230,7 @@ export const RemoveFromCart = async (req, res) => {
       cartTotal: newCartTotal,
     });
 
-    return res.json({ message: 'Item removed from cart', updatedCart });
+    return res.json({ message: "Item removed from cart", updatedCart });
   } catch (e) {
     console.log(e.message);
   }
