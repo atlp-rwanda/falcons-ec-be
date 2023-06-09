@@ -64,7 +64,7 @@ describe('Product wish list for the buyers', () => {
       .set('Authorization', `Bearer ${token}`);
     expect(response.status).to.equal(200);
     response.body.should.have.property('success');
-    response.body.should.have.property('productWishlist');
+    response.body.should.have.property('product');
     expect(response.body.success).to.be.true;
   });
 });
@@ -87,7 +87,7 @@ describe('Product wish list for per seller collection', () => {
       .set('Authorization', `Bearer ${token}`);
     expect(response.status).to.equal(200);
     response.body.should.have.property('success');
-    response.body.should.have.property('productWishlist');
+    response.body.should.have.property('product');
     expect(response.body.success).to.be.true;
   });
 });
