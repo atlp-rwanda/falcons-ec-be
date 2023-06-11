@@ -71,36 +71,38 @@ export const checkout = async (req, res) => {
 };
 
 export const webhookProcessor = async (req, res) => {
-  const event = req.body;
-  const data = req.body.data.object;
+  try {
+    const event = req.body;
+    const data = req.body.data.object;
 
-  if (event.type === 'checkout.session.completed') {
-    stripe.customers.retrieve(data.customer).then(async (customer) => {
-      try {
-        const orderedProducts = JSON.parse(customer.metadata.products);
+    if (event.type === 'checkout.session.completed') {
+      const customer = await stripe.customers.retrieve(data.customer);
+      const orderedProducts = JSON.parse(customer.metadata.products);
 
-        // update product quantity in stock
-        for (const orderedProduct of orderedProducts) {
-          const stockProduct = await Product.findByPk(orderedProduct.id);
+      // update product quantity in stock
+      for (const orderedProduct of orderedProducts) {
+        const stockProduct = await Product.findByPk(orderedProduct.id);
 
-          stockProduct.quantity -= orderedProduct.quantity;
-          await stockProduct.save();
-        }
-        // clear cart
-        const cart = await Cart.findOne({ where: { buyer_id: customer.metadata.buyerId } });
-        if (cart) await Cart.destroy({ where: { buyer_id: customer.metadata.buyerId } });
-
-        // update order status
-        const order = await Order.findByPk(customer.metadata.orderId);
-        order.status = 'processing';
-        await order.save();
-
-        res.json({ message: 'Payment confirmed' });
-      } catch (error) {
-        res.status(400).json({ message: 'Payment failed' });
+        stockProduct.quantity -= orderedProduct.quantity;
+        await stockProduct.save();
       }
-    });
-  } else {
-    res.status(400).json({ message: 'Payment failed', event });
+
+      // clear cart
+      const cart = await Cart.findOne({ where: { buyer_id: customer.metadata.buyerId } });
+      if (cart) await Cart.destroy({ where: { buyer_id: customer.metadata.buyerId } });
+
+      // update order status
+      const order = await Order.findByPk(customer.metadata.orderId);
+      order.status = 'processing';
+      await order.save();
+
+      res.status(200).json({ message: 'Payment confirmed' });
+    } else {
+      res.status(400).json({ message: 'Payment failed', event });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
+
