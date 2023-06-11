@@ -78,11 +78,19 @@ export const getAllProductWishes = async (req, res) => {
         message: 'Unauthorized!'
       });
     }
+    let product;
     let productWishlist;
     if (verifyUsers.payload.role === 'buyer') {
       productWishlist = await ProductWishlist.findAll({
         where: { user_id: verifyUsers.payload.id }
       });
+      const object = {};
+      for (let i = 0; i < productWishlist.length; i++) {
+        Object.assign(object, productWishlist[i]);
+      }
+      console.log(object.dataValues);
+      const { product_id } = object.dataValues;
+      product = await Product.findByPk(product_id);
     } else if (verifyUsers.payload.role === 'seller') {
       const seller_id = verifyUsers.payload.id;
       productWishlist = await ProductWishlist.findAll({
@@ -110,7 +118,8 @@ export const getAllProductWishes = async (req, res) => {
     res.status(200).json({
       status: 200,
       success: true,
-      productWishlist
+      message: 'Product wishes retrieved successfully',
+      product: [product]
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
