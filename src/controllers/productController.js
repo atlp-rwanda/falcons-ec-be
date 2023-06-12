@@ -4,9 +4,12 @@ import jwt from 'jsonwebtoken';
 import db from '../database/models/index';
 import cloudinary from '../uploads';
 import tokenDecode from '../helpers/token_decode';
+import { getSearchHistory, getCartService, getAllProductsService } from '../services/product.service';
+import random from '../helpers/random';
+import getRandomElements from '../helpers/random';
 
 dotenv.config();
-const { Product } = db;
+const { Product, Search } = db;
 const { User } = db;
 
 const CreateProduct = async (req, res) => {
@@ -40,11 +43,10 @@ const CreateProduct = async (req, res) => {
       category_id: req.body.category_id
     });
     if (req.files) {
-      const promises = req.files.map((file) =>
-        cloudinary.uploader.upload(file.path, {
-          folder: 'Falcons_E-comm_App/ProductImages',
-          public_id: `${product.productName}image${Date.now()}`
-        }));
+      const promises = req.files.map((file) => cloudinary.uploader.upload(file.path, {
+        folder: 'Falcons_E-comm_App/ProductImages',
+        public_id: `${product.productName}image${Date.now()}`
+      }));
       const results = await Promise.all(promises);
       product.images = results.map((result) => result.url).filter((url) => url);
       await product.save();
@@ -105,12 +107,10 @@ export const updateProduct = async (req, res) => {
       return res.status(401).json({ status: 401, success: false, message: 'Unauthorized access!' });
     }
     if (req.files.length > 0) {
-      const promises = req.files.map((file) =>
-        cloudinary.uploader.upload(file.path, {
-          folder: 'Falcons_E-comm_App/ProductImages',
-          public_id: `${product.id}_image_${Date.now()}`
-        })
-      );
+      const promises = req.files.map((file) => cloudinary.uploader.upload(file.path, {
+        folder: 'Falcons_E-comm_App/ProductImages',
+        public_id: `${product.id}_image_${Date.now()}`
+      }));
 
       const results = await Promise.all(promises);
       updateData.images = results.map((result) => result.url).filter((url) => url);
@@ -171,9 +171,9 @@ export const deleteProduct = async (req, res) => {
 export const getAllProducts = async (req, res) => {
   try {
     const page = req.query.page || 1;
-    const limit = req.query.limit ||10; 
+    const limit = req.query.limit || 10;
 
-    let whereClause = { availability: true }; 
+    let whereClause = { availability: true };
     if (req.headers.authorization) {
       const token = req.headers.authorization.split(' ')[1];
       const decodedData = await tokenDecode(token);
@@ -183,14 +183,14 @@ export const getAllProducts = async (req, res) => {
         }
       });
       if (user && user.role == 'seller') {
-        whereClause = { seller_id: decodedData.payload.id }; 
+        whereClause = { seller_id: decodedData.payload.id };
       }
     }
 
-    const totalCount = await Product.count({ where: whereClause }); 
-    const totalPages = Math.ceil(totalCount / limit);   
+    const totalCount = await Product.count({ where: whereClause });
+    const totalPages = Math.ceil(totalCount / limit);
 
-    const offset = (page - 1) * limit; 
+    const offset = (page - 1) * limit;
     const Products = await Product.findAll({
       where: whereClause,
       limit,
@@ -257,6 +257,27 @@ export const getProductById = async (req, res) => {
     }
   } catch (error) {
     res.json({ status: 500, message: error.message });
+  }
+};
+
+export const recommendedProduct = async (req, res) => {
+  const limit = 3;
+  try {
+    const searchHistory = await getSearchHistory(req.user.id);
+    let cart = await getCartService(req.user.id);
+    cart = cart.flatMap((item) => item.items.map((itemId) => itemId.id));
+    let products = await getAllProductsService();
+    products = products.map((item) => item.id);
+    const randomProduct = getRandomElements(products, limit);
+    let recomended;
+    if (cart && searchHistory) {
+      recomended = [randomProduct, searchHistory.products, search];
+      return res.status(200).json(recomended.flat());
+    }
+    recomended = [randomProduct];
+    return res.status(200).json(recomended.flat());
+  } catch (error) {
+    return res.status(500).json(error.message);
   }
 };
 export default CreateProduct;

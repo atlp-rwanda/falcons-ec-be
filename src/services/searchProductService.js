@@ -1,4 +1,5 @@
 import db from '../database/models';
+import { searchHistory } from './product.service';
 
 const { Product, User, Category } = db;
 const searchInProduct = async (Query) => {

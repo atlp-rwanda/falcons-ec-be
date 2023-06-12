@@ -9,13 +9,16 @@ import CreateProduct, {
   deleteProduct,
   getAllProducts,
   getProductById,
+  recommendedProduct,
   updateProduct,
   updateProductAvailability
 } from '../controllers/productController';
 import validator, { validateSearch } from '../validations/validation';
 import productSchema, { searchSchema } from '../validations/Product';
 import searchProduct from '../controllers/productSearchController';
-import { AddReview, deleteReview, getReviews, updateReview } from '../controllers/reviewController';
+import {
+  AddReview, deleteReview, getReviews, updateReview
+} from '../controllers/reviewController';
 import reviewSchema from '../validations/review';
 
 const storage = multer.diskStorage({});
@@ -82,6 +85,7 @@ productRoute.put(
 );
 productRoute.get('/products', getAllProducts);
 productRoute.get('/products/:id', getProductById);
+productRoute.get('/product/recommend', isLoggedIn, verifyRole('buyer'), recommendedProduct);
 
 productRoute.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
@@ -94,4 +98,5 @@ productRoute.use((err, req, res, next) => {
     next();
   }
 });
+
 export default productRoute;
