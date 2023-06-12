@@ -46,7 +46,7 @@ const CreateProduct = async (req, res) => {
           public_id: `${product.productName}image${Date.now()}`
         }));
       const results = await Promise.all(promises);
-      product.images = results.map((result) => result.url).filter((url) => url);
+      product.images = results.map((result) => result.secure_url).filter((url) => url);
       await product.save();
     }
 
@@ -113,7 +113,7 @@ export const updateProduct = async (req, res) => {
       );
 
       const results = await Promise.all(promises);
-      updateData.images = results.map((result) => result.url).filter((url) => url);
+      updateData.images = results.map((result) => result.secure_url).filter((url) => url);
     } else {
       updateData.images = product.images;
     }
