@@ -1,6 +1,6 @@
-import socketio from 'socket.io';
-import db from '../database/models/index';
-import tokenDecode from '../helpers/token_decode';
+import socketio from "socket.io";
+import db from "../database/models/index";
+import tokenDecode from "../helpers/token_decode";
 
 const { Message, User } = db;
 
@@ -34,33 +34,33 @@ const userExists = async (socket, next) => {
 let io;
 
 const ioConnect = (http) => {
-  io = socketio(http, { cors: { origin: '*' } });
+  io = socketio(http, { cors: { origin: "*" } });
   io.use((socket, next) => {
-    if (socket.handshake.headers.token !== 'null') {
+    if (socket.handshake.headers.token !== "null") {
       userExists(socket, next);
     } else {
-      console.log('No validToken Found');
+      console.log("No validToken Found");
     }
   });
   const users = {};
 
-  io.on('connection', (socket) => {
+  io.on("connection", (socket) => {
     const senderId = socket.id;
     const { id, name } = userObj.get(senderId) || {};
 
     socket.join(`user-${id}`);
 
-    socket.emit('username', name);
+    socket.emit("username", name);
 
-    socket.on('new-user', (name) => {
+    socket.on("new-user", (name) => {
       name = userObj.get(socket.id).name;
-      socket.broadcast.emit('user-connected', name);
+      socket.broadcast.emit("user-connected", name);
     });
     Message.findAll({
       include: [
         {
           model: User,
-          attributes: ['avatar', 'firstname', 'role'],
+          attributes: ["avatar", "firstname", "role"],
         },
       ],
     })
@@ -71,39 +71,39 @@ const ioConnect = (http) => {
             createdAt: message.createdAt,
             name: message.User.dataValues.firstname,
           }));
-          socket.emit('all-messages', messages);
+          socket.emit("all-messages", messages);
         }
       })
       .catch((error) => {
         console.error(error);
       });
 
-    socket.on('send-chat-message', (message) => {
+    socket.on("send-chat-message", (message) => {
       Message.create({
         sender_id: id,
         message: message.message,
       }).catch((error) => {
         console.error(error);
       });
-      socket.broadcast.emit('chat-message', {
+      socket.broadcast.emit("chat-message", {
         message: message.message,
         name: message.username,
         date: message.date,
       });
     });
 
-    socket.on('disconnect', () => {
-      socket.broadcast.emit('user-disconnected', userObj.get(socket.id).name);
+    socket.on("disconnect", () => {
+      socket.broadcast.emit("user-disconnected", userObj.get(socket.id).name);
       delete users[socket.id];
     });
   });
 };
 
 const ioConnectNotifications = (http) => {
-  io = socketio(http, { cors: { origin: '*' } });
-  io.on('connection', (socket) => {
-    socket.on('join', (data) => {
-      socket.join(data.id);
+  io = socketio(http, { cors: { origin: "*" } });
+  io.on("connection", (socket) => {
+    socket.on("join", (data) => {
+      socket.join(`user-${data.id}`);
     });
   });
 };
