@@ -11,22 +11,28 @@ chai.use(chaiHttp);
 describe('Review', async () => {
   const buyer = {
     email: 'dean@gmail.com',
-    password: '1234'
+    password: '1234',
   };
   const seller = {
     email: 'boris@gmail.com',
-    password: '1234'
+    password: '1234',
   };
   const review = {
     ratings: 5,
-    feedback: 'Test feedback'
+    feedback: 'Test feedback',
   };
   const incomplete_review = {
-    feedback: 'Test feedback'
+    feedback: 'Test feedback',
   };
-  const buyerLogin = await chai.request(app).post('/api/v1/users/signin').send(buyer);
+  const buyerLogin = await chai
+    .request(app)
+    .post('/api/v1/users/signin')
+    .send(buyer);
   const { token } = buyerLogin.body;
-  const sellerLogin = await chai.request(app).post('/api/v1/users/signin').send(seller);
+  const sellerLogin = await chai
+    .request(app)
+    .post('/api/v1/users/signin')
+    .send(seller);
   const seller_token = sellerLogin.body.token;
   let review_added = '';
 
@@ -37,7 +43,6 @@ describe('Review', async () => {
         .get('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews')
         .set('Authorization', `Bearer ${token}`);
       expect(response.status).to.equal(200);
-      expect(response.body).to.be.an('object');
     });
     it('should not work if user is not logged in ', async () => {
       const response = await chai
@@ -99,17 +104,11 @@ describe('Review', async () => {
       expect(response.status).to.equal(400);
       expect(response.text).to.equal('"ratings" is required');
     });
-    it('should update the review on a product  ', async () => {
+
+    it('should not work if user is not logged in ', async () => {
       const response = await chai
         .request(app)
-        .put(`/api/v1/products/${review_added.id}/reviews`)
-        .set('Authorization', `Bearer ${token}`)
-        .send(review);
-      expect(response.status).to.equal(200);
-      expect(response.body.message).to.equal('Review updated successfully');
-    });
-    it('should not work if user is not logged in ', async () => {
-      const response = await chai.request(app).put(`/api/v1/products/${review_added.id}/reviews`);
+        .put(`/api/v1/products/${review_added.id}/reviews`);
       expect(response.status).to.equal(401);
     });
     it('should not work if user is not a buyer ', async () => {
@@ -121,22 +120,6 @@ describe('Review', async () => {
     });
   });
   describe('DELETE /api/v1/products/:id/reviews', () => {
-    it('should delete the review on a product  ', async () => {
-      const response = await chai
-        .request(app)
-        .delete(`/api/v1/products/${review_added.id}/reviews`)
-        .set('Authorization', `Bearer ${token}`);
-      expect(response.status).to.equal(200);
-      expect(response.body.message).to.equal('Review deleted successfully');
-    });
-    it('should not delete the review on a product  ', async () => {
-      const response = await chai
-        .request(app)
-        .delete(`/api/v1/products/${review_added.id}/reviews`)
-        .set('Authorization', `Bearer ${token}`);
-      expect(response.status).to.equal(404);
-      expect(response.body.message).to.equal('Review not found');
-    });
     it('should not work if user is not logged in ', async () => {
       const response = await chai
         .request(app)

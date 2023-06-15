@@ -25,7 +25,7 @@ module.exports = {
             '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', // 1234
           isVerified: true,
           status: true,
-          
+
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -76,8 +76,12 @@ module.exports = {
           id: '81ccebd5-7907-4940-a6af-5a738e8f1d31',
           email: 'dean@gmail.com',
           role: 'buyer',
+          firstname: 'Dean',
+          lastname: 'MURENZI',
           password:
             '$2a$10$5OSUvABuuOMC5aVqUOrO5.oX07qTeQBz/LX2EtifOrsT3gw2UuJzS', // 1234
+          avatar: 'https://picsum.photos/id/26/4209/2769',
+
           status: true,
           isVerified: true,
           createdAt: new Date(),

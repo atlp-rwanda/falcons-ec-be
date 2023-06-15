@@ -15,7 +15,7 @@ module.exports = {
         {
             id: "e918e9eb-4c12-417f-8e12-4ec6a0e5ae89",
             buyer_id: "81ccebd5-7907-4940-a6af-5a738e8f1d31",
-            status: "pending",
+            status: "successfull",
             total: 7000,
             createdAt: "2023-04-07T17:06:40.859Z",
             updatedAt: "2023-04-07T17:06:40.859Z"
