@@ -86,8 +86,10 @@ describe('Product wish list for per seller collection', () => {
       .get('/api/v1/productWishes')
       .set('Authorization', `Bearer ${token}`);
     expect(response.status).to.equal(200);
+    response.body.should.have.property('status');
     response.body.should.have.property('success');
-    response.body.should.have.property('product');
+    response.body.should.have.property('message');
+    response.body.message.should.equal('Product wishes retrieved successfully');
     expect(response.body.success).to.be.true;
   });
 });
@@ -109,6 +111,10 @@ describe('Wished products per product_id', () => {
       .get('/api/v1/products/926ade6c-21f7-4866-ae7f-360d1574839d/productWishes')
       .set('Authorization', `Bearer ${token}`);
     expect(response.status).to.equal(200);
+    response.body.should.have.property('status');
+    response.body.should.have.property('success');
+    response.body.should.have.property('productWishlist');
+    response.body.success.should.equal(true);
   });
   it('it should return 500 error code', async () => {
     const response = await chai

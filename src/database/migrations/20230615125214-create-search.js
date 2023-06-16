@@ -5,29 +5,29 @@ module.exports = {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.UUID,
+        type: Sequelize.UUID
       },
       buyer_id: {
         type: Sequelize.UUID,
         references: {
           model: 'Users',
-          key: 'id',
+          key: 'id'
         },
       },
       products: {
-        type: Sequelize.ARRAY(Sequelize.UUID),
+        type: Sequelize.ARRAY(Sequelize.UUID)
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE,
+        type: Sequelize.DATE
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE,
-      },
+        type: Sequelize.DATE
+      }
     });
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Searches');
-  },
+  }
 };

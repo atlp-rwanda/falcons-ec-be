@@ -15,8 +15,11 @@ import CreateProduct, {
 import validator, { validateSearch } from '../validations/validation';
 import productSchema, { searchSchema } from '../validations/Product';
 import searchProduct from '../controllers/productSearchController';
-import { AddReview, deleteReview, getReviews, updateReview } from '../controllers/reviewController';
+import {
+  AddReview, deleteReview, getReviews, updateReview
+} from '../controllers/reviewController';
 import reviewSchema from '../validations/review';
+import recommendedProduct from '../controllers/recommend';
 
 const storage = multer.diskStorage({});
 const fileFilter = (req, file, cb) => {
@@ -94,4 +97,6 @@ productRoute.use((err, req, res, next) => {
     next();
   }
 });
+
+productRoute.get('/product/recommend', isLoggedIn, verifyRole('buyer'), recommendedProduct);
 export default productRoute;

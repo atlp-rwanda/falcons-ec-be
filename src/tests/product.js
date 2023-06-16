@@ -223,4 +223,13 @@ describe('update product availability', () => {
     product.body.should.have.property('message');
     product.body.message.should.equal('Product availability updated');
   });
+  it('should return a single product', async () => {
+    const product = await chai.request(app)
+      .get('/api/v1/products/926ade6c-21f7-4866-ae7f-360d1574839e')
+      .set('Authorization', `Bearer ${token}`);
+    expect(product.status).to.equal(200);
+    product.body.should.have.property('Products');
+    product.body.should.have.property('message');
+    product.body.message.should.equal('Product Retrieved Successfully');
+  });
 });

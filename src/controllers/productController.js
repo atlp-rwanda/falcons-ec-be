@@ -259,4 +259,5 @@ export const getProductById = async (req, res) => {
     res.json({ status: 500, message: error.message });
   }
 };
+
 export default CreateProduct;

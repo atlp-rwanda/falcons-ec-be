@@ -1,15 +1,21 @@
+/* eslint-disable camelcase */
 import { Op } from 'sequelize';
 import findOneUserService from '../services/authService';
 import {
   searchInProduct,
   searchInCategory,
 } from '../services/searchProductService';
+import { searchHistory } from '../services/product.service';
 
 const searchProduct = async (req, res) => {
   try {
     const user = await findOneUserService(req.user.id);
     const userRole = user.role;
-    const { name, description, category, minPrice, maxPrice } = req.query;
+    const buyer_id = user.id;
+
+    const {
+      name, description, category, minPrice, maxPrice
+    } = req.query;
 
     // Remove the trailing spaces from the filters
 
@@ -66,27 +72,33 @@ const searchProduct = async (req, res) => {
       }
       if (name && description) {
         const product = await searchInProduct(ByNameAndDescription);
+        await searchHistory(buyer_id, product);
         return res.status(200).json(product);
       }
       if (name && minPrice && maxPrice) {
         const product = await searchInProduct(ByNameAndPrice);
+        await searchHistory(buyer_id, product);
         return res.status(200).json(product);
       }
       if (name) {
         const product = await searchInProduct(ByNameQuery);
+        await searchHistory(buyer_id, product);
         return res.status(200).json(product);
       }
       if (description) {
         const product = await searchInProduct(ByDescriptionQuery);
+        await searchHistory(buyer_id, product);
         return res.status(200).json(product);
       }
       if (minPrice && maxPrice) {
         const product = await searchInProduct(ByPriceQuery);
+        await searchHistory(buyer_id, product);
         return res.status(200).json(product);
       }
       if (category) {
         const product = await searchInCategory(ByCategoryQuery);
         const Products = product.map((p) => p.Products).flat();
+        await searchHistory(buyer_id, product);
         return res.status(200).json(Products);
       }
     }
