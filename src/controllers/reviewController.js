@@ -12,50 +12,52 @@ const { Order } = db;
 export const AddReview = async (req, res) => {
   const token = req.headers.authorization.split(' ')[1];
   const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
-
+  const reviewer = await User.findOne({
+    where: { id: decodedData.payload.id },
+  });
+  console.log(reviewer.firstname);
   const review = {
     product_id: req.params.id,
     buyer_id: decodedData.payload.id,
     ratings: req.body.ratings,
-    feedback: req.body.feedback
+    feedback: req.body.feedback,
   };
 
-  const existing_review = await Review.findOne({
-    where: {
-      product_id: req.params.id,
-      buyer_id: decodedData.payload.id
-    }
-  });
-
   try {
-    if (existing_review) {
-      res.json({ message: 'You have already reviewed the product' });
-    }
-    if (!existing_review) {
-      const product = await OrderItem.findOne({
+    const product = await OrderItem.findOne({
+      where: {
+        product_id: req.params.id,
+        status: 'approved',
+      },
+    });
+    if (product) {
+      const successfulOrder = await Order.findAll({
         where: {
-          product_id: req.params.id,
-          status: 'approved'
-        }
+          id: product.order_id,
+          status: 'successfull',
+        },
       });
-      if (product) {
-        const successfulOrder = await Order.findAll({
-          where: {
-            id: product.order_id,
-            status: 'successfull'
-          }
+      if (successfulOrder) {
+        const review_added = await Review.create(review);
+        res.json({
+          message: 'Successfully Added Review',
+          review: {
+            review_added,
+            buyer_firstname: reviewer.firstname,
+            buyer_lastname: reviewer.lastname,
+            avatar: reviewer.avatar,
+          },
         });
-        if (successfulOrder) {
-          const review_added = await Review.create(review);
-          res.json({ message: 'Successfully Added Review', review: review_added });
-        } else {
-          res.status(406).json({ message: 'You can add a review only when your order succeeded' });
-        }
       } else {
-        res
-          .status(406)
-          .json({ message: 'You can add a review only when the item you ordered was approved' });
+        res.status(406).json({
+          message: 'You can add a review only when your order succeeded',
+        });
       }
+    } else {
+      res.status(406).json({
+        message:
+          'You can add a review only when the item you ordered was approved',
+      });
     }
   } catch (error) {
     res.json({ message: error.message });
@@ -68,14 +70,30 @@ export const getReviews = async (req, res) => {
     const { id } = req.params;
     const reviews = await Review.findAll({
       where: {
-        product_id: id
-      }
+        product_id: id,
+      },
     });
-    res.json({ reviews });
+    const reviewerIds = reviews.map((review) => review.buyer_id);
+    const reviewers = await User.findAll({
+      where: { id: reviewerIds },
+    });
+
+    const reviewData = reviews.map((review) => {
+      const reviewer = reviewers.find((user) => user.id === review.buyer_id);
+      return {
+        review,
+        avatar: reviewer.avatar,
+        firstname: reviewer.firstname,
+        lastname: reviewer.lastname,
+      };
+    });
+
+    res.json(reviewData);
   } catch (error) {
     res.json({ message: error.message });
   }
 };
+
 export const deleteReview = async (req, res) => {
   const token = req.headers.authorization.split(' ')[1];
   const decodedData = jwt.verify(token, `${process.env.JWT_SECRET}`);
@@ -84,8 +102,8 @@ export const deleteReview = async (req, res) => {
     const review = await Review.findOne({
       where: {
         id: req.params.id,
-        buyer_id: decodedData.payload.id
-      }
+        buyer_id: decodedData.payload.id,
+      },
     });
 
     if (!review) {
@@ -106,15 +124,15 @@ export const updateReview = async (req, res) => {
 
   const review = {
     ratings: req.body.ratings,
-    feedback: req.body.feedback
+    feedback: req.body.feedback,
   };
 
   try {
     const existingReview = await Review.findOne({
       where: {
         id: req.params.id,
-        buyer_id: decodedData.payload.id
-      }
+        buyer_id: decodedData.payload.id,
+      },
     });
 
     if (!existingReview) {
