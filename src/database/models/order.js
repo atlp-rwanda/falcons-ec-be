@@ -1,9 +1,9 @@
-const { Model } = require('sequelize');
+const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class Order extends Model {
     static associate(models) {
-      Order.belongsTo(models.User, { foreignKey: 'buyer_id' });
+      Order.belongsTo(models.User, { foreignKey: "buyer_id" });
     }
   }
   Order.init(
@@ -11,24 +11,25 @@ module.exports = (sequelize, DataTypes) => {
       id: {
         type: DataTypes.UUID,
         primaryKey: true,
-        defaultValue: DataTypes.UUIDV4
+        defaultValue: DataTypes.UUIDV4,
       },
       buyer_id: {
         type: DataTypes.UUID,
         references: {
-          model: 'User',
-          key: 'id'
-        }
+          model: "User",
+          key: "id",
+        },
       },
+      products: DataTypes.ARRAY(DataTypes.JSONB),
       status: {
         type: DataTypes.ENUM,
-        values: ['successfull', 'pending', 'canceled', 'processing']
+        values: ["successfull", "pending", "canceled", "processing"],
       },
-      total: DataTypes.FLOAT
+      total: DataTypes.FLOAT,
     },
     {
       sequelize,
-      modelName: 'Order'
+      modelName: "Order",
     }
   );
   return Order;

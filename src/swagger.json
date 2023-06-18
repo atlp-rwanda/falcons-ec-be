@@ -2365,7 +2365,7 @@
         }
       }
     },
-    "/api/v1/orders/": {
+    "/api/v1/orders": {
       "get": {
         "security": [
           {
