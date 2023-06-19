@@ -115,13 +115,4 @@ const ioConnect = (http) => {
   });
 };
 
-const ioConnectNotifications = (http) => {
-  io = socketio(http, { cors: { origin: "*" } });
-  io.on("connection", (socket) => {
-    socket.on("join", (data) => {
-      socket.join(data.id);
-    });
-  });
-};
-
-export { ioConnect, ioConnectNotifications, userExists, io };
+export { ioConnect, userExists, io };
