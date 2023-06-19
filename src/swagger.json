@@ -363,6 +363,93 @@
         }
       }
     },
+    "/api/v1/product/recommend": {
+      "get": {
+        "security": [
+          {
+            "jwt": [],
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["Products"],
+        "summary": "Get recommended products",
+        "description": "This is an api that gets recommended products",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "default": "Login Successful"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "definitions": {
+              "error": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "default": "error message"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "error": {
+                    "default": "Invalid password"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
     "/api/v1/orderItems": {
       "get": {
         "security": [

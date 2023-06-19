@@ -84,13 +84,21 @@ export const getAllProductWishes = async (req, res) => {
       productWishlist = await ProductWishlist.findAll({
         where: { user_id: verifyUsers.payload.id }
       });
-      const object = {};
-      for (let i = 0; i < productWishlist.length; i++) {
-        Object.assign(object, productWishlist[i]);
+
+      if (productWishlist.length === 0) {
+        return res.status(404).json({
+          status: 404,
+          success: false,
+          message: 'Your Wishlist Is Empty'
+        });
       }
-      console.log(object.dataValues);
-      const { product_id } = object.dataValues;
-      product = await Product.findByPk(product_id);
+
+      const productIds = productWishlist.map((item) => item.product_id);
+      product = await Product.findAll({
+        where: { id: productIds }
+      });
+
+      console.log(product);
     } else if (verifyUsers.payload.role === 'seller') {
       const seller_id = verifyUsers.payload.id;
       productWishlist = await ProductWishlist.findAll({
@@ -119,7 +127,7 @@ export const getAllProductWishes = async (req, res) => {
       status: 200,
       success: true,
       message: 'Product wishes retrieved successfully',
-      product: [product]
+      product
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

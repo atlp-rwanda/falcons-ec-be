@@ -1361,6 +1361,7 @@ describe('AddToCart function', async () => {
         .set('Authorization', `Bearer ${token}`)
         .send({ product_id: '4b35a4b0-53e8-48a4-97b0-9d3685d3197c' });
       // assert that the response has a status code of 200
+      console.log(response);
       expect(response.status).to.equal(401);
       expect(response.body.message).to.equal('unauthorised');
     });
