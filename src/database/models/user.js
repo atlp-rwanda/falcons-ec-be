@@ -45,7 +45,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.JSON,
       },
       avatar: DataTypes.STRING,
-      role: DataTypes.STRING,
+      role: {
+        type: DataTypes.STRING,
+        defaultValue: 'buyer',
+      },
       isVerified: {
         type: DataTypes.BOOLEAN,
         defaultValue: 'false',
