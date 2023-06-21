@@ -1,5 +1,6 @@
 const validator = (Schema) => (req, res, next) => {
   const { error } = Schema.validate(req.body);
+
   if (error) {
     return res.status(400).send(error.message);
   }
@@ -18,7 +19,9 @@ export const validation = (Schema) => (res, req, next) => {
     abortEarly: false,
   });
   if (err) {
-    return res.status(400).json({ error: err.details[0].message.replace(/[^a-zA-Z0-9]/g, '') });
+    return res
+      .status(400)
+      .json({ error: err.details[0].message.replace(/[^a-zA-Z0-9]/g, '') });
   }
   next();
 };

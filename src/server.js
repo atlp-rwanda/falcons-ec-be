@@ -11,8 +11,11 @@ import productRoute from './routes/productRoutes';
 import categoryRoute from './routes/categoryRoutes';
 import cartRoute from './routes/cartRoutes';
 import orderRoutes from './routes/orderRoutes';
+import validator from './validations/validation';
 import { webhookProcessor } from './controllers/checkoutController';
 import productWishRoute from './routes/productWishRoutes';
+import { getTransactionStatus, requestToPay } from './controllers/momoPayment';
+import momoSchema from './validations/momo';
 
 dotenv.config();
 export const app = express();
@@ -29,8 +32,8 @@ app.use(
   session({
     secret: process.env.EXPRESS_SESSION,
     resave: false,
-    saveUninitialized: false
-  })
+    saveUninitialized: false,
+  }),
 );
 app.use('/api/v1', productRoute);
 app.use('/api/v1', productWishRoute);
@@ -42,5 +45,6 @@ app.use('/', passportRouter);
 app.use(router);
 
 app.post('/webhook', webhookProcessor);
+app.post('/momo', validator(momoSchema), requestToPay, getTransactionStatus);
 
 export default app;
