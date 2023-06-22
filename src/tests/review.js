@@ -44,19 +44,8 @@ describe('Review', async () => {
         .set('Authorization', `Bearer ${token}`);
       expect(response.status).to.equal(200);
     });
-    it('should not work if user is not logged in ', async () => {
-      const response = await chai
-        .request(app)
-        .get('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews');
-      expect(response.status).to.equal(401);
-    });
-    it('should not work if user is not a buyer ', async () => {
-      const response = await chai
-        .request(app)
-        .get('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews')
-        .set('Authorization', `Bearer ${seller_token}`);
-      expect(response.status).to.equal(401);
-    });
+    
+    
   });
   describe('POST /api/v1/products/:id/reviews', () => {
     it('should not  Add the review on a product due to failure of validation ', async () => {

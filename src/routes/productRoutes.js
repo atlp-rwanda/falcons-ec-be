@@ -10,13 +10,16 @@ import CreateProduct, {
   getAllProducts,
   getProductById,
   updateProduct,
-  updateProductAvailability
+  updateProductAvailability,
 } from '../controllers/productController';
 import validator, { validateSearch } from '../validations/validation';
 import productSchema, { searchSchema } from '../validations/Product';
 import searchProduct from '../controllers/productSearchController';
 import {
-  AddReview, deleteReview, getReviews, updateReview
+  AddReview,
+  deleteReview,
+  getReviews,
+  updateReview,
 } from '../controllers/reviewController';
 import reviewSchema from '../validations/review';
 import recommendedProduct from '../controllers/recommend';
@@ -47,14 +50,14 @@ productRoute.post(
   },
   validator(productSchema),
 
-  CreateProduct
+  CreateProduct,
 );
 
 productRoute.patch(
   '/products/:id/availability',
   isLoggedIn,
   verifyRole('seller'),
-  updateProductAvailability
+  updateProductAvailability,
 );
 
 productRoute.patch(
@@ -62,26 +65,41 @@ productRoute.patch(
   isLoggedIn,
   verifyRole('seller'),
   upload.array('images', 8),
-  updateProduct
+  updateProduct,
 );
-productRoute.delete('/products/:id/delete', isLoggedIn, verifyRole('seller'), deleteProduct);
-productRoute.get('/products/search', isLoggedIn, validateSearch(searchSchema), searchProduct);
+productRoute.delete(
+  '/products/:id/delete',
+  isLoggedIn,
+  verifyRole('seller'),
+  deleteProduct,
+);
+productRoute.get(
+  '/products/search',
+  isLoggedIn,
+  validateSearch(searchSchema),
+  searchProduct,
+);
 
 productRoute.post(
   '/products/:id/reviews',
   isLoggedIn,
   verifyRole('buyer'),
   validator(reviewSchema),
-  AddReview
+  AddReview,
 );
-productRoute.get('/products/:id/reviews', isLoggedIn, verifyRole('buyer'), getReviews);
-productRoute.delete('/products/:id/reviews', isLoggedIn, verifyRole('buyer'), deleteReview);
+productRoute.get('/products/:id/reviews', getReviews);
+productRoute.delete(
+  '/products/:id/reviews',
+  isLoggedIn,
+  verifyRole('buyer'),
+  deleteReview,
+);
 productRoute.put(
   '/products/:id/reviews',
   isLoggedIn,
   verifyRole('buyer'),
   validator(reviewSchema),
-  updateReview
+  updateReview,
 );
 productRoute.get('/products', getAllProducts);
 productRoute.get('/products/:id', getProductById);
@@ -98,5 +116,10 @@ productRoute.use((err, req, res, next) => {
   }
 });
 
-productRoute.get('/product/recommend', isLoggedIn, verifyRole('buyer'), recommendedProduct);
+productRoute.get(
+  '/product/recommend',
+  isLoggedIn,
+  verifyRole('buyer'),
+  recommendedProduct,
+);
 export default productRoute;
