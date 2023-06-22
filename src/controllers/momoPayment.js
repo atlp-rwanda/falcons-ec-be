@@ -3,8 +3,10 @@
 import * as dotenv from 'dotenv';
 import axios from 'axios';
 import base64 from 'base-64';
+import db from '../database/models/index';
 
 dotenv.config();
+const { Order, Cart } = db;
 
 export const getToken = async () => {
   try {
@@ -27,28 +29,37 @@ export const getToken = async () => {
     const token = response.data.access_token;
     return token;
   } catch (error) {
-    console.error('Error retrieving token:', error);
-    throw error;
+    console.error('Error:', error?.message);
   }
 };
 export const requestToPay = async (req, res, next) => {
   try {
+    const existingCart = await Cart.findOne({
+      where: { buyer_id: req.user.id },
+    });
+    if (!existingCart) {
+      return res.status(400).json({ status, message: 'No cart found' });
+    }
+    const buyersCart = existingCart.dataValues;
+    const cartId = buyersCart.id;
+    const total = buyersCart.cartTotal;
+    const buyerId = buyersCart.buyer_id;
     const url = `${process.env.MOMO_REQUEST_PAYMENT_URL}`;
     const target = `${process.env.TARGET_ENVIRONMENT}`;
     const subscriptionKey = process.env.SUBSCRIPTION_KEY;
     const token = await getToken();
 
     const headers = {
-      'X-Reference-Id': 'f8605b01-204b-4678-9094-41bd95ae6a89',
+      'X-Reference-Id': `${cartId}`,
       'X-Target-Environment': target,
       'Ocp-Apim-Subscription-Key': subscriptionKey,
       Authorization: `Bearer ${token}`,
     };
 
     const body = {
-      amount: '10',
+      amount: `${total}`,
       currency: 'EUR',
-      externalId: '8e2ef75d-4509-4320-8153-9c53d8355ea1',
+      externalId: `${buyerId}`,
       payer: {
         partyIdType: 'MSISDN',
         partyId: req.body.phone,
@@ -64,13 +75,20 @@ export const requestToPay = async (req, res, next) => {
     };
     next();
   } catch (error) {
-    console.error('Error:', error?.message);
+    res.status(500).json({ error: error.message });
   }
 };
-export const getTransactionStatus = async (req) => {
+export const getTransactionStatus = async (req, res) => {
   const { momoInfo } = req;
-  console.log(momoInfo);
+
   try {
+    const existingCart = await Cart.findOne({
+      where: { buyer_id: req.user.id },
+    });
+    const buyersCart = existingCart.dataValues;
+    const total = buyersCart.cartTotal;
+    const buyerId = buyersCart.buyer_id;
+    const items = buyersCart.items;
     const url = `${process.env.MOMO_REQUEST_PAYMENT_URL}/${momoInfo.XReferenceId}`;
     const target = process.env.TARGET_ENVIRONMENT;
     const subscriptionKey = process.env.SUBSCRIPTION_KEY;
@@ -84,9 +102,25 @@ export const getTransactionStatus = async (req) => {
 
     const response = await axios.get(url, { headers });
     const { status } = response.data;
-    console.log(status);
+    if (status === 'SUCCESSFUL') {
+      const order = await Order.create({
+        buyer_id: buyerId,
+        status: 'pending',
+        products: items,
+        total: total,
+      });
+
+      const cart = await Cart.findOne({
+        where: { buyer_id: buyerId },
+      });
+      if (cart) await Cart.destroy({ where: { buyer_id: buyerId } });
+    }
+
+    res
+      .status(200)
+      .json({ status, message: 'Payment successful', data: response.data });
     return status;
   } catch (error) {
-    console.error('Error:', error?.message);
+    res.status(500).json({ error: error.message });
   }
 };

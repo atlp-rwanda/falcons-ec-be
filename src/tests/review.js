@@ -44,8 +44,6 @@ describe('Review', async () => {
         .set('Authorization', `Bearer ${token}`);
       expect(response.status).to.equal(200);
     });
-    
-    
   });
   describe('POST /api/v1/products/:id/reviews', () => {
     it('should not  Add the review on a product due to failure of validation ', async () => {
@@ -121,6 +119,13 @@ describe('Review', async () => {
         .delete('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews')
         .set('Authorization', `Bearer ${seller_token}`);
       expect(response.status).to.equal(401);
+    });
+    it('should fail to delete a review ', async () => {
+      const response = await chai
+        .request(app)
+        .delete('/api/v1/products/4b35a4b0-53e8-48a4-97b0-9d3685d3197c/reviews')
+        .set('Authorization', `Bearer ${token}`);
+      expect(response.status).to.equal(404);
     });
   });
 });

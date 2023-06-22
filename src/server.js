@@ -1,3 +1,4 @@
+/* eslint-disable import/no-named-as-default */
 import * as dotenv from 'dotenv';
 import express from 'express';
 import session from 'express-session';
@@ -12,6 +13,8 @@ import categoryRoute from './routes/categoryRoutes';
 import cartRoute from './routes/cartRoutes';
 import orderRoutes from './routes/orderRoutes';
 import validator from './validations/validation';
+import verifyRole from './middleware/verifyRole';
+import isLoggedIn, { checkPassword } from './middleware/authMiddleware';
 import { webhookProcessor } from './controllers/checkoutController';
 import productWishRoute from './routes/productWishRoutes';
 import { getTransactionStatus, requestToPay } from './controllers/momoPayment';
@@ -45,6 +48,14 @@ app.use('/', passportRouter);
 app.use(router);
 
 app.post('/webhook', webhookProcessor);
-app.post('/momo', validator(momoSchema), requestToPay, getTransactionStatus);
+app.post(
+  '/momo',
+  isLoggedIn,
+  checkPassword,
+  verifyRole('buyer'),
+  validator(momoSchema),
+  requestToPay,
+  getTransactionStatus,
+);
 
 export default app;
