@@ -60,6 +60,55 @@
         }
       }
     },
+    "/momo": {
+      "post": {
+        "tags": ["Momo Payment"],
+        "summary": "Pay using MTN MoMo",
+        "description": "This is an api that enables the buyer using MTN Momo",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "phone": {
+                  "type": "string",
+                  "default": "0780000000"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "definitions": {
+              "message": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "default": "OK"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/users/otp/verify/{token}": {
       "post": {
         "tags": ["Users"],
@@ -449,7 +498,6 @@
         }
       }
     },
-
     "/api/v1/orderItems": {
       "get": {
         "security": [
@@ -664,7 +712,6 @@
         }
       }
     },
-
     "/api/v1/products/{id}": {
       "get": {
         "tags": ["Products"],
